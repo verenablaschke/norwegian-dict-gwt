@@ -1,0 +1,12 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+	.cell {
+		margin-left: 0.3em;
+		margin-right: auto;
+		font-size: 1rem;
+	}
+	</ui:style>
+	<g:HTML styleName="{style.cell}" ui:field="div" />
+</ui:UiBinder> 
