@@ -144,5 +144,9 @@ public class Entry {
 		}
 		return true;
 	}
+	
+	public String toString(){
+		return lemma + ": " + translation;
+	}
 
 }

@@ -1,3 +1,5 @@
+src/main/webapp/META-INF/
+src/main/webapp/Ordbok/
 
 # Created by https://www.gitignore.io/api/gwt,git,java,maven,eclipse
 # Edit at https://www.gitignore.io/?templates=gwt,git,java,maven,eclipse

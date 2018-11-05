@@ -12,13 +12,13 @@
 
 	<!-- Servlets -->
 	<servlet>
-		<servlet-name>greetServlet</servlet-name>
-		<servlet-class>de.ws1819.colewe.server.GreetingServiceImpl</servlet-class>
+		<servlet-name>de.ws1819.colewe.Ordbok DictionaryService</servlet-name>
+		<servlet-class>de.ws1819.colewe.server.DictionaryServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>greetServlet</servlet-name>
-		<url-pattern>/Ordbok/greet</url-pattern>
+		<servlet-name>de.ws1819.colewe.Ordbok DictionaryService</servlet-name>
+		<url-pattern>/Ordbok/DictionaryService</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->

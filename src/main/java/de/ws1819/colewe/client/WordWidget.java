@@ -6,6 +6,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasText;
@@ -16,6 +17,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class WordWidget extends Composite implements HasText {
 
 	private static WordWidgetUiBinder uiBinder = GWT.create(WordWidgetUiBinder.class);
+
+	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
 
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
@@ -33,7 +36,6 @@ public class WordWidget extends Composite implements HasText {
 		setText(text);
 	}
 
-
 	public void setText(String text) {
 		div.setHTML(SafeHtmlUtils.htmlEscape(text));
 	}
@@ -41,11 +43,24 @@ public class WordWidget extends Composite implements HasText {
 	public String getText() {
 		return div.getHTML();
 	}
-	
+
 	@UiHandler("div")
-	void onClick(ClickEvent e){
+	void onClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
-		RootPanel.get("infoContainer").add(new Label(getText()));
+
+		dictionaryService.query(getText(), new AsyncCallback<String>() {
+
+			@Override
+			public void onSuccess(String result) {
+				RootPanel.get("infoContainer").add(new Label(result));
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				RootPanel.get("infoContainer").add(new Label("RPC error: " + caught.getMessage()));
+			}
+		});
+
 	}
 
 }
