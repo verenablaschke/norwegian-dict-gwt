@@ -1,8 +1,12 @@
 package de.ws1819.colewe.client;
 
+import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+
+import de.ws1819.colewe.shared.Entry;
 
 /**
  * The client side stub for the RPC service.
@@ -10,7 +14,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("DictionaryService")
 public interface DictionaryService extends RemoteService {
 	
-	String query(String word);
+	ArrayList<Entry> query(String word);
 
 	// Allows for static access of the service.
 	public static class App {

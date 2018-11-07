@@ -1,6 +1,6 @@
 package de.ws1819.colewe.server;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -15,13 +15,9 @@ import de.ws1819.colewe.shared.Entry;
 public class DictionaryServiceImpl extends RemoteServiceServlet implements DictionaryService {
 
 	@SuppressWarnings("unchecked")
-	public String query(String word) throws IllegalArgumentException {
+	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
 		ListMultimap<String, Entry> tokenMap = (ListMultimap<String, Entry>) getServletContext()
 				.getAttribute("entries");
-		List<Entry> results = tokenMap.get(word);
-		if (results == null || results.isEmpty()) {
-			return "No results found :(";
-		}
-		return results.get(0).toString();
+		return new ArrayList<Entry>(tokenMap.get(word));
 	}
 }

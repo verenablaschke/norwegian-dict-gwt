@@ -1,5 +1,7 @@
 package de.ws1819.colewe.client;
 
+import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -13,6 +15,8 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+
+import de.ws1819.colewe.shared.Entry;
 
 public class WordWidget extends Composite implements HasText {
 
@@ -48,11 +52,16 @@ public class WordWidget extends Composite implements HasText {
 	void onClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
 
-		dictionaryService.query(getText(), new AsyncCallback<String>() {
+		dictionaryService.query(getText(), new AsyncCallback<ArrayList<Entry>>() {
 
 			@Override
-			public void onSuccess(String result) {
-				RootPanel.get("infoContainer").add(new Label(result));
+			public void onSuccess(ArrayList<Entry> results) {
+				if (results == null || results.isEmpty()) {
+					RootPanel.get("infoContainer").add(new Label("No results found."));
+				}
+				for (Entry entry : results) {
+					RootPanel.get("infoContainer").add(new Label(entry.toString()));
+				}
 			}
 
 			@Override

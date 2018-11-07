@@ -1,15 +1,22 @@
 package de.ws1819.colewe.shared;
 
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
-public class Entry {
+public class Entry implements Serializable {
 
+	private static final long serialVersionUID = 1614919089029847522L;
 	private String lemma;
 	private String pos;
 	// TODO? add inflection info (map)
-	private Set<String> inflections;
+	private HashSet<String> inflections;
 	private String translation;
-	
+
+	public Entry() {
+		this(null, null, null, null);
+	}
+
 	public Entry(String lemma, String pos, String translation) {
 		this(lemma, pos, null, translation);
 	}
@@ -17,7 +24,7 @@ public class Entry {
 	public Entry(String lemma, String pos, Set<String> inflections, String translation) {
 		this.lemma = lemma;
 		this.pos = pos;
-		this.inflections = inflections;
+		this.inflections = (inflections == null ? null : new HashSet<String>(inflections));
 		this.translation = translation;
 	}
 
@@ -63,7 +70,7 @@ public class Entry {
 	 *            the inflections to set
 	 */
 	public void setInflections(Set<String> inflections) {
-		this.inflections = inflections;
+		this.inflections = (inflections == null ? null : new HashSet<String>(inflections));
 	}
 
 	/**
@@ -144,8 +151,8 @@ public class Entry {
 		}
 		return true;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return lemma + ": " + translation;
 	}
 
