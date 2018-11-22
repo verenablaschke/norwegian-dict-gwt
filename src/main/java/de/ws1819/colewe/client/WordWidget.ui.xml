@@ -4,7 +4,6 @@
 	<ui:style>
 	.cell {
 		margin-left: 0.3em;
-		margin-right: auto;
 		font-size: 1rem;
 	}
 	</ui:style>

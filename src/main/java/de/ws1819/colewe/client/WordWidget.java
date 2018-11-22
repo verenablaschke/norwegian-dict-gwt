@@ -9,6 +9,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -22,11 +23,11 @@ import de.ws1819.colewe.shared.Entry;
 public class WordWidget extends Composite implements HasText {
 
 	private static WordWidgetUiBinder uiBinder = GWT.create(WordWidgetUiBinder.class);
-
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
-	
 	private boolean ctrl = false;
-
+	private static final String HIGHLIGHT = "bg-info";
+	
+	
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
 
@@ -52,12 +53,28 @@ public class WordWidget extends Composite implements HasText {
 		return div.getHTML().trim().replaceAll("[\\.,;\"]$", "");
 	}
 
+	public void setInactive() {
+		div.removeStyleName(HIGHLIGHT);
+	}
+
+	private Timer timer = new Timer() {
+		public void run() {
+			div.addStyleName(HIGHLIGHT);
+		}
+	};
+	
+	// Handle CTRL-Click events. Has to be added before the click event handler.
+	@UiHandler("div")
+	void onMouseDown(MouseDownEvent e) {
+		ctrl = e.isControlKeyDown();
+	}
+
 	@UiHandler("div")
 	void onClick(ClickEvent e) {
-		// TODO mark current word as selected?
-
 		RootPanel.get("infoContainer").clear();
-		RootPanel.get("queryContainer").clear();
+		if (!ctrl){
+			RootPanel.get("queryContainer").clear();
+		}
 		
 		Label query = new Label();
 		try {
@@ -66,14 +83,13 @@ public class WordWidget extends Composite implements HasText {
 			// No query yet.
 			RootPanel.get("queryContainer").add(query);
 		}
-		
+
 		String fullQuery = getText();
-		if (ctrl){
-			fullQuery = query.getText() + " " + fullQuery;
-			fullQuery = fullQuery.trim();
+		if (ctrl) {
+			fullQuery = (query.getText() + " " + fullQuery).trim();
 		}
 		query.setText(fullQuery);
-		
+
 		dictionaryService.query(fullQuery, new AsyncCallback<ArrayList<Entry>>() {
 			@Override
 			public void onSuccess(ArrayList<Entry> results) {
@@ -84,6 +100,8 @@ public class WordWidget extends Composite implements HasText {
 					// TODO extra info (comments) via badge?
 					RootPanel.get("infoContainer").add(new Label(entry.toString()));
 				}
+				timer.schedule(10);
+
 			}
 
 			@Override
@@ -92,10 +110,5 @@ public class WordWidget extends Composite implements HasText {
 			}
 		});
 	}
-
-	// Handle CTRL-Click events.
-	@UiHandler("div")
-	void onMouseDown(MouseDownEvent e) {
-		ctrl = e.isControlKeyDown();
-	}
+	
 }
