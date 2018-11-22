@@ -26,8 +26,7 @@ public class WordWidget extends Composite implements HasText {
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
 	private boolean ctrl = false;
 	private static final String HIGHLIGHT = "bg-info";
-	
-	
+
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
 
@@ -62,7 +61,7 @@ public class WordWidget extends Composite implements HasText {
 			div.addStyleName(HIGHLIGHT);
 		}
 	};
-	
+
 	// Handle CTRL-Click events. Has to be added before the click event handler.
 	@UiHandler("div")
 	void onMouseDown(MouseDownEvent e) {
@@ -72,10 +71,10 @@ public class WordWidget extends Composite implements HasText {
 	@UiHandler("div")
 	void onClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
-		if (!ctrl){
+		if (!ctrl) {
 			RootPanel.get("queryContainer").clear();
 		}
-		
+
 		Label query = new Label();
 		try {
 			query = (Label) RootPanel.get("queryContainer").getWidget(0);
@@ -98,7 +97,15 @@ public class WordWidget extends Composite implements HasText {
 				}
 				for (Entry entry : results) {
 					// TODO extra info (comments) via badge?
-					RootPanel.get("infoContainer").add(new Label(entry.toString()));
+					// RootPanel.get("infoContainer").add(new
+					// Label(entry.toString()));
+					try {
+						RootPanel.get("infoContainer")
+								.add(new EntryWidget(entry.getLemma(), entry.getTranslation(), ":-)", "test"));
+					} catch (Exception exc) {
+						// TODO del
+						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));
+					}
 				}
 				timer.schedule(10);
 
@@ -110,5 +117,5 @@ public class WordWidget extends Composite implements HasText {
 			}
 		});
 	}
-	
+
 }

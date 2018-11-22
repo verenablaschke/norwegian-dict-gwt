@@ -1,0 +1,21 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+	.translation {
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+	
+	.nobreak {
+		display: inline;
+	}
+	</ui:style>
+	<g:HTMLPanel>
+		<g:Label styleName="{style.nobreak}" ui:field="headword" />
+		<g:HTML ui:field="grammarBadge" />
+		<g:HTML ui:field="usageBadge" />
+		<br />
+		<g:Label styleName="{style.translation}" ui:field="translation" />
+	</g:HTMLPanel>
+</ui:UiBinder> 
