@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
@@ -15,6 +17,8 @@ import de.ws1819.colewe.shared.Entry;
 public class DictionaryTools {
 
 	private static final Logger logger = Logger.getLogger(DictionaryTools.class.getSimpleName());
+	
+//	private static final Pattern pattern = Pattern.compile("(\\s\\+{.*\\}\\s?)?(\\s+<.*>\\s?)?(\\s\\[.*\\]\\s?)?$");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -40,6 +44,15 @@ public class DictionaryTools {
 				// or 'student [kvinnelig]'.
 				lemma = lemma.replaceAll(" \\[kvinnelig\\]", "");
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
+				
+//				Matcher matcher = pattern.matcher(lemma);
+				String comment = "";
+				// There should be 0 or 1 match(es) in total.
+//				while (matcher.find()){
+//					// The regex already includes the end-of-string.
+//					comment = lemma.substring(matcher.end());
+//					lemma = lemma.substring(0, matcher.end());
+//				}
 				String translation = fields[1].trim();
 
 				// If available, get POS tag.
@@ -58,7 +71,7 @@ public class DictionaryTools {
 				}
 
 				// Save the entry.
-				entries.put(lemma, new Entry(lemma, pos, translation));
+				entries.put(lemma, new Entry(lemma, comment, pos, translation));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

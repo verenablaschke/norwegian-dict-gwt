@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -23,6 +24,8 @@ public class WordWidget extends Composite implements HasText {
 	private static WordWidgetUiBinder uiBinder = GWT.create(WordWidgetUiBinder.class);
 
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
+	
+	private boolean ctrl = false;
 
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
@@ -45,21 +48,40 @@ public class WordWidget extends Composite implements HasText {
 	}
 
 	public String getText() {
-		return div.getHTML();
+		// TODO improve this!!
+		return div.getHTML().trim().replaceAll("[\\.,;\"]$", "");
 	}
 
 	@UiHandler("div")
 	void onClick(ClickEvent e) {
+		// TODO mark current word as selected?
+
 		RootPanel.get("infoContainer").clear();
-
-		dictionaryService.query(getText(), new AsyncCallback<ArrayList<Entry>>() {
-
+		RootPanel.get("queryContainer").clear();
+		
+		Label query = new Label();
+		try {
+			query = (Label) RootPanel.get("queryContainer").getWidget(0);
+		} catch (Exception exc) { // TODO more specific
+			// No query yet.
+			RootPanel.get("queryContainer").add(query);
+		}
+		
+		String fullQuery = getText();
+		if (ctrl){
+			fullQuery = query.getText() + " " + fullQuery;
+			fullQuery = fullQuery.trim();
+		}
+		query.setText(fullQuery);
+		
+		dictionaryService.query(fullQuery, new AsyncCallback<ArrayList<Entry>>() {
 			@Override
 			public void onSuccess(ArrayList<Entry> results) {
 				if (results == null || results.isEmpty()) {
 					RootPanel.get("infoContainer").add(new Label("No results found."));
 				}
 				for (Entry entry : results) {
+					// TODO extra info (comments) via badge?
 					RootPanel.get("infoContainer").add(new Label(entry.toString()));
 				}
 			}
@@ -69,7 +91,11 @@ public class WordWidget extends Composite implements HasText {
 				RootPanel.get("infoContainer").add(new Label("RPC error: " + caught.getMessage()));
 			}
 		});
-
 	}
 
+	// Handle CTRL-Click events.
+	@UiHandler("div")
+	void onMouseDown(MouseDownEvent e) {
+		ctrl = e.isControlKeyDown();
+	}
 }

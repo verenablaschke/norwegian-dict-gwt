@@ -36,6 +36,8 @@ public class OutputWidget extends Composite {
 			// TODO if there's a line with only a couple of words, can we make
 			// it look nicer?? margin-right:auto trade-off
 		}
+		// TODO can I move this into the xml file?
+		// TODO add icon?
 		button.addStyleName("btn btn-primary");
 	}
 

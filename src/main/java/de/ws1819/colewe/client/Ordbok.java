@@ -14,4 +14,6 @@ public class Ordbok implements EntryPoint {
   public void onModuleLoad() {
 		RootPanel.get("widgetContainer").add(new InputWidget());
   }
+  
+  // TODO info/about page
 }

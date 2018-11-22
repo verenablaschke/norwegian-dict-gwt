@@ -10,7 +10,7 @@
 		<g:HTMLPanel ui:field="table" />
 		<br />
 		<g:Button styleName="{style.space}" ui:field="button">Igjen</g:Button>
-		<br/>
-		<g:HTML ui:field="info"/>
+		<br />
+		<g:HTML ui:field="info" />
 	</g:HTMLPanel>
 </ui:UiBinder> 
