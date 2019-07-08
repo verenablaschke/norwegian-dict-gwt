@@ -8,7 +8,7 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<g:FocusPanel ui:field="table" >
-		<g:FlowPanel ui:field="flowPanel"/>
+		<g:FlowPanel ui:field="flowPanel" />
 		</g:FocusPanel>
 		<br />
 		<g:Button styleName="{style.space}" ui:field="button">Igjen</g:Button>
