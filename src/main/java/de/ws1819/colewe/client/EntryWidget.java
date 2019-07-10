@@ -25,13 +25,16 @@ public class EntryWidget extends Composite {
 	HTML usageBadge;
 
 	@UiField
+	HTML abbrBadge;
+
+	@UiField
 	Label translation;
 
 	public EntryWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public EntryWidget(String headword, String translation, String grammar, String usage) {
+	public EntryWidget(String headword, String translation, String grammar, String usage, String abbr) {
 		this();
 		setHeadword(headword);
 		setTranslation(translation);
@@ -39,10 +42,12 @@ public class EntryWidget extends Composite {
 		setGrammar(grammar);
 		usageBadge.setStyleName("badge badge-warning");
 		setUsage(usage);
+		abbrBadge.setStyleName("badge badge-secondary");
+		setAbbr(abbr);
 	}
 
 	public EntryWidget(String headword, String translation) {
-		this(headword, translation, null, null);
+		this(headword, translation, null, null, null);
 	}
 
 	public void setHeadword(String headword) {
@@ -53,21 +58,25 @@ public class EntryWidget extends Composite {
 		this.translation.setText(translation);
 	}
 
-	public void setGrammar(String grammar) {
-		if (grammar == null) {
-			grammarBadge.setVisible(false);
+	public void setGrammar(String text) {
+		setBadge(grammarBadge, text);
+	}
+
+	public void setUsage(String text) {
+		setBadge(usageBadge, text);
+	}
+
+	public void setAbbr(String text) {
+		setBadge(abbrBadge, text);
+	}
+
+	private void setBadge(HTML badge, String text) {
+		if (text == null || text.isEmpty()) {
+			badge.setVisible(false);
 		} else {
-			grammarBadge.setVisible(true);
-			grammarBadge.setText(grammar);
+			badge.setVisible(true);
+			badge.setText(text);
 		}
 	}
 
-	public void setUsage(String usage) {
-		if (usage == null) {
-			usageBadge.setVisible(false);
-		} else {
-			usageBadge.setVisible(true);
-			usageBadge.setText(usage);
-		}
-	}
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Stack;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -20,8 +21,9 @@ public class DictionaryTools {
 
 	private static final Logger logger = Logger.getLogger(DictionaryTools.class.getSimpleName());
 
-	// private static final Pattern pattern =
-	// Pattern.compile("(\\s\\+{.*\\}\\s?)?(\\s+<.*>\\s?)?(\\s\\[.*\\]\\s?)?$");
+	private static final Pattern patternCurly = Pattern.compile("\\s\\{.*?\\}");
+	private static final Pattern patternSquare = Pattern.compile("\\s\\[.*?\\]");
+	private static final Pattern patternTriangle = Pattern.compile("\\s\\<.*?\\>");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -48,14 +50,14 @@ public class DictionaryTools {
 				lemma = lemma.replaceAll(" \\[kvinnelig\\]", "");
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
 
-				// Matcher matcher = pattern.matcher(lemma);
-				String comment = "";
-				// There should be 0 or 1 match(es) in total.
-				// while (matcher.find()){
-				// // The regex already includes the end-of-string.
-				// comment = lemma.substring(matcher.end());
-				// lemma = lemma.substring(0, matcher.end());
-				// }
+				// Find and remove comments.
+				String[] grammar = match(patternCurly, lemma);
+				lemma = grammar[0];
+				String[] usage = match(patternSquare, lemma);
+				lemma = usage[0];
+				String[] abbr = match(patternTriangle, lemma);
+				lemma = abbr[0];
+
 				String translation = fields[1].trim();
 
 				// If available, get POS tag.
@@ -74,7 +76,7 @@ public class DictionaryTools {
 				}
 
 				// Save the entry.
-				entries.put(lemma, new Entry(lemma, comment, pos, translation));
+				entries.put(lemma, new Entry(lemma, pos, translation, grammar[1], usage[1], abbr[1]));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -84,6 +86,28 @@ public class DictionaryTools {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		return entries;
+	}
+
+	private static String[] match(Pattern pattern, String lemma) {
+		Matcher matcher = pattern.matcher(lemma);
+		String comment = "";
+		String match;
+		Stack<Integer> matches = new Stack<>();
+		while (matcher.find()) {
+			match = matcher.group().trim();
+			// Remove the brackets around the comment.
+			comment += match.substring(1, match.length() - 1) + ", ";
+			matches.push(matcher.end());
+			matches.push(matcher.start());
+		}
+		// Remove trailing ', '.
+		if (comment.length() > 2) {
+			comment = comment.substring(0, comment.length() - 2);
+		}
+		while (!matches.isEmpty()) {
+			lemma = lemma.substring(0, matches.pop()) + lemma.substring(matches.pop());
+		}
+		return new String[] { lemma.trim(), comment.trim() };
 	}
 
 	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
@@ -135,7 +159,8 @@ public class DictionaryTools {
 
 	public static ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> readSpraakbanken(
 			HashMap<Integer, String> lemmata, InputStream stream) {
-		ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> inflections = ArrayListMultimap.create();
+		ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> inflections = ArrayListMultimap
+				.create();
 
 		String line = null;
 		String[] fields = null;
@@ -186,7 +211,8 @@ public class DictionaryTools {
 
 		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		logger.info(inflections.get(new SimpleEntry<Integer, String>(50065, "ord")).toString()); // TODO delete
+		logger.info(inflections.get(new SimpleEntry<Integer, String>(50065, "ord")).toString()); // TODO
+																									// delete
 		return inflections;
 	}
 

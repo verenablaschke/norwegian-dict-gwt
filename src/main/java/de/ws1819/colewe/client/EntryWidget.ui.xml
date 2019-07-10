@@ -15,6 +15,7 @@
 		<g:Label styleName="{style.nobreak}" ui:field="headword" />
 		<g:HTML ui:field="grammarBadge" />
 		<g:HTML ui:field="usageBadge" />
+		<g:HTML ui:field="abbrBadge" />
 		<br />
 		<g:Label styleName="{style.translation}" ui:field="translation" />
 	</g:HTMLPanel>

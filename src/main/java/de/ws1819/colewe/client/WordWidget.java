@@ -1,6 +1,7 @@
 package de.ws1819.colewe.client;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -21,6 +22,8 @@ import com.google.gwt.user.client.ui.Widget;
 import de.ws1819.colewe.shared.Entry;
 
 public class WordWidget extends Composite implements HasText {
+
+	private static final Logger logger = Logger.getLogger(WordWidget.class.getSimpleName());
 
 	private static WordWidgetUiBinder uiBinder = GWT.create(WordWidgetUiBinder.class);
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
@@ -88,6 +91,7 @@ public class WordWidget extends Composite implements HasText {
 			fullQuery = (query.getText() + " " + fullQuery).trim();
 		}
 		query.setText(fullQuery);
+		logger.info("QUERY: " + fullQuery);
 
 		dictionaryService.query(fullQuery, new AsyncCallback<ArrayList<Entry>>() {
 			@Override
@@ -96,12 +100,13 @@ public class WordWidget extends Composite implements HasText {
 					RootPanel.get("infoContainer").add(new Label("No results found."));
 				}
 				for (Entry entry : results) {
+					logger.info("-- " + entry.toString());
 					// TODO extra info (comments) via badge?
 					// RootPanel.get("infoContainer").add(new
 					// Label(entry.toString()));
 					try {
-						RootPanel.get("infoContainer")
-								.add(new EntryWidget(entry.getLemma(), entry.getTranslation(), ":-)", "test"));
+						RootPanel.get("infoContainer").add(new EntryWidget(entry.getLemma(), entry.getTranslation(),
+								entry.getGrammar(), entry.getUsage(), entry.getAbbr()));
 					} catch (Exception exc) {
 						// TODO del
 						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));
@@ -113,6 +118,7 @@ public class WordWidget extends Composite implements HasText {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				// TODO user-appropriate display
 				RootPanel.get("infoContainer").add(new Label("RPC error: " + caught.getMessage()));
 			}
 		});
