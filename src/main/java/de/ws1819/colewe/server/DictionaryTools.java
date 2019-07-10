@@ -133,12 +133,14 @@ public class DictionaryTools {
 		return lemmata;
 	}
 
-	public static ListMultimap<Integer, SimpleEntry<String, String>> readSpraakbanken(InputStream stream) {
-		ListMultimap<Integer, SimpleEntry<String, String>> inflections = ArrayListMultimap.create();
+	public static ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> readSpraakbanken(
+			HashMap<Integer, String> lemmata, InputStream stream) {
+		ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> inflections = ArrayListMultimap.create();
 
 		String line = null;
 		String[] fields = null;
 		int id = -1;
+		String lemma = null;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
 			while ((line = br.readLine()) != null) {
 				/*
@@ -155,7 +157,7 @@ public class DictionaryTools {
 					continue;
 				}
 
-				// Lemma ID
+				// Get the lemma.
 				try {
 					id = Integer.parseInt(fields[1].trim());
 				} catch (NumberFormatException e) {
@@ -166,9 +168,15 @@ public class DictionaryTools {
 					System.err.println("Lemma ID is not an integer: " + line);
 					continue;
 				}
+				lemma = lemmata.get(id);
+				if (lemma == null) {
+					System.err.println("Lemma ID " + id + " does not have a string form. Line: " + line);
+					continue;
+				}
 
 				// Save lemma ID, inflection information and inflected form.
-				inflections.put(id, new SimpleEntry<>(fields[3].trim(), fields[2].trim()));
+				inflections.put(new SimpleEntry<Integer, String>(id, lemma),
+						new SimpleEntry<String, String>(fields[3].trim(), fields[2].trim()));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -178,7 +186,7 @@ public class DictionaryTools {
 
 		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		logger.info(inflections.get(50065).toString()); // TODO delete
+		logger.info(inflections.get(new SimpleEntry<Integer, String>(50065, "ord")).toString()); // TODO delete
 		return inflections;
 	}
 

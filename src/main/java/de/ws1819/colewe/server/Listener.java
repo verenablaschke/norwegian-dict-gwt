@@ -1,6 +1,7 @@
 package de.ws1819.colewe.server;
 
 import java.io.InputStream;
+import java.util.HashMap;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -45,9 +46,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		// TODO combine this with the other entries
 		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
-		DictionaryTools.readLemmaList(lemmaInputStream);
+		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
 		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
-		DictionaryTools.readSpraakbanken(inflInputStream);
+		DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
