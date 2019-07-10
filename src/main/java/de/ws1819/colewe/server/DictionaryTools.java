@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,8 +19,9 @@ import de.ws1819.colewe.shared.Entry;
 public class DictionaryTools {
 
 	private static final Logger logger = Logger.getLogger(DictionaryTools.class.getSimpleName());
-	
-//	private static final Pattern pattern = Pattern.compile("(\\s\\+{.*\\}\\s?)?(\\s+<.*>\\s?)?(\\s\\[.*\\]\\s?)?$");
+
+	// private static final Pattern pattern =
+	// Pattern.compile("(\\s\\+{.*\\}\\s?)?(\\s+<.*>\\s?)?(\\s\\[.*\\]\\s?)?$");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -44,15 +47,15 @@ public class DictionaryTools {
 				// or 'student [kvinnelig]'.
 				lemma = lemma.replaceAll(" \\[kvinnelig\\]", "");
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
-				
-//				Matcher matcher = pattern.matcher(lemma);
+
+				// Matcher matcher = pattern.matcher(lemma);
 				String comment = "";
 				// There should be 0 or 1 match(es) in total.
-//				while (matcher.find()){
-//					// The regex already includes the end-of-string.
-//					comment = lemma.substring(matcher.end());
-//					lemma = lemma.substring(0, matcher.end());
-//				}
+				// while (matcher.find()){
+				// // The regex already includes the end-of-string.
+				// comment = lemma.substring(matcher.end());
+				// lemma = lemma.substring(0, matcher.end());
+				// }
 				String translation = fields[1].trim();
 
 				// If available, get POS tag.
@@ -81,6 +84,102 @@ public class DictionaryTools {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		return entries;
+	}
+
+	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
+	// strings.
+	public static HashMap<Integer, String> readLemmaList(InputStream stream) {
+		HashMap<Integer, String> lemmata = new HashMap<Integer, String>();
+
+		String line = null;
+		String[] fields = null;
+		int id = -1;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+			while ((line = br.readLine()) != null) {
+				/*
+				 * TSV structure: LOEPENR LEMMA_ID GRUNNFORM 'BM_ORDBOK' (line
+				 * number, lemma id, lemma, bokmål dictionary)
+				 */
+				line = line.trim();
+				fields = line.split("\\t");
+				if (fields.length < 4) {
+					System.err.println("Line too short: " + line);
+					continue;
+				}
+
+				// Lemma ID
+				try {
+					id = Integer.parseInt(fields[1].trim());
+				} catch (NumberFormatException e) {
+					if (line.equals("LOEPENR	LEMMA_ID	GRUNNFORM	'BM_ORDBOK'")) {
+						// File header
+						continue;
+					}
+					System.err.println("Lemma ID is not an integer: " + line);
+					continue;
+				}
+
+				// Save the entry.
+				lemmata.put(id, fields[2].trim());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Read " + lemmata.size() + " lemmata from Språkbanken's lemma list.");
+		logger.info(lemmata.get(50065)); // TODO delete
+		return lemmata;
+	}
+
+	public static ListMultimap<Integer, SimpleEntry<String, String>> readSpraakbanken(InputStream stream) {
+		ListMultimap<Integer, SimpleEntry<String, String>> inflections = ArrayListMultimap.create();
+
+		String line = null;
+		String[] fields = null;
+		int id = -1;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+			while ((line = br.readLine()) != null) {
+				/*
+				 * TSV structure: LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
+				 * BOY_NUMMER FRADATO TILDATO NORMERING (line number, lemma id,
+				 * word, POS tag, inflection information, inflection number,
+				 * from date, to date, normalization) TODO check in
+				 * documentation
+				 */
+				line = line.trim();
+				fields = line.split("\\t");
+				if (fields.length < 9) {
+					System.err.println("Line too short: " + line);
+					continue;
+				}
+
+				// Lemma ID
+				try {
+					id = Integer.parseInt(fields[1].trim());
+				} catch (NumberFormatException e) {
+					if (line.startsWith("LOEPENR")) {
+						// File header
+						continue;
+					}
+					System.err.println("Lemma ID is not an integer: " + line);
+					continue;
+				}
+
+				// Save lemma ID, inflection information and inflected form.
+				inflections.put(id, new SimpleEntry<>(fields[3].trim(), fields[2].trim()));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
+				+ " lemmata from Språkbanken's fullformsliste.");
+		logger.info(inflections.get(50065).toString()); // TODO delete
+		return inflections;
 	}
 
 }

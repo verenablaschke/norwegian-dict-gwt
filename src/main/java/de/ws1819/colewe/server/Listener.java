@@ -19,6 +19,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	// GWT looks for this inside src/main/webapp
 	public static final String RESOURCES_PATH = "/WEB-INF/";
 	private static final String DICTCC_PATH = RESOURCES_PATH + "dict.cc/dict.cc.tsv";
+	private static final String LEMMA_PATH = RESOURCES_PATH + "spraakbanken/lemma.txt";
+	private static final String INFL_PATH = RESOURCES_PATH + "spraakbanken/fullformsliste.txt";
 
 	// Public constructor is required by servlet spec
 	public Listener() {
@@ -34,10 +36,18 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		 * related data here.
 		 */
 
+		// TODO Handle missing resources. Demo files?
+
 		// Get the Dict.cc entries and add them to the servlet context.
 		InputStream dictccInputStream = sce.getServletContext().getResourceAsStream(DICTCC_PATH);
 		ListMultimap<String, Entry> entries = DictionaryTools.readDictCc(dictccInputStream);
 		sce.getServletContext().setAttribute("entries", entries);
+
+		// TODO combine this with the other entries
+		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
+		DictionaryTools.readLemmaList(lemmaInputStream);
+		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
+		DictionaryTools.readSpraakbanken(inflInputStream);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
