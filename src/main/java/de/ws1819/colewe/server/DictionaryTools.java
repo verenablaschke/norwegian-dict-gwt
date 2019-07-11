@@ -6,16 +6,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Pos;
 
 public class DictionaryTools {
 
@@ -27,6 +31,7 @@ public class DictionaryTools {
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		HashSet<String> tags = new HashSet<>(); // TODO del
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
@@ -61,10 +66,11 @@ public class DictionaryTools {
 				String translation = fields[1].trim();
 
 				// If available, get POS tag.
-				String pos = null;
+				String posTags[] = null;
 				if (fields.length >= 3) {
-					pos = fields[2].trim();
-					if ("verb".equals(pos) && lemma.startsWith("å ")) {
+					posTags = fields[2].trim().split("\\s+");
+
+					if (fields[2].contains("verb") && lemma.startsWith("å ")) {
 						// Remove the infinitive particle.
 						lemma = lemma.substring(2);
 					}
@@ -73,10 +79,18 @@ public class DictionaryTools {
 					if (fields.length >= 4) {
 						translation += " " + fields[3].trim();
 					}
+				} else {
+					posTags = new String[] { null };
 				}
 
 				// Save the entry.
-				entries.put(lemma, new Entry(lemma, pos, translation, grammar[1], usage[1], abbr[1]));
+				for (String pos : posTags) {
+					entries.put(lemma, new Entry(lemma, string2Pos(pos), translation, grammar[1], usage[1], abbr[1]));
+					if (pos != null) {
+						tags.add(pos);
+					}
+				}
+
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -85,6 +99,7 @@ public class DictionaryTools {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
+		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
 	}
 
@@ -108,6 +123,30 @@ public class DictionaryTools {
 			lemma = lemma.substring(0, matches.pop()) + lemma.substring(matches.pop());
 		}
 		return new String[] { lemma.trim(), comment.trim() };
+	}
+
+	private static Pos string2Pos(String s) {
+		if (s == null){
+			// TODO or rather Pos.NULL ? 
+			return Pos.OTHER;
+		}
+		switch (s.toLowerCase()) {
+		case "adj":
+			return Pos.ADJ;
+		case "adv":
+			return Pos.ADV;
+		case "conj":
+		case "konj":
+			return Pos.CONJ;
+		case "noun":
+		case "subst":
+			return Pos.NOUN;
+		case "prep":
+			return Pos.PREP;
+		case "verb":
+			return Pos.VERB;
+		}
+		return Pos.OTHER;
 	}
 
 	// Convert Språkbanken's lemma list into a map from lemma ID numbers to

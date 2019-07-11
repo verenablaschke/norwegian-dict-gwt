@@ -8,7 +8,7 @@ public class Entry implements Serializable {
 
 	private static final long serialVersionUID = 1614919089029847522L;
 	private String lemma;
-	private String pos;
+	private Pos pos;
 	// TODO? add inflection info (map)
 	private HashSet<String> inflections;
 	private String translation;
@@ -20,19 +20,19 @@ public class Entry implements Serializable {
 		this(null, null, null, null, null, null, null);
 	}
 
-	public Entry(String lemma, String pos, String translation, String curly, String square, String triangle) {
-		this(lemma, pos, null, translation, curly, square, triangle);
+	public Entry(String lemma, Pos pos, String translation, String grammar, String usage, String abbr) {
+		this(lemma, pos, null, translation, grammar, usage, abbr);
 	}
 
-	public Entry(String lemma, String pos, Set<String> inflections, String translation, String curly, String square,
-			String triangle) {
+	public Entry(String lemma, Pos pos, Set<String> inflections, String translation, String grammar, String usage,
+			String abbr) {
 		this.lemma = lemma;
 		this.pos = pos;
 		this.inflections = (inflections == null ? null : new HashSet<String>(inflections));
 		this.translation = translation;
-		this.grammar = curly;
-		this.usage = square;
-		this.abbr = triangle;
+		setGrammar(grammar);
+		setUsage(usage);
+		setAbbr(abbr);
 	}
 
 	/**
@@ -53,15 +53,15 @@ public class Entry implements Serializable {
 	/**
 	 * @return the pos
 	 */
-	public String getPos() {
+	public Pos getPos() {
 		return pos;
 	}
 
 	/**
-	 * @param pOS
-	 *            the pOS to set
+	 * @param pos
+	 *            the pos to set
 	 */
-	public void setPos(String pos) {
+	public void setPos(Pos pos) {
 		this.pos = pos;
 	}
 
@@ -115,7 +115,11 @@ public class Entry implements Serializable {
 	 *            the grammar to set
 	 */
 	public void setGrammar(String grammar) {
-		this.grammar = grammar;
+		if (grammar == null) {
+			this.grammar = "";
+		} else {
+			this.grammar = grammar;
+		}
 	}
 
 	/**
@@ -130,7 +134,11 @@ public class Entry implements Serializable {
 	 *            the usage to set
 	 */
 	public void setUsage(String usage) {
-		this.usage = usage;
+		if (usage == null) {
+			this.usage = "";
+		} else {
+			this.usage = usage;
+		}
 	}
 
 	/**
@@ -145,12 +153,16 @@ public class Entry implements Serializable {
 	 *            the abbr to set
 	 */
 	public void setAbbr(String abbr) {
-		this.abbr = abbr;
+		if (abbr == null) {
+			this.abbr = "";
+		} else {
+			this.abbr = abbr;
+		}
 	}
 
 	public String toString() {
-		// TODO
-		return lemma + ": " + translation;
+		return lemma + ": " + translation + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
+				+ ">, inflections: " + inflections + ")";
 	}
 
 	/*
