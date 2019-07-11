@@ -66,11 +66,16 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		allLemmata.addAll(fullformsliste.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
+		// Map from all inflected versions of the word to the entries.
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
 			List<Entry> entriesF = fullformsliste.get(lemma);
 			if (entriesD == null) {
-				allEntries.putAll(lemma, entriesF);
+				for (Entry entryF : entriesF) {
+					for (String wordForm : entryF.getInflections().values()) {
+						allEntries.put(wordForm, entryF);
+					}
+				}
 				continue;
 			}
 			if (entriesF == null) {
@@ -82,14 +87,18 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					if (entryD.getPos().equals(entryF.getPos())) {
 						// Same lemma and same POS tag? Merge entries!
 						entryD.setInflections(entryF.getInflections());
+						for (String wordForm : entryF.getInflections().values()) {
+							allEntries.put(wordForm, entryD);
+						}
 					} else {
-						allEntries.put(lemma, entryF);
+						for (String wordForm : entryF.getInflections().values()) {
+							allEntries.put(wordForm, entryF);
+						}
+						allEntries.put(lemma, entryD);
 					}
-					allEntries.put(lemma, entryD);
 				}
 			}
 		}
-		logger.info(allEntries.size() + " final entries");
 		logger.info(allEntries.get("ord").toString()); // TODO del?
 
 		// Add the entries to the servlet context.
