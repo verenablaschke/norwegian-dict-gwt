@@ -2,7 +2,11 @@ package de.ws1819.colewe.server;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -11,12 +15,15 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 
 // @WebListener()
 public class Listener implements ServletContextListener, HttpSessionListener, HttpSessionAttributeListener {
+
+	private static final Logger logger = Logger.getLogger(Listener.class.getSimpleName());
 
 	// GWT looks for this inside src/main/webapp
 	public static final String RESOURCES_PATH = "/WEB-INF/";
@@ -46,12 +53,47 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
 		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
 
-		ListMultimap<String, Entry> entries = DictionaryTools.readDictCc(dictccInputStream);
+		logger.info("Start reading dict.cc");
+		ListMultimap<String, Entry> dictcc = DictionaryTools.readDictCc(dictccInputStream);
+		logger.info("Start reading lemma.txt");
 		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
-		ListMultimap<String, Entry> inflection = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+		logger.info("Start reading fullformsliste.txt");
+		ListMultimap<String, Entry> fullformsliste = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+
+		// Combine the information from both sources by merging the entries when
+		// possible.
+		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
+		allLemmata.addAll(fullformsliste.keySet());
+		logger.info(allLemmata.size() + " distinct lemmata.");
+		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
+		for (String lemma : allLemmata) {
+			List<Entry> entriesD = dictcc.get(lemma);
+			List<Entry> entriesF = fullformsliste.get(lemma);
+			if (entriesD == null) {
+				allEntries.putAll(lemma, entriesF);
+				continue;
+			}
+			if (entriesF == null) {
+				allEntries.putAll(lemma, entriesD);
+				continue;
+			}
+			for (Entry entryD : entriesD) {
+				for (Entry entryF : entriesF) {
+					if (entryD.getPos().equals(entryF.getPos())) {
+						// Same lemma and same POS tag? Merge entries!
+						entryD.setInflections(entryF.getInflections());
+					} else {
+						allEntries.put(lemma, entryF);
+					}
+					allEntries.put(lemma, entryD);
+				}
+			}
+		}
+		logger.info(allEntries.size() + " final entries");
+		logger.info(allEntries.get("ord").toString()); // TODO del?
 
 		// Add the entries to the servlet context.
-		sce.getServletContext().setAttribute("entries", entries);
+		sce.getServletContext().setAttribute("entries", allEntries);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
