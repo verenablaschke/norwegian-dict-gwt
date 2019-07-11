@@ -48,7 +48,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		ListMultimap<String, Entry> entries = DictionaryTools.readDictCc(dictccInputStream);
 		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
-		HashMap<Integer, Entry> inflection = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+		ListMultimap<String, Entry> inflection = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
 
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", entries);

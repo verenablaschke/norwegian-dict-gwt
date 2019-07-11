@@ -195,7 +195,7 @@ public class DictionaryTools {
 		return lemmata;
 	}
 
-	public static HashMap<Integer, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
+	public static ListMultimap<String, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
 		HashMap<Integer, Entry> inflections = new HashMap<>();
 
 		String line = null;
@@ -258,7 +258,12 @@ public class DictionaryTools {
 				+ " lemmata from Språkbanken's fullformsliste.");
 		logger.info(inflections.get(50065).toString()); // TODO
 														// delete
-		return inflections;
+
+		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		for (java.util.Map.Entry<Integer, Entry> entry : inflections.entrySet()) {
+			entries.put(lemmata.get(entry.getKey()), entry.getValue());
+		}
+		return entries;
 	}
 
 }
