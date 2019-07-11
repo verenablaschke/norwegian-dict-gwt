@@ -2,6 +2,7 @@ package de.ws1819.colewe.server;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -39,16 +40,18 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		// TODO Handle missing resources. Demo files?
 
-		// Get the Dict.cc entries and add them to the servlet context.
+		// Extract the information from the dictionary dumps and inflection
+		// lists.
 		InputStream dictccInputStream = sce.getServletContext().getResourceAsStream(DICTCC_PATH);
-		ListMultimap<String, Entry> entries = DictionaryTools.readDictCc(dictccInputStream);
-		sce.getServletContext().setAttribute("entries", entries);
-
-		// TODO combine this with the other entries
 		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
-		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
 		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
-		DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+
+		ListMultimap<String, Entry> entries = DictionaryTools.readDictCc(dictccInputStream);
+		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
+		HashMap<Integer, Entry> inflection = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+
+		// Add the entries to the servlet context.
+		sce.getServletContext().setAttribute("entries", entries);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {

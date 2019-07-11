@@ -1,8 +1,8 @@
 package de.ws1819.colewe.shared;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Entry implements Serializable {
 
@@ -10,7 +10,7 @@ public class Entry implements Serializable {
 	private String lemma;
 	private Pos pos;
 	// TODO? add inflection info (map)
-	private HashSet<String> inflections;
+	private HashMap<String, String> inflections;
 	private String translation;
 	private String grammar;
 	private String usage;
@@ -24,11 +24,20 @@ public class Entry implements Serializable {
 		this(lemma, pos, null, translation, grammar, usage, abbr);
 	}
 
-	public Entry(String lemma, Pos pos, Set<String> inflections, String translation, String grammar, String usage,
-			String abbr) {
+	public Entry(String lemma, Pos pos, Map<String, String> inflections) {
+		this(lemma, pos, inflections, null, null, null, null);
+	}
+
+	public Entry(String lemma, Pos pos, String infl, String inflForm) {
+		this(lemma, pos, null, null, null, null, null);
+		addInflection(infl, inflForm);
+	}
+
+	public Entry(String lemma, Pos pos, Map<String, String> inflections, String translation, String grammar,
+			String usage, String abbr) {
 		this.lemma = lemma;
-		this.pos = pos;
-		this.inflections = (inflections == null ? null : new HashSet<String>(inflections));
+		setPos(pos);
+		setInflections(inflections);
 		this.translation = translation;
 		setGrammar(grammar);
 		setUsage(usage);
@@ -62,13 +71,17 @@ public class Entry implements Serializable {
 	 *            the pos to set
 	 */
 	public void setPos(Pos pos) {
-		this.pos = pos;
+		if (pos == null) {
+			this.pos = Pos.NULL;
+		} else {
+			this.pos = pos;
+		}
 	}
 
 	/**
 	 * @return the inflections
 	 */
-	public Set<String> getInflections() {
+	public Map<String, String> getInflections() {
 		return inflections;
 	}
 
@@ -76,8 +89,13 @@ public class Entry implements Serializable {
 	 * @param inflections
 	 *            the inflections to set
 	 */
-	public void setInflections(Set<String> inflections) {
-		this.inflections = (inflections == null ? null : new HashSet<String>(inflections));
+	public void setInflections(Map<String, String> inflections) {
+		this.inflections = (inflections == null ? new HashMap<String, String>()
+				: new HashMap<String, String>(inflections));
+	}
+
+	public void addInflection(String infl, String form) {
+		inflections.put(infl, form);
 	}
 
 	/**
@@ -99,7 +117,7 @@ public class Entry implements Serializable {
 	 * @param inflections
 	 *            the inflections to set
 	 */
-	public void setInflections(HashSet<String> inflections) {
+	public void setInflections(HashMap<String, String> inflections) {
 		this.inflections = inflections;
 	}
 

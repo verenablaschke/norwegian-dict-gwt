@@ -126,9 +126,8 @@ public class DictionaryTools {
 	}
 
 	private static Pos string2Pos(String s) {
-		if (s == null){
-			// TODO or rather Pos.NULL ? 
-			return Pos.OTHER;
+		if (s == null) {
+			return Pos.NULL;
 		}
 		switch (s.toLowerCase()) {
 		case "adj":
@@ -196,10 +195,8 @@ public class DictionaryTools {
 		return lemmata;
 	}
 
-	public static ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> readSpraakbanken(
-			HashMap<Integer, String> lemmata, InputStream stream) {
-		ListMultimap<SimpleEntry<Integer, String>, SimpleEntry<String, String>> inflections = ArrayListMultimap
-				.create();
+	public static HashMap<Integer, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
+		HashMap<Integer, Entry> inflections = new HashMap<>();
 
 		String line = null;
 		String[] fields = null;
@@ -210,9 +207,9 @@ public class DictionaryTools {
 				/*
 				 * TSV structure: LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
 				 * BOY_NUMMER FRADATO TILDATO NORMERING (line number, lemma id,
-				 * word, POS tag, inflection information, inflection number,
-				 * from date, to date, normalization) TODO check in
-				 * documentation
+				 * word, POS tag + inflection information, paradigm ID,
+				 * inflection number, from date, to date, normalization) TODO
+				 * check in documentation
 				 */
 				line = line.trim();
 				fields = line.split("\\t");
@@ -238,9 +235,18 @@ public class DictionaryTools {
 					continue;
 				}
 
+				String infl = fields[3].trim();
+				Pos pos = string2Pos(infl.split("\\s+")[0]);
+				String inflForm = fields[2].trim();
+
 				// Save lemma ID, inflection information and inflected form.
-				inflections.put(new SimpleEntry<Integer, String>(id, lemma),
-						new SimpleEntry<String, String>(fields[3].trim(), fields[2].trim()));
+				Entry entry = inflections.get(id);
+				if (entry == null) {
+					entry = new Entry(lemma, pos, infl, inflForm);
+				} else {
+					entry.addInflection(infl, inflForm);
+				}
+				inflections.put(id, entry);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -250,8 +256,8 @@ public class DictionaryTools {
 
 		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		logger.info(inflections.get(new SimpleEntry<Integer, String>(50065, "ord")).toString()); // TODO
-																									// delete
+		logger.info(inflections.get(50065).toString()); // TODO
+														// delete
 		return inflections;
 	}
 

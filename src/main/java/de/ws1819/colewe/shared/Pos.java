@@ -6,8 +6,9 @@ public enum Pos implements Serializable {
 
 	ADJ, ADV, CONJ, NOUN, PREP, PRON, VERB,
 	// other: For now, tags that do not match up between the different sources.
-	// TODO
-	OTHER;
+	OTHER,
+	// null: No tag provided.
+	NULL;
 
 	@Override
 	public String toString() {
