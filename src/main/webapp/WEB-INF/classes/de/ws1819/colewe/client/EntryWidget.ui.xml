@@ -5,21 +5,37 @@
 	.translation {
 		margin-left: 20px;
 		margin-bottom: 10px;
+		display: inline-block;
 	}
 	
-	.nobreak {
+	.lemma {
 		display: inline;
+		font-weight: bold;
+	}
+	
+	.info-light {
+		background-color: #81cfdb;
+		color: black;
+	}
+	
+	.warning-light {
+		background-color: #fae39c;
+	}
+	
+	.secondary-light {
+		background-color: #d4dde6;
+		color: black;
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:Label styleName="{style.nobreak}" ui:field="headword" />
-		<g:HTML ui:field="grammarNOBadge" />
-		<g:HTML ui:field="usageNOBadge" />
-		<g:HTML ui:field="abbrNOBadge" />
+		<g:Label ui:field="headword" styleName="{style.lemma}" />
+		<g:HTML ui:field="grammarNOBadge" styleName="badge badge-info" />
+		<g:HTML ui:field="usageNOBadge" styleName="badge badge-warning" />
+		<g:HTML ui:field="abbrNOBadge" styleName="badge badge-secondary" />
 		<br />
-		<g:Label styleName="{style.translation}" ui:field="translation" />
-		<g:HTML ui:field="grammarDEBadge" />
-		<g:HTML ui:field="usageDEBadge" />
-		<g:HTML ui:field="abbrDEBadge" />
+		<g:Label ui:field="translation" styleName="{style.translation}" />
+		<g:HTML ui:field="grammarDEBadge" styleName="badge {style.info-light}" />
+		<g:HTML ui:field="usageDEBadge" styleName="badge {style.warning-light}" />
+		<g:HTML ui:field="abbrDEBadge" styleName="badge {style.secondary-light}" />
 	</g:HTMLPanel>
 </ui:UiBinder> 

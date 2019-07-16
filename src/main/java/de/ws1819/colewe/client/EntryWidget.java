@@ -48,17 +48,11 @@ public class EntryWidget extends Composite {
 		this();
 		setHeadword(headword);
 		setTranslation(translation);
-		grammarNOBadge.setStyleName("badge badge-info");
 		setGrammarNO(grammarNO);
-		usageNOBadge.setStyleName("badge badge-warning");
 		setUsageNO(usageNO);
-		abbrNOBadge.setStyleName("badge badge-secondary");
 		setAbbrNO(abbrNO);
-		grammarDEBadge.setStyleName("badge badge-light");
 		setGrammarDE(grammarDE);
-		usageDEBadge.setStyleName("badge badge-light");
 		setUsageDE(usageDE);
-		abbrDEBadge.setStyleName("badge badge-light");
 		setAbbrDE(abbrDE);
 	}
 
