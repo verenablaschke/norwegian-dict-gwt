@@ -18,6 +18,7 @@ import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Pos;
 
 // @WebListener()
 public class Listener implements ServletContextListener, HttpSessionListener, HttpSessionAttributeListener {
@@ -69,8 +70,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
 			List<Entry> entriesF = fullformsliste.get(lemma);
+			if (lemma.contains("skrive")){
+				System.out.println(entriesD);
+				System.out.println(entriesF);
+			}
 			if (entriesD == null) {
 				for (Entry entryF : entriesF) {
+					addInfMarker(entryF);
 					for (String wordForm : entryF.getInflections().values()) {
 						allEntries.put(wordForm, entryF);
 					}
@@ -78,11 +84,20 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				continue;
 			}
 			if (entriesF == null) {
-				allEntries.putAll(lemma, entriesD);
+				for (Entry entryD : entriesD) {
+					addInfMarker(entryD);
+					allEntries.put(lemma, entryD);
+				}
 				continue;
 			}
 			for (Entry entryD : entriesD) {
+				addInfMarker(entryD);
 				for (Entry entryF : entriesF) {
+					addInfMarker(entryF);
+					if (lemma.contains("skrive")){
+						System.out.println(entryD);
+						System.out.println(entryF);
+					}
 					if (entryD.getPos().equals(entryF.getPos())) {
 						// Same lemma and same POS tag? Merge entries!
 						entryD.setInflections(entryF.getInflections());
@@ -90,10 +105,10 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 							allEntries.put(wordForm, entryD);
 						}
 					} else {
+						allEntries.put(lemma, entryD);
 						for (String wordForm : entryF.getInflections().values()) {
 							allEntries.put(wordForm, entryF);
 						}
-						allEntries.put(lemma, entryD);
 					}
 				}
 			}
@@ -102,6 +117,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
+	}
+
+	private void addInfMarker(Entry entry) {
+		// If appropriate, add the infinitive marker.
+		if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().startsWith("å ")) {
+			entry.setLemma("å " + entry.getLemma());
+		}
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
