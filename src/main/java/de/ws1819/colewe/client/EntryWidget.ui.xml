@@ -5,6 +5,7 @@
 	.translation {
 		margin-left: 20px;
 		margin-bottom: 10px;
+		display: inline-block;
 	}
 	
 	.nobreak {
@@ -13,10 +14,13 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<g:Label styleName="{style.nobreak}" ui:field="headword" />
-		<g:HTML ui:field="grammarBadge" />
-		<g:HTML ui:field="usageBadge" />
-		<g:HTML ui:field="abbrBadge" />
+		<g:HTML ui:field="grammarNOBadge" />
+		<g:HTML ui:field="usageNOBadge" />
+		<g:HTML ui:field="abbrNOBadge" />
 		<br />
 		<g:Label styleName="{style.translation}" ui:field="translation" />
+		<g:HTML ui:field="grammarDEBadge" />
+		<g:HTML ui:field="usageDEBadge" />
+		<g:HTML ui:field="abbrDEBadge" />
 	</g:HTMLPanel>
 </ui:UiBinder> 

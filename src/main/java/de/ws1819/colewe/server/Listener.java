@@ -70,10 +70,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
 			List<Entry> entriesF = fullformsliste.get(lemma);
-			if (lemma.contains("skrive")){
-				System.out.println(entriesD);
-				System.out.println(entriesF);
-			}
 			if (entriesD == null) {
 				for (Entry entryF : entriesF) {
 					addInfMarker(entryF);
@@ -94,10 +90,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				addInfMarker(entryD);
 				for (Entry entryF : entriesF) {
 					addInfMarker(entryF);
-					if (lemma.contains("skrive")){
-						System.out.println(entryD);
-						System.out.println(entryF);
-					}
 					if (entryD.getPos().equals(entryF.getPos())) {
 						// Same lemma and same POS tag? Merge entries!
 						entryD.setInflections(entryF.getInflections());

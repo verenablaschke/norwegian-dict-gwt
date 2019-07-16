@@ -55,14 +55,11 @@ public class DictionaryTools {
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
 
 				// Find and remove comments.
-				String[] grammar = match(patternCurly, lemma);
-				lemma = grammar[0];
-				String[] usage = match(patternSquare, lemma);
-				lemma = usage[0];
-				String[] abbr = match(patternTriangle, lemma);
-				lemma = abbr[0];
+				String[] lemmaAndCommentsNO = extractDictCCComments(lemma);
+				lemma = lemmaAndCommentsNO[0];
 
-				String translation = fields[1].trim();
+				// Get the translational equivalent and extract comments.
+				String[] lemmaAndCommentsDE = extractDictCCComments(fields[1].trim());
 
 				// If available, get POS tag.
 				String posTags[] = null;
@@ -75,16 +72,20 @@ public class DictionaryTools {
 					}
 
 					// If available, get additional comments.
-					if (fields.length >= 4) {
-						translation += " " + fields[3].trim();
-					}
+					// TODO Where to put these? Issue #16
+					// if (fields.length >= 4) {
+					// translation += " " + fields[3].trim();
+					// }
 				} else {
 					posTags = new String[] { null };
 				}
 
 				// Save the entry.
 				for (String pos : posTags) {
-					entries.put(lemma, new Entry(lemma, string2Pos(pos), translation, grammar[1], usage[1], abbr[1]));
+					entries.put(lemma,
+							new Entry(lemma, string2Pos(pos), lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
+									lemmaAndCommentsNO[2], lemmaAndCommentsNO[3], lemmaAndCommentsDE[1],
+									lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
 					if (pos != null) {
 						tags.add(pos);
 					}
@@ -100,6 +101,16 @@ public class DictionaryTools {
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
+	}
+
+	private static String[] extractDictCCComments(String lemma) {
+		String[] grammar = match(patternCurly, lemma);
+		lemma = grammar[0];
+		String[] usage = match(patternSquare, lemma);
+		lemma = usage[0];
+		String[] abbr = match(patternTriangle, lemma);
+		// abbr[0] is the lemma
+		return new String[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
 
 	private static String[] match(Pattern pattern, String lemma) {

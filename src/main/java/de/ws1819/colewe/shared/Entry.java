@@ -12,36 +12,43 @@ public class Entry implements Serializable {
 	// TODO? add inflection info (map)
 	private HashMap<String, String> inflections;
 	private String translation;
-	private String grammar;
-	private String usage;
-	private String abbr;
+	private String grammarNO;
+	private String usageNO;
+	private String abbrNO;
+	private String grammarDE;
+	private String usageDE;
+	private String abbrDE;
 
 	public Entry() {
-		this(null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null);
 	}
 
-	public Entry(String lemma, Pos pos, String translation, String grammar, String usage, String abbr) {
-		this(lemma, pos, null, translation, grammar, usage, abbr);
+	public Entry(String lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO, String grammarDE,
+			String usageDE, String abbrDE) {
+		this(lemma, pos, null, translation, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE);
 	}
 
 	public Entry(String lemma, Pos pos, Map<String, String> inflections) {
-		this(lemma, pos, inflections, null, null, null, null);
+		this(lemma, pos, inflections, null, null, null, null, null, null, null);
 	}
 
 	public Entry(String lemma, Pos pos, String infl, String inflForm) {
-		this(lemma, pos, null, null, null, null, null);
+		this(lemma, pos, null, null, null, null, null, null, null, null);
 		addInflection(infl, inflForm);
 	}
 
-	public Entry(String lemma, Pos pos, Map<String, String> inflections, String translation, String grammar,
-			String usage, String abbr) {
+	public Entry(String lemma, Pos pos, Map<String, String> inflections, String translation, String grammarNO,
+			String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE) {
 		this.lemma = lemma;
 		setPos(pos);
 		setInflections(inflections);
 		this.translation = translation;
-		setGrammar(grammar);
-		setUsage(usage);
-		setAbbr(abbr);
+		setGrammarNO(grammarNO);
+		setUsageNO(usageNO);
+		setAbbrNO(abbrNO);
+		setGrammarDE(grammarDE);
+		setUsageDE(usageDE);
+		setAbbrDE(abbrDE);
 	}
 
 	/**
@@ -122,65 +129,102 @@ public class Entry implements Serializable {
 	}
 
 	/**
-	 * @return the grammar
+	 * @return the grammarNO
 	 */
-	public String getGrammar() {
-		return grammar;
+	public String getGrammarNO() {
+		return grammarNO;
 	}
 
 	/**
-	 * @param grammar
-	 *            the grammar to set
+	 * @param grammarNO
+	 *            the grammarNO to set
 	 */
-	public void setGrammar(String grammar) {
-		if (grammar == null) {
-			this.grammar = "";
+	public void setGrammarNO(String grammarNO) {
+		if (grammarNO == null) {
+			this.grammarNO = "";
 		} else {
-			this.grammar = grammar;
+			this.grammarNO = grammarNO;
 		}
 	}
 
 	/**
-	 * @return the usage
+	 * @return the usageNO
 	 */
-	public String getUsage() {
-		return usage;
+	public String getUsageNO() {
+		return usageNO;
 	}
 
 	/**
-	 * @param usage
-	 *            the usage to set
+	 * @param usageNO
+	 *            the usageNO to set
 	 */
-	public void setUsage(String usage) {
-		if (usage == null) {
-			this.usage = "";
+	public void setUsageNO(String usageNO) {
+		if (usageNO == null) {
+			this.usageNO = "";
 		} else {
-			this.usage = usage;
+			this.usageNO = usageNO;
 		}
 	}
 
 	/**
-	 * @return the abbr
+	 * @return the abbrNO
 	 */
-	public String getAbbr() {
-		return abbr;
+	public String getAbbrNO() {
+		return abbrNO;
 	}
 
 	/**
-	 * @param abbr
-	 *            the abbr to set
+	 * @param abbrNO
+	 *            the abbrNO to set
 	 */
-	public void setAbbr(String abbr) {
-		if (abbr == null) {
-			this.abbr = "";
+	public void setAbbrNO(String abbrNO) {
+		if (abbrNO == null) {
+			this.abbrNO = "";
 		} else {
-			this.abbr = abbr;
+			this.abbrNO = abbrNO;
+		}
+	}
+
+	public String getGrammarDE() {
+		return grammarDE;
+	}
+
+	public void setGrammarDE(String grammarDE) {
+		if (grammarDE == null) {
+			this.grammarDE = "";
+		} else {
+			this.grammarDE = grammarDE;
+		}
+	}
+
+	public String getUsageDE() {
+		return usageDE;
+	}
+
+	public void setUsageDE(String usageDE) {
+		if (usageDE == null) {
+			this.usageDE = "";
+		} else {
+			this.usageDE = usageDE;
+		}
+	}
+
+	public String getAbbrDE() {
+		return abbrDE;
+	}
+
+	public void setAbbrDE(String abbrDE) {
+		if (abbrDE == null) {
+			this.abbrDE = "";
+		} else {
+			this.abbrDE = abbrDE;
 		}
 	}
 
 	public String toString() {
-		return lemma + ": " + translation + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
-				+ ">, inflections: " + inflections + ")";
+		return lemma + ": " + translation + " (" + pos + ", {" + grammarNO + "} [" + usageNO + "] <" + abbrNO
+				+ ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE + "] <" + abbrDE
+				+ ">)";
 	}
 
 	/*
@@ -192,13 +236,16 @@ public class Entry implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
+		result = prime * result + ((abbrNO == null) ? 0 : abbrNO.hashCode());
+		result = prime * result + ((abbrDE == null) ? 0 : abbrDE.hashCode());
+		result = prime * result + ((grammarNO == null) ? 0 : grammarNO.hashCode());
+		result = prime * result + ((grammarDE == null) ? 0 : grammarDE.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
-		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
 		result = prime * result + ((translation == null) ? 0 : translation.hashCode());
-		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
+		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
+		result = prime * result + ((usageDE == null) ? 0 : usageDE.hashCode());
 		return result;
 	}
 
@@ -219,11 +266,32 @@ public class Entry implements Serializable {
 			return false;
 		}
 		Entry other = (Entry) obj;
-		if (grammar == null) {
-			if (other.grammar != null) {
+		if (abbrNO == null) {
+			if (other.abbrNO != null) {
 				return false;
 			}
-		} else if (!grammar.equals(other.grammar)) {
+		} else if (!abbrNO.equals(other.abbrNO)) {
+			return false;
+		}
+		if (abbrDE == null) {
+			if (other.abbrDE != null) {
+				return false;
+			}
+		} else if (!abbrDE.equals(other.abbrDE)) {
+			return false;
+		}
+		if (grammarNO == null) {
+			if (other.grammarNO != null) {
+				return false;
+			}
+		} else if (!grammarNO.equals(other.grammarNO)) {
+			return false;
+		}
+		if (grammarDE == null) {
+			if (other.grammarDE != null) {
+				return false;
+			}
+		} else if (!grammarDE.equals(other.grammarDE)) {
 			return false;
 		}
 		if (inflections == null) {
@@ -240,18 +308,7 @@ public class Entry implements Serializable {
 		} else if (!lemma.equals(other.lemma)) {
 			return false;
 		}
-		if (pos == null) {
-			if (other.pos != null) {
-				return false;
-			}
-		} else if (!pos.equals(other.pos)) {
-			return false;
-		}
-		if (usage == null) {
-			if (other.usage != null) {
-				return false;
-			}
-		} else if (!usage.equals(other.usage)) {
+		if (pos != other.pos) {
 			return false;
 		}
 		if (translation == null) {
@@ -261,11 +318,18 @@ public class Entry implements Serializable {
 		} else if (!translation.equals(other.translation)) {
 			return false;
 		}
-		if (abbr == null) {
-			if (other.abbr != null) {
+		if (usageNO == null) {
+			if (other.usageNO != null) {
 				return false;
 			}
-		} else if (!abbr.equals(other.abbr)) {
+		} else if (!usageNO.equals(other.usageNO)) {
+			return false;
+		}
+		if (usageDE == null) {
+			if (other.usageDE != null) {
+				return false;
+			}
+		} else if (!usageDE.equals(other.usageDE)) {
 			return false;
 		}
 		return true;
