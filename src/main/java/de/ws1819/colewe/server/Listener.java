@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
@@ -15,8 +13,9 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
+import com.google.gwt.thirdparty.guava.common.collect.HashMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
+import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 
@@ -65,7 +64,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
 		allLemmata.addAll(fullformsliste.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
-		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
+		SetMultimap<String, Entry> allEntries = HashMultimap.create();
 		// Map from all inflected versions of the word to the entries.
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
