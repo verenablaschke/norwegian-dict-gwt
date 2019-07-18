@@ -30,6 +30,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private static final String DICTCC_PATH = RESOURCES_PATH + "dict.cc/dict.cc.tsv";
 	private static final String LEMMA_PATH = RESOURCES_PATH + "spraakbanken/lemma.txt";
 	private static final String INFL_PATH = RESOURCES_PATH + "spraakbanken/fullformsliste.txt";
+	private static final String WOERTERBUCH_PATH = RESOURCES_PATH + "woerterbuch/no-de-dict.txt";
 
 	// Public constructor is required by servlet spec
 	public Listener() {
@@ -52,6 +53,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream dictccInputStream = sce.getServletContext().getResourceAsStream(DICTCC_PATH);
 		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
 		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
+		InputStream woerterbuchInputStream = sce.getServletContext().getResourceAsStream(WOERTERBUCH_PATH);
 
 		logger.info("Start reading dict.cc");
 		ListMultimap<String, Entry> dictcc = DictionaryTools.readDictCc(dictccInputStream);
@@ -59,17 +61,30 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
 		logger.info("Start reading fullformsliste.txt");
 		ListMultimap<String, Entry> fullformsliste = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+		logger.info("Start reading no-de-dict.txt");
+		ListMultimap<String, Entry> woerterbuch = DictionaryTools.readWoerterbuch(woerterbuchInputStream);
 
 		// Combine the information from both sources by merging the entries when
 		// possible.
 		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
 		allLemmata.addAll(fullformsliste.keySet());
+		allLemmata.addAll(woerterbuch.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
 		SetMultimap<String, Entry> allEntries = HashMultimap.create();
 		// Map from all inflected versions of the word to the entries.
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
 			List<Entry> entriesF = fullformsliste.get(lemma);
+			List<Entry> entriesW = woerterbuch.get(lemma);
+
+			// TODO proper merging with entriesW
+			if (entriesW != null) {
+				for (Entry entryW : entriesW) {
+					addInfMarker(entryW);
+					allEntries.put(lemma, entryW);
+				}
+			}
+
 			if (entriesD == null) {
 				for (Entry entryF : entriesF) {
 					addInfMarker(entryF);

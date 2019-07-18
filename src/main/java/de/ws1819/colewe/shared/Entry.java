@@ -1,6 +1,7 @@
 package de.ws1819.colewe.shared;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,12 +45,13 @@ public class Entry implements Serializable {
 	}
 
 	// For the NO>DE dictionary
-	public Entry(String lemma, Pos pos, HashSet<String> translations, String pronunciation) {
+	public Entry(String lemma, Pos pos, Collection<String> translations, String pronunciation) {
 		this(lemma, pos, null, translations, null, null, null, null, null, null, pronunciation);
 	}
 
-	public Entry(String lemma, Pos pos, Map<String, String> inflections, HashSet<String> translations, String grammarNO,
-			String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE, String pronunciation) {
+	public Entry(String lemma, Pos pos, Map<String, String> inflections, Collection<String> translations,
+			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE,
+			String pronunciation) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -135,8 +137,8 @@ public class Entry implements Serializable {
 	 * @param translations
 	 *            the translations to set
 	 */
-	public void setTranslations(HashSet<String> translations) {
-		this.translations = (translations == null ? new HashSet<String>() : translations);
+	public void setTranslations(Collection<String> translations) {
+		this.translations = (translations == null ? new HashSet<String>() : new HashSet<String>(translations));
 	}
 
 	public void addTranslation(String translation) {

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
@@ -30,7 +31,6 @@ public class DictionaryTools {
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		HashSet<String> tags = new HashSet<>(); // TODO del
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
@@ -86,9 +86,6 @@ public class DictionaryTools {
 							new Entry(lemma, string2Pos(pos), lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
 									lemmaAndCommentsNO[2], lemmaAndCommentsNO[3], lemmaAndCommentsDE[1],
 									lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
-					if (pos != null) {
-						tags.add(pos);
-					}
 				}
 
 			}
@@ -99,7 +96,6 @@ public class DictionaryTools {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
-		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
 	}
 
@@ -273,6 +269,47 @@ public class DictionaryTools {
 		for (java.util.Map.Entry<Integer, Entry> entry : inflections.entrySet()) {
 			entries.put(lemmata.get(entry.getKey()), entry.getValue());
 		}
+		return entries;
+	}
+
+	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
+		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		HashSet<String> tags = new HashSet<>(); // TODO del
+
+		String line = null;
+		String[] fields = null;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				fields = line.split("\\s+");
+				/*
+				 * Format: lemma#[pronunciation] POS one_or_more_translations
+				 */
+				if (fields.length < 3) {
+					// Empty/faulty line.
+					continue;
+				}
+
+				String[] lemmaPron = fields[0].trim().split("#");
+				String lemma = lemmaPron[0];
+				String pron = null;
+				if (lemmaPron.length > 1) {
+					pron = lemmaPron[1];
+					// Remove [ and ] from the transcription.
+					pron = pron.substring(1, pron.length() - 1);
+				}
+				Pos pos = string2Pos(fields[1]);
+				String[] translations = fields[2].split("/");
+				entries.put(lemma, new Entry(lemma, pos, Arrays.asList(translations), pron));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
+		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
 	}
 
