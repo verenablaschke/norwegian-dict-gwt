@@ -108,7 +108,8 @@ public class WordWidget extends Composite implements HasText {
 						RootPanel.get("infoContainer")
 								.add(new EntryWidget(entry.getLemma(), entry.getTranslationString(),
 										entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO(),
-										entry.getGrammarDE(), entry.getUsageDE(), entry.getAbbrDE()));
+										entry.getGrammarDE(), entry.getUsageDE(), entry.getAbbrDE(),
+										entry.getPronunciation()));
 					} catch (Exception exc) {
 						// TODO del
 						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));

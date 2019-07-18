@@ -17,6 +17,9 @@ public class EntryWidget extends Composite {
 
 	@UiField
 	Label headword;
+	
+	@UiField
+	Label pron;
 
 	@UiField
 	HTML grammarNOBadge;
@@ -44,7 +47,7 @@ public class EntryWidget extends Composite {
 	}
 
 	public EntryWidget(String headword, String translation, String grammarNO, String usageNO, String abbrNO,
-			String grammarDE, String usageDE, String abbrDE) {
+			String grammarDE, String usageDE, String abbrDE, String pron) {
 		this();
 		setHeadword(headword);
 		setTranslation(translation);
@@ -54,14 +57,19 @@ public class EntryWidget extends Composite {
 		setGrammarDE(grammarDE);
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
+		setPron(pron);
 	}
 
 	public EntryWidget(String headword, String translation) {
-		this(headword, translation, null, null, null, null, null, null);
+		this(headword, translation, null, null, null, null, null, null, null);
 	}
 
 	public void setHeadword(String headword) {
 		this.headword.setText(headword);
+	}
+	
+	public void setPron(String pron) {
+		this.pron.setText(pron);
 	}
 
 	public void setTranslation(String translation) {

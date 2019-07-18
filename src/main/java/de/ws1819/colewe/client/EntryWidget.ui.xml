@@ -13,6 +13,11 @@
 		font-weight: bold;
 	}
 	
+	.pron {
+		display: inline;
+		color: grey;
+	}
+	
 	.info-light {
 		background-color: #81cfdb;
 		color: black;
@@ -29,6 +34,7 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<g:Label ui:field="headword" styleName="{style.lemma}" />
+		<g:Label ui:field="pron" styleName="{style.pron}" />
 		<g:HTML ui:field="grammarNOBadge" styleName="badge badge-info" />
 		<g:HTML ui:field="usageNOBadge" styleName="badge badge-warning" />
 		<g:HTML ui:field="abbrNOBadge" styleName="badge badge-secondary" />

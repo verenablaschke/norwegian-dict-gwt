@@ -226,11 +226,14 @@ public class Entry implements Serializable {
 	}
 
 	public String getPronunciation() {
-		return pronunciation;
+		if (pronunciation.isEmpty()) {
+			return "";
+		}
+		return "/" + pronunciation + "/";
 	}
 
 	public void setPronunciation(String pronunciation) {
-		this.pronunciation = pronunciation;
+		this.pronunciation = (pronunciation == null ? "" : pronunciation);
 	}
 
 	public String toString() {
