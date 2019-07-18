@@ -2,6 +2,7 @@ package de.ws1819.colewe.shared;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Entry implements Serializable {
@@ -11,44 +12,55 @@ public class Entry implements Serializable {
 	private Pos pos;
 	// TODO? add inflection info (map)
 	private HashMap<String, String> inflections;
-	private String translation;
+	private HashSet<String> translations;
 	private String grammarNO;
 	private String usageNO;
 	private String abbrNO;
 	private String grammarDE;
 	private String usageDE;
 	private String abbrDE;
+	private String pronunciation;
 
 	public Entry() {
-		this(null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null);
 	}
 
-	public Entry(String lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO, String grammarDE,
-			String usageDE, String abbrDE) {
-		this(lemma, pos, null, translation, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE);
+	// For dict.cc
+	public Entry(String lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO,
+			String grammarDE, String usageDE, String abbrDE) {
+		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE, null);
+		addTranslation(translation);
 	}
 
+	// For språkbanken
 	public Entry(String lemma, Pos pos, Map<String, String> inflections) {
-		this(lemma, pos, inflections, null, null, null, null, null, null, null);
+		this(lemma, pos, inflections, null, null, null, null, null, null, null, null);
 	}
 
+	// For språkbanken
 	public Entry(String lemma, Pos pos, String infl, String inflForm) {
-		this(lemma, pos, null, null, null, null, null, null, null, null);
+		this(lemma, pos, null, null, null, null, null, null, null, null, null);
 		addInflection(infl, inflForm);
 	}
 
-	public Entry(String lemma, Pos pos, Map<String, String> inflections, String translation, String grammarNO,
-			String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE) {
-		this.lemma = lemma;
+	// For the NO>DE dictionary
+	public Entry(String lemma, Pos pos, HashSet<String> translations, String pronunciation) {
+		this(lemma, pos, null, translations, null, null, null, null, null, null, pronunciation);
+	}
+
+	public Entry(String lemma, Pos pos, Map<String, String> inflections, HashSet<String> translations, String grammarNO,
+			String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE, String pronunciation) {
+		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
-		this.translation = translation;
+		setTranslations(translations);
 		setGrammarNO(grammarNO);
 		setUsageNO(usageNO);
 		setAbbrNO(abbrNO);
 		setGrammarDE(grammarDE);
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
+		setPronunciation(pronunciation);
 	}
 
 	/**
@@ -106,18 +118,29 @@ public class Entry implements Serializable {
 	}
 
 	/**
-	 * @return the translation
+	 * @return the translations
 	 */
-	public String getTranslation() {
-		return translation;
+	public HashSet<String> getTranslations() {
+		return translations;
+	}
+
+	public String getTranslationString() {
+		String transl = translations.toString();
+		// Remove [ and ]
+		// TODO sort??
+		return transl.substring(1, transl.length() - 1);
 	}
 
 	/**
-	 * @param translation
-	 *            the translation to set
+	 * @param translations
+	 *            the translations to set
 	 */
-	public void setTranslation(String translation) {
-		this.translation = translation;
+	public void setTranslations(HashSet<String> translations) {
+		this.translations = (translations == null ? new HashSet<String>() : translations);
+	}
+
+	public void addTranslation(String translation) {
+		translations.add(translation);
 	}
 
 	/**
@@ -140,11 +163,7 @@ public class Entry implements Serializable {
 	 *            the grammarNO to set
 	 */
 	public void setGrammarNO(String grammarNO) {
-		if (grammarNO == null) {
-			this.grammarNO = "";
-		} else {
-			this.grammarNO = grammarNO;
-		}
+		this.grammarNO = (grammarNO == null ? "" : grammarNO);
 	}
 
 	/**
@@ -159,11 +178,8 @@ public class Entry implements Serializable {
 	 *            the usageNO to set
 	 */
 	public void setUsageNO(String usageNO) {
-		if (usageNO == null) {
-			this.usageNO = "";
-		} else {
-			this.usageNO = usageNO;
-		}
+		this.usageNO = (usageNO == null ? "" : usageNO);
+
 	}
 
 	/**
@@ -178,11 +194,8 @@ public class Entry implements Serializable {
 	 *            the abbrNO to set
 	 */
 	public void setAbbrNO(String abbrNO) {
-		if (abbrNO == null) {
-			this.abbrNO = "";
-		} else {
-			this.abbrNO = abbrNO;
-		}
+		this.abbrNO = (abbrNO == null ? "" : abbrNO);
+
 	}
 
 	public String getGrammarDE() {
@@ -190,11 +203,7 @@ public class Entry implements Serializable {
 	}
 
 	public void setGrammarDE(String grammarDE) {
-		if (grammarDE == null) {
-			this.grammarDE = "";
-		} else {
-			this.grammarDE = grammarDE;
-		}
+		this.grammarDE = (grammarDE == null ? "" : grammarDE);
 	}
 
 	public String getUsageDE() {
@@ -202,11 +211,8 @@ public class Entry implements Serializable {
 	}
 
 	public void setUsageDE(String usageDE) {
-		if (usageDE == null) {
-			this.usageDE = "";
-		} else {
-			this.usageDE = usageDE;
-		}
+		this.usageDE = (usageDE == null ? "" : usageDE);
+
 	}
 
 	public String getAbbrDE() {
@@ -214,17 +220,21 @@ public class Entry implements Serializable {
 	}
 
 	public void setAbbrDE(String abbrDE) {
-		if (abbrDE == null) {
-			this.abbrDE = "";
-		} else {
-			this.abbrDE = abbrDE;
-		}
+		this.abbrDE = (abbrDE == null ? "" : abbrDE);
+	}
+
+	public String getPronunciation() {
+		return pronunciation;
+	}
+
+	public void setPronunciation(String pronunciation) {
+		this.pronunciation = pronunciation;
 	}
 
 	public String toString() {
-		return lemma + ": " + translation + " (" + pos + ", {" + grammarNO + "} [" + usageNO + "] <" + abbrNO
-				+ ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE + "] <" + abbrDE
-				+ ">)";
+		return lemma + ": " + translations + " (" + pronunciation + ", " + pos + ", {" + grammarNO + "} [" + usageNO
+				+ "] <" + abbrNO + ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE
+				+ "] <" + abbrDE + ">)";
 	}
 
 	/*
@@ -236,16 +246,17 @@ public class Entry implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((abbrNO == null) ? 0 : abbrNO.hashCode());
 		result = prime * result + ((abbrDE == null) ? 0 : abbrDE.hashCode());
-		result = prime * result + ((grammarNO == null) ? 0 : grammarNO.hashCode());
+		result = prime * result + ((abbrNO == null) ? 0 : abbrNO.hashCode());
 		result = prime * result + ((grammarDE == null) ? 0 : grammarDE.hashCode());
+		result = prime * result + ((grammarNO == null) ? 0 : grammarNO.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
-		result = prime * result + ((translation == null) ? 0 : translation.hashCode());
-		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
+		result = prime * result + ((pronunciation == null) ? 0 : pronunciation.hashCode());
+		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
 		result = prime * result + ((usageDE == null) ? 0 : usageDE.hashCode());
+		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
 		return result;
 	}
 
@@ -266,13 +277,6 @@ public class Entry implements Serializable {
 			return false;
 		}
 		Entry other = (Entry) obj;
-		if (abbrNO == null) {
-			if (other.abbrNO != null) {
-				return false;
-			}
-		} else if (!abbrNO.equals(other.abbrNO)) {
-			return false;
-		}
 		if (abbrDE == null) {
 			if (other.abbrDE != null) {
 				return false;
@@ -280,11 +284,11 @@ public class Entry implements Serializable {
 		} else if (!abbrDE.equals(other.abbrDE)) {
 			return false;
 		}
-		if (grammarNO == null) {
-			if (other.grammarNO != null) {
+		if (abbrNO == null) {
+			if (other.abbrNO != null) {
 				return false;
 			}
-		} else if (!grammarNO.equals(other.grammarNO)) {
+		} else if (!abbrNO.equals(other.abbrNO)) {
 			return false;
 		}
 		if (grammarDE == null) {
@@ -292,6 +296,13 @@ public class Entry implements Serializable {
 				return false;
 			}
 		} else if (!grammarDE.equals(other.grammarDE)) {
+			return false;
+		}
+		if (grammarNO == null) {
+			if (other.grammarNO != null) {
+				return false;
+			}
+		} else if (!grammarNO.equals(other.grammarNO)) {
 			return false;
 		}
 		if (inflections == null) {
@@ -311,18 +322,18 @@ public class Entry implements Serializable {
 		if (pos != other.pos) {
 			return false;
 		}
-		if (translation == null) {
-			if (other.translation != null) {
+		if (pronunciation == null) {
+			if (other.pronunciation != null) {
 				return false;
 			}
-		} else if (!translation.equals(other.translation)) {
+		} else if (!pronunciation.equals(other.pronunciation)) {
 			return false;
 		}
-		if (usageNO == null) {
-			if (other.usageNO != null) {
+		if (translations == null) {
+			if (other.translations != null) {
 				return false;
 			}
-		} else if (!usageNO.equals(other.usageNO)) {
+		} else if (!translations.equals(other.translations)) {
 			return false;
 		}
 		if (usageDE == null) {
@@ -330,6 +341,13 @@ public class Entry implements Serializable {
 				return false;
 			}
 		} else if (!usageDE.equals(other.usageDE)) {
+			return false;
+		}
+		if (usageNO == null) {
+			if (other.usageNO != null) {
+				return false;
+			}
+		} else if (!usageNO.equals(other.usageNO)) {
 			return false;
 		}
 		return true;
