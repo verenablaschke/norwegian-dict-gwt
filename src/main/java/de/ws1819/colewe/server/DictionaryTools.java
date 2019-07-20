@@ -275,7 +275,6 @@ public class DictionaryTools {
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> tags = new HashSet<>(); // TODO del
-		HashSet<Character> xsampa = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -302,12 +301,6 @@ public class DictionaryTools {
 																// forms!)
 					// Remove [ and ] from the transcription.
 					pron = pron.substring(1, pron.length() - 1);
-					if (pron.contains("P")) {
-						System.out.println(lemma + " - " + pron);
-					}
-					for (int i = 0; i < pron.length(); i++) { // TODO del
-						xsampa.add(pron.charAt(i));
-					}
 					pron = Tools.xsampaToIPA(pron);
 				}
 				tags.add(fields[1]);
@@ -323,7 +316,6 @@ public class DictionaryTools {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
 		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
-		logger.info(xsampa.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
 	}
 

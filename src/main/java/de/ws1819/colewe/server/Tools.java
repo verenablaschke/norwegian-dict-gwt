@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 public class Tools {
 
 	private static Map<String, String> one2one = new HashMap<String, String>() {
+		private static final long serialVersionUID = 1L;
+
 		{
 			put("A", "ɑ");
 			put("C", "ç");
@@ -18,7 +20,6 @@ public class Tools {
 			put("U", "ʊ");
 			put("Y", "ʏ");
 			put("Z", "ʒ");
-			put("\"", "ˈ");
 			put("%", "ˌ");
 			put(":", "ː");
 			put("@", "ə");
@@ -28,7 +29,9 @@ public class Tools {
 			put("9", "œ");
 			put("\\?", "ʔ");
 			put("_", " "); // Custom: word break
-			put("'", "ˈ"); // TODO custom
+			// Custom: combination of primary stress and tone information
+			put("'", "¹");
+			put("\"", "²");
 			// Occur as typos for their lowecase counterparts:
 			put("D", "d");
 			put("K", "k");
