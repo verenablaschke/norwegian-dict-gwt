@@ -297,7 +297,9 @@ public class DictionaryTools {
 					pron = lemmaPron[1];
 					// Remove [ and ] from the transcription.
 					pron = pron.substring(1, pron.length() - 1);
+					pron = Tools.xsampaToIPA(pron);
 				}
+				tags.add(fields[1]);
 				Pos pos = string2Pos(fields[1]);
 				String[] translations = fields[2].split("/");
 				entries.put(lemma, new Entry(lemma, pos, Arrays.asList(translations), pron));
