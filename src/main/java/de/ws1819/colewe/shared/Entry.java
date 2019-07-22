@@ -1,18 +1,18 @@
 package de.ws1819.colewe.shared;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class Entry implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-	private static final long serialVersionUID = 1614919089029847522L;
-	private String lemma;
+public class Entry implements IsSerializable  {
+
+	private WordForm lemma;
 	private Pos pos;
 	// TODO? add inflection info (map)
-	private HashMap<String, String> inflections;
+	private HashMap<String, WordForm> inflections;
 	private HashSet<String> translations;
 	private String grammarNO;
 	private String usageNO;
@@ -20,38 +20,37 @@ public class Entry implements Serializable {
 	private String grammarDE;
 	private String usageDE;
 	private String abbrDE;
-	private String pronunciation;
 
+	// For GWT
 	public Entry() {
-		this(null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null);
 	}
 
 	// For dict.cc
-	public Entry(String lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO,
+	public Entry(WordForm lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO,
 			String grammarDE, String usageDE, String abbrDE) {
-		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE, null);
+		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE);
 		addTranslation(translation);
 	}
 
 	// For språkbanken
-	public Entry(String lemma, Pos pos, Map<String, String> inflections) {
-		this(lemma, pos, inflections, null, null, null, null, null, null, null, null);
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections) {
+		this(lemma, pos, inflections, null, null, null, null, null, null, null);
 	}
 
 	// For språkbanken
-	public Entry(String lemma, Pos pos, String infl, String inflForm) {
-		this(lemma, pos, null, null, null, null, null, null, null, null, null);
+	public Entry(WordForm lemma, Pos pos, String infl, WordForm inflForm) {
+		this(lemma, pos, null, null, null, null, null, null, null, null);
 		addInflection(infl, inflForm);
 	}
 
 	// For the NO>DE dictionary
-	public Entry(String lemma, Pos pos, Collection<String> translations, String pronunciation) {
-		this(lemma, pos, null, translations, null, null, null, null, null, null, pronunciation);
+	public Entry(WordForm lemma, Pos pos, Collection<String> translations) {
+		this(lemma, pos, null, translations, null, null, null, null, null, null);
 	}
 
-	public Entry(String lemma, Pos pos, Map<String, String> inflections, Collection<String> translations,
-			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE,
-			String pronunciation) {
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
+			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -62,13 +61,12 @@ public class Entry implements Serializable {
 		setGrammarDE(grammarDE);
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
-		setPronunciation(pronunciation);
 	}
 
 	/**
 	 * @return the lemma
 	 */
-	public String getLemma() {
+	public WordForm getLemma() {
 		return lemma;
 	}
 
@@ -76,9 +74,13 @@ public class Entry implements Serializable {
 	 * @param lemma
 	 *            the lemma to set
 	 */
-	public void setLemma(String lemma) {
+	public void setLemma(WordForm lemma) {
 		this.lemma = lemma;
 	}
+
+	// public void setLemma(String lemma) {
+	// this.lemma = new WordForm(lemma);
+	// }
 
 	/**
 	 * @return the pos
@@ -102,7 +104,7 @@ public class Entry implements Serializable {
 	/**
 	 * @return the inflections
 	 */
-	public Map<String, String> getInflections() {
+	public Map<String, WordForm> getInflections() {
 		return inflections;
 	}
 
@@ -110,14 +112,18 @@ public class Entry implements Serializable {
 	 * @param inflections
 	 *            the inflections to set
 	 */
-	public void setInflections(Map<String, String> inflections) {
-		this.inflections = (inflections == null ? new HashMap<String, String>()
-				: new HashMap<String, String>(inflections));
+	public void setInflections(Map<String, WordForm> inflections) {
+		this.inflections = (inflections == null ? new HashMap<String, WordForm>()
+				: new HashMap<String, WordForm>(inflections));
 	}
 
-	public void addInflection(String infl, String form) {
+	public void addInflection(String infl, WordForm form) {
 		inflections.put(infl, form);
 	}
+
+	// public void addInflection(String infl, String form) {
+	// inflections.put(infl, new WordForm(form));
+	// }
 
 	/**
 	 * @return the translations
@@ -149,7 +155,7 @@ public class Entry implements Serializable {
 	 * @param inflections
 	 *            the inflections to set
 	 */
-	public void setInflections(HashMap<String, String> inflections) {
+	public void setInflections(HashMap<String, WordForm> inflections) {
 		this.inflections = inflections;
 	}
 
@@ -225,21 +231,10 @@ public class Entry implements Serializable {
 		this.abbrDE = (abbrDE == null ? "" : abbrDE);
 	}
 
-	public String getPronunciation() {
-		if (pronunciation.isEmpty()) {
-			return "";
-		}
-		return "/" + pronunciation + "/";
-	}
-
-	public void setPronunciation(String pronunciation) {
-		this.pronunciation = (pronunciation == null ? "" : pronunciation);
-	}
-
 	public String toString() {
-		return lemma + ": " + translations + " (" + pronunciation + ", " + pos + ", {" + grammarNO + "} [" + usageNO
-				+ "] <" + abbrNO + ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE
-				+ "] <" + abbrDE + ">)";
+		return lemma + ": " + translations + " (" + pos + ", {" + grammarNO + "} [" + usageNO + "] <" + abbrNO
+				+ ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE + "] <" + abbrDE
+				+ ">)";
 	}
 
 	/*
@@ -258,7 +253,6 @@ public class Entry implements Serializable {
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
-		result = prime * result + ((pronunciation == null) ? 0 : pronunciation.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
 		result = prime * result + ((usageDE == null) ? 0 : usageDE.hashCode());
 		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
@@ -325,13 +319,6 @@ public class Entry implements Serializable {
 			return false;
 		}
 		if (pos != other.pos) {
-			return false;
-		}
-		if (pronunciation == null) {
-			if (other.pronunciation != null) {
-				return false;
-			}
-		} else if (!pronunciation.equals(other.pronunciation)) {
 			return false;
 		}
 		if (translations == null) {

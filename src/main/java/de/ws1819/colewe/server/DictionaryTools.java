@@ -20,6 +20,7 @@ import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Pos;
+import de.ws1819.colewe.shared.WordForm;
 
 public class DictionaryTools {
 
@@ -83,9 +84,9 @@ public class DictionaryTools {
 				// Save the entry.
 				for (String pos : posTags) {
 					entries.put(lemma,
-							new Entry(lemma, string2Pos(pos), lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
-									lemmaAndCommentsNO[2], lemmaAndCommentsNO[3], lemmaAndCommentsDE[1],
-									lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
+							new Entry(new WordForm(lemma), string2Pos(pos), lemmaAndCommentsDE[0],
+									lemmaAndCommentsNO[1], lemmaAndCommentsNO[2], lemmaAndCommentsNO[3],
+									lemmaAndCommentsDE[1], lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
 				}
 
 			}
@@ -248,9 +249,9 @@ public class DictionaryTools {
 				// Save lemma ID, inflection information and inflected form.
 				Entry entry = inflections.get(id);
 				if (entry == null) {
-					entry = new Entry(lemma, pos, infl, inflForm);
+					entry = new Entry(new WordForm(lemma), pos, infl, new WordForm(inflForm));
 				} else {
-					entry.addInflection(infl, inflForm);
+					entry.addInflection(infl, new WordForm(inflForm));
 				}
 				inflections.put(id, entry);
 			}
@@ -306,7 +307,7 @@ public class DictionaryTools {
 				tags.add(fields[1]);
 				Pos pos = string2Pos(fields[1]);
 				String[] translations = fields[2].split("/");
-				entries.put(lemma, new Entry(lemma, pos, Arrays.asList(translations), pron));
+				entries.put(lemma, new Entry(new WordForm(lemma, pron), pos, Arrays.asList(translations)));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

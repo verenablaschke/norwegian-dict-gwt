@@ -8,6 +8,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import de.ws1819.colewe.shared.WordForm;
+
 public class EntryWidget extends Composite {
 
 	private static EntryWidgetUiBinder uiBinder = GWT.create(EntryWidgetUiBinder.class);
@@ -17,7 +19,7 @@ public class EntryWidget extends Composite {
 
 	@UiField
 	Label headword;
-	
+
 	@UiField
 	Label pron;
 
@@ -46,10 +48,10 @@ public class EntryWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public EntryWidget(String headword, String translation, String grammarNO, String usageNO, String abbrNO,
-			String grammarDE, String usageDE, String abbrDE, String pron) {
+	public EntryWidget(WordForm headword, String translation, String grammarNO, String usageNO, String abbrNO,
+			String grammarDE, String usageDE, String abbrDE) {
 		this();
-		setHeadword(headword);
+		setHeadword(headword.getForm());
 		setTranslation(translation);
 		setGrammarNO(grammarNO);
 		setUsageNO(usageNO);
@@ -57,17 +59,17 @@ public class EntryWidget extends Composite {
 		setGrammarDE(grammarDE);
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
-		setPron(pron);
+		setPron(headword.getPronunciation());
 	}
 
-	public EntryWidget(String headword, String translation) {
-		this(headword, translation, null, null, null, null, null, null, null);
+	public EntryWidget(WordForm headword, String translation) {
+		this(headword, translation, null, null, null, null, null, null);
 	}
 
 	public void setHeadword(String headword) {
 		this.headword.setText(headword);
 	}
-	
+
 	public void setPron(String pron) {
 		this.pron.setText(pron);
 	}

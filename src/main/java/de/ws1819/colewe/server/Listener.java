@@ -19,6 +19,7 @@ import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Pos;
+import de.ws1819.colewe.shared.WordForm;
 
 // @WebListener()
 public class Listener implements ServletContextListener, HttpSessionListener, HttpSessionAttributeListener {
@@ -88,8 +89,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesD == null) {
 				for (Entry entryF : entriesF) {
 					addInfMarker(entryF);
-					for (String wordForm : entryF.getInflections().values()) {
-						allEntries.put(wordForm, entryF);
+					for (WordForm wordForm : entryF.getInflections().values()) {
+						allEntries.put(wordForm.getForm(), entryF);
 					}
 				}
 				continue;
@@ -108,13 +109,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					if (entryD.getPos().equals(entryF.getPos())) {
 						// Same lemma and same POS tag? Merge entries!
 						entryD.setInflections(entryF.getInflections());
-						for (String wordForm : entryF.getInflections().values()) {
-							allEntries.put(wordForm, entryD);
+						for (WordForm wordForm : entryF.getInflections().values()) {
+							allEntries.put(wordForm.getForm(), entryD);
 						}
 					} else {
 						allEntries.put(lemma, entryD);
-						for (String wordForm : entryF.getInflections().values()) {
-							allEntries.put(wordForm, entryF);
+						for (WordForm wordForm : entryF.getInflections().values()) {
+							allEntries.put(wordForm.getForm(), entryF);
 						}
 					}
 				}
@@ -128,8 +129,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 	private void addInfMarker(Entry entry) {
 		// If appropriate, add the infinitive marker.
-		if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().startsWith("å ")) {
-			entry.setLemma("å " + entry.getLemma());
+		if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().getForm().startsWith("å ")) {
+			entry.setLemma(new WordForm("å " + entry.getLemma().getForm(), entry.getLemma().getPronunciation()));
 		}
 	}
 

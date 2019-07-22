@@ -108,10 +108,10 @@ public class WordWidget extends Composite implements HasText {
 						RootPanel.get("infoContainer")
 								.add(new EntryWidget(entry.getLemma(), entry.getTranslationString(),
 										entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO(),
-										entry.getGrammarDE(), entry.getUsageDE(), entry.getAbbrDE(),
-										entry.getPronunciation()));
+										entry.getGrammarDE(), entry.getUsageDE(), entry.getAbbrDE()));
 					} catch (Exception exc) {
-						// TODO del
+						logger.warning(exc.getMessage());
+						logger.warning(exc.getStackTrace().toString());
 						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));
 					}
 				}
@@ -122,7 +122,10 @@ public class WordWidget extends Composite implements HasText {
 			@Override
 			public void onFailure(Throwable caught) {
 				// TODO user-appropriate display
-				RootPanel.get("infoContainer").add(new Label("RPC error: " + caught.getMessage()));
+				logger.warning(caught.getMessage());
+				logger.warning(caught.getStackTrace().toString());
+				RootPanel.get("infoContainer")
+						.add(new Label("RPC error: " + caught.getMessage() + caught.getStackTrace()));
 			}
 		});
 	}

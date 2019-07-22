@@ -1,8 +1,8 @@
 package de.ws1819.colewe.shared;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public enum Pos implements Serializable {
+public enum Pos implements IsSerializable  {
 
 	ADJ, ADV, CONJ, NOUN, PREP, PRON, VERB,
 	// other: For now, tags that do not match up between the different sources.
