@@ -1,0 +1,26 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+	.word {
+		display: inline;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+			"Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+			"Segoe UI Emoji", "Segoe UI Symbol";
+		font-size: 1rem;
+	}
+	
+	.word-headword {
+		font-weight: bold;
+	}
+	
+	.pron {
+		color: grey;
+	}
+	</ui:style>
+	<g:HTMLPanel>
+		<g:Label ui:field="word" styleName="{style.word}" />
+		<g:Label ui:field="pron" styleName="{style.word} {style.pron}" />
+		<br />
+	</g:HTMLPanel>
+</ui:UiBinder> 
