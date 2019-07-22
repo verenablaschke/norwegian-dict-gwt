@@ -101,17 +101,12 @@ public class WordWidget extends Composite implements HasText {
 				}
 				for (Entry entry : results) {
 					logger.info("-- " + entry.toString());
-					// TODO extra info (comments) via badge?
-					// RootPanel.get("infoContainer").add(new
-					// Label(entry.toString()));
 					try {
-						RootPanel.get("infoContainer")
-								.add(new EntryWidget(entry.getLemma(), entry.getTranslationString(),
-										entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO(),
-										entry.getGrammarDE(), entry.getUsageDE(), entry.getAbbrDE()));
+						RootPanel.get("infoContainer").add(new EntryWidget(entry));
 					} catch (Exception exc) {
 						logger.warning(exc.getMessage());
 						logger.warning(exc.getStackTrace().toString());
+						// TODO user-appropriate display
 						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));
 					}
 				}

@@ -22,7 +22,6 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		logger.info("Querying " + word);
 		SetMultimap<String, Entry> tokenMap = (SetMultimap<String, Entry>) getServletContext().getAttribute("entries");
 		logger.info("-- " + tokenMap.get(word).toString());
-		logger.info("-- " + new ArrayList<Entry>(tokenMap.get(word)).toString());
 		return new ArrayList<Entry>(tokenMap.get(word));
 	}
 }

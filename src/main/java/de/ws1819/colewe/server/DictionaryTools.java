@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -291,23 +292,32 @@ public class DictionaryTools {
 					continue;
 				}
 
-				String[] lemmaPron = fields[0].trim().split("#");
-				String lemma = lemmaPron[0];
-				String pron = null;
-				if (lemmaPron.length > 1) {
-					pron = lemmaPron[1].trim().split(",")[0]; // TODO deal with
-																// additional
-																// entries
-																// (inflection
-																// forms!)
-					// Remove [ and ] from the transcription.
-					pron = pron.substring(1, pron.length() - 1);
-					pron = Tools.xsampaToIPA(pron);
+				String[] inflections = fields[0].trim().split(",");
+				WordForm lemma = null;
+				HashMap<String, WordForm> infl = new HashMap<String, WordForm>();
+				for (int i = 0; i < inflections.length; i++) {
+					String[] wordPron = inflections[i].trim().split("#");
+					String word = wordPron[0];
+					String pron = null;
+					if (wordPron.length > 1) {
+						pron = wordPron[1].trim();
+						// Remove [ and ] from the transcription.
+						pron = pron.substring(1, pron.length() - 1);
+						pron = Tools.xsampaToIPA(pron);
+					}
+					if (i == 0) {
+						lemma = new WordForm(word, pron);
+					} else {
+						infl.put("????", new WordForm(word, pron)); // TODO key
+					}
 				}
+
 				tags.add(fields[1]);
 				Pos pos = string2Pos(fields[1]);
+				// TODO differentiate between // and /
 				String[] translations = fields[2].split("/");
-				entries.put(lemma, new Entry(new WordForm(lemma, pron), pos, Arrays.asList(translations)));
+
+				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, Arrays.asList(translations)));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

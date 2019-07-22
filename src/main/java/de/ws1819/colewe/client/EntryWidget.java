@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.WordForm;
 
 public class EntryWidget extends Composite {
@@ -37,23 +38,25 @@ public class EntryWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public EntryWidget(WordForm headword, String translation, String grammarNO, String usageNO, String abbrNO,
-			String grammarDE, String usageDE, String abbrDE) {
+	//
+	// public EntryWidget(WordForm headword, String translation, String
+	// grammarNO, String usageNO, String abbrNO,
+	// String grammarDE, String usageDE, String abbrDE) {
+	public EntryWidget(Entry entry) {
 		this();
-		setWord(headword);
-		setTranslation(translation);
-		setBadgesNO(grammarNO, usageNO, abbrNO);
-		setGrammarDE(grammarDE);
-		setUsageDE(usageDE);
-		setAbbrDE(abbrDE);
+		setWord(entry.getLemma(), true);
+		setBadgesNO(entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO());
+		for (WordForm wf : entry.getInflections().values()) {
+			setWord(wf, false);
+		}
+		setTranslation(entry.getTranslationString());
+		setGrammarDE(entry.getGrammarDE());
+		setUsageDE(entry.getUsageDE());
+		setAbbrDE(entry.getAbbrDE());
 	}
 
-	public EntryWidget(WordForm headword, String translation) {
-		this(headword, translation, null, null, null, null, null, null);
-	}
-
-	public void setWord(WordForm wordform) {
-		wordPanel.add(new WordFormWidget(wordform, true));
+	public void setWord(WordForm wordform, boolean lemma) {
+		wordPanel.add(new WordFormWidget(wordform, lemma));
 	}
 
 	public void setTranslation(String translation) {
