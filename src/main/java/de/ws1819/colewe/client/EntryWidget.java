@@ -38,10 +38,6 @@ public class EntryWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	//
-	// public EntryWidget(WordForm headword, String translation, String
-	// grammarNO, String usageNO, String abbrNO,
-	// String grammarDE, String usageDE, String abbrDE) {
 	public EntryWidget(Entry entry) {
 		this();
 		setWord(entry.getLemma(), true);

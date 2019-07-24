@@ -33,10 +33,6 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<g:HorizontalPanel ui:field="wordPanel" styleName="wordform" />
-		<g:HTML ui:field="grammarNOBadge" styleName="badge badge-info" />
-		<g:HTML ui:field="usageNOBadge" styleName="badge badge-warning" />
-		<g:HTML ui:field="abbrNOBadge" styleName="badge badge-secondary" />
-		<br />
 		<g:Label ui:field="translation" styleName="{style.translation}" />
 		<g:HTML ui:field="grammarDEBadge" styleName="badge {style.info-light}" />
 		<g:HTML ui:field="usageDEBadge" styleName="badge {style.warning-light}" />

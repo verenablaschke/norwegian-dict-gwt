@@ -292,6 +292,9 @@ public class DictionaryTools {
 					continue;
 				}
 
+				tags.add(fields[1]);
+				Pos pos = string2Pos(fields[1]);
+
 				String[] inflections = fields[0].trim().split(",");
 				WordForm lemma = null;
 				HashMap<String, WordForm> infl = new HashMap<String, WordForm>();
@@ -308,12 +311,13 @@ public class DictionaryTools {
 					if (i == 0) {
 						lemma = new WordForm(word, pron);
 					} else {
+						if (word.startsWith("-")) {
+							// TODO #17
+						}
 						infl.put("????", new WordForm(word, pron)); // TODO key
 					}
 				}
 
-				tags.add(fields[1]);
-				Pos pos = string2Pos(fields[1]);
 				// TODO differentiate between // and /
 				String[] translations = fields[2].split("/");
 

@@ -10,6 +10,11 @@
 		margin-top: 4px;
 	}
 	
+	.filler {
+		display: inline-block;
+		padding: 1px;
+	}
+	
 	.info-light {
 		background-color: #81cfdb;
 		color: black;
@@ -28,6 +33,7 @@
 		<g:HTML ui:field="grammarBadge" styleName="badge badge-info {style.badge}" />
 		<g:HTML ui:field="usageBadge" styleName="badge badge-warning {style.badge}" />
 		<g:HTML ui:field="abbrBadge" styleName="badge badge-secondary {style.badge}" />
+		<g:HTML styleName="{style.filler}" />
 		<!-- <g:HTML ui:field="grammarDEBadge" styleName="badge {style.info-light}" 
 			/> <g:HTML ui:field="usageDEBadge" styleName="badge {style.warning-light}" 
 			/> <g:HTML ui:field="abbrDEBadge" styleName="badge {style.secondary-light}" 
