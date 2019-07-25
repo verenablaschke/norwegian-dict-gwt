@@ -32,6 +32,7 @@ public class DictionaryTools {
 	private static final Pattern patternSquare = Pattern.compile("\\s\\[.*?\\]");
 	private static final Pattern patternSquareWithoutWS = Pattern.compile("\\[.*?\\]");
 	private static final Pattern patternTriangle = Pattern.compile("\\s\\<.*?\\>");
+	private static final Pattern patternUppercase = Pattern.compile("[A-Z]");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -276,6 +277,8 @@ public class DictionaryTools {
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> tags = new HashSet<>(); // TODO del
+		HashSet<String> lower = new HashSet<>(); // TODO del
+		HashSet<String> info = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -291,8 +294,14 @@ public class DictionaryTools {
 					continue;
 				}
 
-				tags.add(fields[1]);
-				Pos pos = string2Pos(fields[1]);
+				String[] posAndInfl = parsePOS(fields[1]);
+				String posString = posAndInfl[0];
+				String grammarNO = posAndInfl[1];
+				String extra = posAndInfl[2];
+				tags.add(posString);
+				lower.add(grammarNO);
+				info.add(extra);
+				Pos pos = string2Pos(posString);
 
 				String[] inflections = fields[0].trim().split(",");
 				WordForm lemma = null;
@@ -343,7 +352,7 @@ public class DictionaryTools {
 						 */
 						translations.add(wordAndComment[0].replace("_", " "));
 					}
-					entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, usageDE));
+					entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageDE));
 				}
 
 			}
@@ -355,7 +364,39 @@ public class DictionaryTools {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
 		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
+		logger.info(lower.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
+		logger.info(info.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		return entries;
+	}
+
+	private static String[] parsePOS(String s) {
+		// POSTAGnoungender[extra=info]
+		String pos = "";
+		int i;
+		for (i = 0; i < s.length(); i++) {
+			if (Character.isUpperCase(s.charAt(i))) {
+				pos += s.charAt(i);
+			} else {
+				break;
+			}
+		}
+		if (i == s.length()) {
+			return new String[] { pos, "", "" };
+		}
+		int startExtra = s.indexOf("[");
+		String extra = "";
+		if (startExtra != -1) {
+			// without the brackets
+			extra = s.substring(startExtra + 1, s.length() - 1);
+		}
+		String gender = "";
+		if (startExtra == -1) {
+			gender = s.substring(i);
+		} else if (startExtra > i) {
+			gender = s.substring(i, startExtra);
+		}
+
+		return new String[] { pos, gender, extra };
 	}
 
 }

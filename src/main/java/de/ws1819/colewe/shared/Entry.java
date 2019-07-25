@@ -45,8 +45,8 @@ public class Entry implements IsSerializable  {
 	}
 
 	// For the NO>DE dictionary
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations, String usageDE) {
-		this(lemma, pos, inflections, translations, null, null, null, null, usageDE, null);
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations, String grammarNO, String usageDE) {
+		this(lemma, pos, inflections, translations, grammarNO, null, null, null, usageDE, null);
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
