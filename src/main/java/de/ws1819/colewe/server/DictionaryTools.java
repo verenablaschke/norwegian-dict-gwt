@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ public class DictionaryTools {
 
 	private static final Pattern patternCurly = Pattern.compile("\\s\\{.*?\\}");
 	private static final Pattern patternSquare = Pattern.compile("\\s\\[.*?\\]");
+	private static final Pattern patternSquareWithoutWS = Pattern.compile("\\[.*?\\]");
 	private static final Pattern patternTriangle = Pattern.compile("\\s\\<.*?\\>");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
@@ -199,7 +201,6 @@ public class DictionaryTools {
 		}
 
 		logger.info("Read " + lemmata.size() + " lemmata from Språkbanken's lemma list.");
-		logger.info(lemmata.get(50065)); // TODO delete
 		return lemmata;
 	}
 
@@ -264,8 +265,6 @@ public class DictionaryTools {
 
 		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		logger.info(inflections.get(50065).toString()); // TODO
-														// delete
 
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		for (java.util.Map.Entry<Integer, Entry> entry : inflections.entrySet()) {
@@ -300,7 +299,7 @@ public class DictionaryTools {
 				HashMap<String, WordForm> infl = new HashMap<String, WordForm>();
 				for (int i = 0; i < inflections.length; i++) {
 					String[] wordPron = inflections[i].trim().split("#");
-					String word = wordPron[0];
+					String word = wordPron[0].replace("_", " ");
 					String pron = null;
 					if (wordPron.length > 1) {
 						pron = wordPron[1].trim();
@@ -318,10 +317,35 @@ public class DictionaryTools {
 					}
 				}
 
-				// TODO differentiate between // and /
-				String[] translations = fields[2].split("/");
+				// Major meaning blocks in polysemous entries are separated by
+				// //.
+				// TODO look up the proper terminology and rename the vars
+				String[] transl = fields[2].split("//");
+				for (int i = 0; i < transl.length; i++) {
+					// German synonyms are separated by /.
+					String[] translationsRaw = transl[i].split("/");
+					HashSet<String> translations = new HashSet<String>();
+					// TODO or make this a list instead? canonical order?
+					String usageDE = "";
+					for (int j = 0; j < translationsRaw.length; j++) {
+						//
+						String[] wordAndComment = match(patternSquareWithoutWS, translationsRaw[j]);
+						if (!wordAndComment[1].isEmpty()) {
+							// There is no more than one comment per meaning.
+							usageDE = wordAndComment[1].replace("_", " ");
+						}
+						/*
+						 * Some of the translational equivalents include domain
+						 * // information. Then, the entry in the txt file looks
+						 * like this: "anløp#["Anl2:p] Nn
+						 * Anlaufen[eines_Hafens]/Anlaufen" with the German
+						 * translational equivalent repeated.
+						 */
+						translations.add(wordAndComment[0].replace("_", " "));
+					}
+					entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, usageDE));
+				}
 
-				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, Arrays.asList(translations)));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
