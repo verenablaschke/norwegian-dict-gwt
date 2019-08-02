@@ -142,18 +142,37 @@ public class DictionaryTools {
 		}
 		switch (s.toLowerCase()) {
 		case "adj":
+		case "a":
 			return Pos.ADJ;
 		case "adv":
 			return Pos.ADV;
 		case "conj":
 		case "konj":
+		case "cnj":
 			return Pos.CONJ;
+		case "det":
+			return Pos.DET;
+		case "interj":
+		case "itj":
+			return Pos.ITJ;
 		case "noun":
 		case "subst":
+		case "n":
 			return Pos.NOUN;
+		case "prefix":
+		case "pfx":
+			return Pos.PFX;
 		case "prep":
+		case "prp":
 			return Pos.PREP;
+		case "pron":
+		case "prn":
+			return Pos.PRON;
+		case "suffix":
+		case "sfx":
+			return Pos.SFX;
 		case "verb":
+		case "v":
 			return Pos.VERB;
 		}
 		return Pos.OTHER;
