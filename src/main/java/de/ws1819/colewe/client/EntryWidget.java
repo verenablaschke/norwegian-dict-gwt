@@ -41,7 +41,8 @@ public class EntryWidget extends Composite {
 	public EntryWidget(Entry entry) {
 		this();
 		setWord(entry.getLemma(), true);
-		setBadgesNO(entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO());
+		String pos = entry.getPos().toString();
+		setBadgesNO((pos.isEmpty() ? "" : pos + " ") + entry.getGrammarNO(), entry.getUsageNO(), entry.getAbbrNO());
 		for (WordForm wf : entry.getInflections().values()) {
 			setWord(wf, false);
 		}

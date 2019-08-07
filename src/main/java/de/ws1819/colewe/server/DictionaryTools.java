@@ -145,34 +145,53 @@ public class DictionaryTools {
 		case "a":
 			return Pos.ADJ;
 		case "adv":
+		case "fadv": // question adverb
+		case "radv": // response adverb
 			return Pos.ADV;
 		case "conj":
 		case "konj":
 		case "cnj":
+		case "sbu": // subordinating conjunction
+		case "sbj": // subordinating conjunction
 			return Pos.CONJ;
 		case "det":
+		case "fdet": // question determiner
+		case "num":
+		case "fnum": // question numeral (how many)
 			return Pos.DET;
 		case "interj":
 		case "itj":
+		case "fitj": // question interjection
 			return Pos.ITJ;
 		case "noun":
 		case "subst":
 		case "n":
+		case "nm": // typo for 'n'
 			return Pos.NOUN;
 		case "prefix":
 		case "pfx":
 			return Pos.PFX;
 		case "prep":
 		case "prp":
+		case "ccp": // circumposition
 			return Pos.PREP;
 		case "pron":
 		case "prn":
+		case "fprn": // question pronoun
+		case "rprn": // response pronoun
 			return Pos.PRON;
+		case "s":
+		case "fs": // question
+			return Pos.SENT;
 		case "suffix":
 		case "sfx":
 			return Pos.SFX;
 		case "verb":
 		case "v":
+		case "vi":
+		case "vt":
+		case "vr": // typo for 'vt'
+		case "vtt":
 			return Pos.VERB;
 		}
 		return Pos.OTHER;
