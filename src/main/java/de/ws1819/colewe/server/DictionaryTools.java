@@ -143,6 +143,11 @@ public class DictionaryTools {
 		switch (s.toLowerCase()) {
 		case "adj":
 		case "a":
+		case "pres-p adj":
+		case "adj pres-p":
+		case "past-p adj":
+		case "adj past-p":
+		case "past-p":
 			return Pos.ADJ;
 		case "adv":
 		case "fadv": // question adverb
@@ -163,11 +168,14 @@ public class DictionaryTools {
 		case "itj":
 		case "fitj": // question interjection
 			return Pos.ITJ;
+		case "ne":
+			return Pos.NE;
 		case "noun":
 		case "subst":
 		case "n":
 		case "nm": // typo for 'n'
 			return Pos.NOUN;
+		case "pref":
 		case "prefix":
 		case "pfx":
 			return Pos.PFX;
