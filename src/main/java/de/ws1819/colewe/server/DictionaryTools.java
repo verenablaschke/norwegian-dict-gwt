@@ -5,16 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Stack;
 import java.util.TreeSet;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
@@ -27,12 +21,6 @@ import de.ws1819.colewe.shared.WordForm;
 public class DictionaryTools {
 
 	private static final Logger logger = Logger.getLogger(DictionaryTools.class.getSimpleName());
-
-	private static final Pattern patternCurly = Pattern.compile("\\s\\{.*?\\}");
-	private static final Pattern patternSquare = Pattern.compile("\\s\\[.*?\\]");
-	private static final Pattern patternSquareWithoutWS = Pattern.compile("\\[.*?\\]");
-	private static final Pattern patternTriangle = Pattern.compile("\\s\\<.*?\\>");
-	private static final Pattern patternUppercase = Pattern.compile("[A-Z]");
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -60,11 +48,11 @@ public class DictionaryTools {
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
 
 				// Find and remove comments.
-				String[] lemmaAndCommentsNO = extractDictCCComments(lemma);
+				String[] lemmaAndCommentsNO = Tools.extractDictCCComments(lemma);
 				lemma = lemmaAndCommentsNO[0];
 
 				// Get the translational equivalent and extract comments.
-				String[] lemmaAndCommentsDE = extractDictCCComments(fields[1].trim());
+				String[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
 
 				// If available, get POS tag.
 				String posTags[] = null;
@@ -87,10 +75,12 @@ public class DictionaryTools {
 
 				// Save the entry.
 				for (String pos : posTags) {
+					Pos posTag = Tools.string2Pos(pos);
+
 					entries.put(lemma,
-							new Entry(new WordForm(lemma), string2Pos(pos), lemmaAndCommentsDE[0],
-									lemmaAndCommentsNO[1], lemmaAndCommentsNO[2], lemmaAndCommentsNO[3],
-									lemmaAndCommentsDE[1], lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
+							new Entry(new WordForm(lemma), posTag, lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
+									lemmaAndCommentsNO[2], lemmaAndCommentsNO[3], lemmaAndCommentsDE[1],
+									lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
 				}
 
 			}
@@ -102,107 +92,6 @@ public class DictionaryTools {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		return entries;
-	}
-
-	private static String[] extractDictCCComments(String lemma) {
-		String[] grammar = match(patternCurly, lemma);
-		lemma = grammar[0];
-		String[] usage = match(patternSquare, lemma);
-		lemma = usage[0];
-		String[] abbr = match(patternTriangle, lemma);
-		// abbr[0] is the lemma
-		return new String[] { abbr[0], grammar[1], usage[1], abbr[1] };
-	}
-
-	private static String[] match(Pattern pattern, String lemma) {
-		Matcher matcher = pattern.matcher(lemma);
-		String comment = "";
-		String match;
-		Stack<Integer> matches = new Stack<>();
-		while (matcher.find()) {
-			match = matcher.group().trim();
-			// Remove the brackets around the comment.
-			comment += match.substring(1, match.length() - 1) + ", ";
-			matches.push(matcher.end());
-			matches.push(matcher.start());
-		}
-		// Remove trailing ', '.
-		if (comment.length() > 2) {
-			comment = comment.substring(0, comment.length() - 2);
-		}
-		while (!matches.isEmpty()) {
-			lemma = lemma.substring(0, matches.pop()) + lemma.substring(matches.pop());
-		}
-		return new String[] { lemma.trim(), comment.trim() };
-	}
-
-	private static Pos string2Pos(String s) {
-		if (s == null) {
-			return Pos.NULL;
-		}
-		switch (s.toLowerCase()) {
-		case "adj":
-		case "a":
-		case "pres-p adj":
-		case "adj pres-p":
-		case "past-p adj":
-		case "adj past-p":
-		case "past-p":
-			return Pos.ADJ;
-		case "adv":
-		case "fadv": // question adverb
-		case "radv": // response adverb
-			return Pos.ADV;
-		case "conj":
-		case "konj":
-		case "cnj":
-		case "sbu": // subordinating conjunction
-		case "sbj": // subordinating conjunction
-			return Pos.CONJ;
-		case "det":
-		case "fdet": // question determiner
-		case "num":
-		case "fnum": // question numeral (how many)
-			return Pos.DET;
-		case "interj":
-		case "itj":
-		case "fitj": // question interjection
-			return Pos.ITJ;
-		case "ne":
-			return Pos.NE;
-		case "noun":
-		case "subst":
-		case "n":
-		case "nm": // typo for 'n'
-			return Pos.NOUN;
-		case "pref":
-		case "prefix":
-		case "pfx":
-			return Pos.PFX;
-		case "prep":
-		case "prp":
-		case "ccp": // circumposition
-			return Pos.PREP;
-		case "pron":
-		case "prn":
-		case "fprn": // question pronoun
-		case "rprn": // response pronoun
-			return Pos.PRON;
-		case "s":
-		case "fs": // question
-			return Pos.SENT;
-		case "suffix":
-		case "sfx":
-			return Pos.SFX;
-		case "verb":
-		case "v":
-		case "vi":
-		case "vt":
-		case "vr": // typo for 'vt'
-		case "vtt":
-			return Pos.VERB;
-		}
-		return Pos.OTHER;
 	}
 
 	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
@@ -253,6 +142,7 @@ public class DictionaryTools {
 
 	public static ListMultimap<String, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
 		HashMap<Integer, Entry> inflections = new HashMap<>();
+		HashSet<String> tags = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -270,7 +160,7 @@ public class DictionaryTools {
 				line = line.trim();
 				fields = line.split("\\t");
 				if (fields.length < 9) {
-					System.err.println("Line too short: " + line);
+					logger.warning("Line too short: " + line);
 					continue;
 				}
 
@@ -282,17 +172,28 @@ public class DictionaryTools {
 						// File header
 						continue;
 					}
-					System.err.println("Lemma ID is not an integer: " + line);
+					logger.warning("Lemma ID is not an integer: " + line);
 					continue;
 				}
 				lemma = lemmata.get(id);
 				if (lemma == null) {
-					System.err.println("Lemma ID " + id + " does not have a string form. Line: " + line);
+					logger.fine("Lemma ID " + id + " does not have a string form. Line: " + line);
 					continue;
 				}
 
 				String infl = fields[3].trim();
-				Pos pos = string2Pos(infl.split("\\s+")[0]);
+				String posString = infl.split("\\s+")[0];
+				Pos pos = Tools.string2Pos(posString);
+				if (posString.equals("adjektiv") || posString.equals("forsk") || posString.equals("inf")) {
+					// Duplicate entries.
+					continue;
+				}
+				if (!posString.contains("+") && !posString.contains("-")) {
+					// multi-word phrases
+					tags.add(posString);
+				}
+				// If the POS tag is OTHER, we're either dealing with an
+				// abbreviation or a multi-word phrase.
 				String inflForm = fields[2].trim();
 
 				// Save lemma ID, inflection information and inflected form.
@@ -312,11 +213,13 @@ public class DictionaryTools {
 
 		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
+		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		for (java.util.Map.Entry<Integer, Entry> entry : inflections.entrySet()) {
 			entries.put(lemmata.get(entry.getKey()), entry.getValue());
 		}
+		logger.info(entries.get("bli").toString());
 		return entries;
 	}
 
@@ -340,14 +243,18 @@ public class DictionaryTools {
 					continue;
 				}
 
-				String[] posAndInfl = parsePOS(fields[1]);
+				String[] posAndInfl = Tools.parsePOS(fields[1]);
 				String posString = posAndInfl[0];
+				if (posString.equals("VTT")) {
+					// Duplicate entry.
+					continue;
+				}
 				String grammarNO = posAndInfl[1];
 				String extra = posAndInfl[2];
 				tags.add(posString);
 				lower.add(grammarNO);
 				info.add(extra);
-				Pos pos = string2Pos(posString);
+				Pos pos = Tools.string2Pos(posString);
 
 				String[] inflections = fields[0].trim().split(",");
 				WordForm lemma = null;
@@ -368,7 +275,7 @@ public class DictionaryTools {
 						if (word.startsWith("-")) {
 							// TODO #17
 						}
-						infl.put("????", new WordForm(word, pron)); // TODO key
+						infl.put(((Integer) i).toString(), new WordForm(word, pron)); // TODO key
 					}
 				}
 
@@ -384,7 +291,7 @@ public class DictionaryTools {
 					String usageDE = "";
 					for (int j = 0; j < translationsRaw.length; j++) {
 						//
-						String[] wordAndComment = match(patternSquareWithoutWS, translationsRaw[j]);
+						String[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translationsRaw[j]);
 						if (!wordAndComment[1].isEmpty()) {
 							// There is no more than one comment per meaning.
 							usageDE = wordAndComment[1].replace("_", " ");
@@ -412,37 +319,9 @@ public class DictionaryTools {
 		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		logger.info(lower.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		logger.info(info.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
+
+		logger.info(entries.get("bli").toString());
 		return entries;
-	}
-
-	private static String[] parsePOS(String s) {
-		// POSTAGnoungender[extra=info]
-		String pos = "";
-		int i;
-		for (i = 0; i < s.length(); i++) {
-			if (Character.isUpperCase(s.charAt(i))) {
-				pos += s.charAt(i);
-			} else {
-				break;
-			}
-		}
-		if (i == s.length()) {
-			return new String[] { pos, "", "" };
-		}
-		int startExtra = s.indexOf("[");
-		String extra = "";
-		if (startExtra != -1) {
-			// without the brackets
-			extra = s.substring(startExtra + 1, s.length() - 1);
-		}
-		String gender = "";
-		if (startExtra == -1) {
-			gender = s.substring(i);
-		} else if (startExtra > i) {
-			gender = s.substring(i, startExtra);
-		}
-
-		return new String[] { pos, gender, extra };
 	}
 
 }
