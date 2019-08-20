@@ -57,13 +57,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream woerterbuchInputStream = sce.getServletContext().getResourceAsStream(WOERTERBUCH_PATH);
 
 		logger.info("Start reading dict.cc");
-		ListMultimap<String, Entry> dictcc = DictionaryTools.readDictCc(dictccInputStream);
+		ListMultimap<String, Entry> dictcc = DictionaryReader.readDictCc(dictccInputStream);
 		logger.info("Start reading lemma.txt");
-		HashMap<Integer, String> lemmata = DictionaryTools.readLemmaList(lemmaInputStream);
+		HashMap<Integer, String> lemmata = DictionaryReader.readLemmaList(lemmaInputStream);
 		logger.info("Start reading fullformsliste.txt");
-		ListMultimap<String, Entry> fullformsliste = DictionaryTools.readSpraakbanken(lemmata, inflInputStream);
+		ListMultimap<String, Entry> fullformsliste = DictionaryReader.readSpraakbanken(lemmata, inflInputStream);
 		logger.info("Start reading no-de-dict.txt");
-		ListMultimap<String, Entry> woerterbuch = DictionaryTools.readWoerterbuch(woerterbuchInputStream);
+		ListMultimap<String, Entry> woerterbuch = DictionaryReader.readWoerterbuch(woerterbuchInputStream);
 
 		// Combine the information from both sources by merging the entries when
 		// possible.

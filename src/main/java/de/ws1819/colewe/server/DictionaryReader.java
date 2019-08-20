@@ -19,9 +19,9 @@ import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Pos;
 import de.ws1819.colewe.shared.WordForm;
 
-public class DictionaryTools {
+public class DictionaryReader {
 
-	private static final Logger logger = Logger.getLogger(DictionaryTools.class.getSimpleName());
+	private static final Logger logger = Logger.getLogger(DictionaryReader.class.getSimpleName());
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -143,7 +143,6 @@ public class DictionaryTools {
 
 	public static ListMultimap<String, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		HashSet<String> tags = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -155,8 +154,7 @@ public class DictionaryTools {
 				 * TSV structure: LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
 				 * BOY_NUMMER FRADATO TILDATO NORMERING (line number, lemma id,
 				 * word, POS tag + inflection information, paradigm ID,
-				 * inflection number, from date, to date, normalization) TODO
-				 * check in documentation
+				 * inflection number, from date, to date, normalization)
 				 */
 				line = line.trim();
 				fields = line.split("\\t");
@@ -189,9 +187,9 @@ public class DictionaryTools {
 					// Duplicate entries.
 					continue;
 				}
-				if (!posString.contains("+") && !posString.contains("-")) {
+				if (posString.contains("+") || posString.contains("-")) {
+					// TODO mention in documentation?
 					// multi-word phrases
-					tags.add(posString);
 				}
 				// If the POS tag is OTHER, we're either dealing with an
 				// abbreviation or a multi-word phrase.
@@ -226,7 +224,6 @@ public class DictionaryTools {
 
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 
 		for (java.util.Map.Entry<String, WordForm> infl : entries.get("bli").get(0).getInflections().entrySet()) {
 			logger.info(infl.getValue().getForm() + " : " + infl.getKey());
@@ -236,7 +233,6 @@ public class DictionaryTools {
 
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		HashSet<String> tags = new HashSet<>(); // TODO del
 		HashSet<String> lower = new HashSet<>(); // TODO del
 		HashSet<String> info = new HashSet<>(); // TODO del
 
@@ -246,9 +242,7 @@ public class DictionaryTools {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				fields = line.split("\\s+");
-				/*
-				 * Format: lemma#[pronunciation] POS one_or_more_translations
-				 */
+				// Format: lemma#[pronunciation] POS one_or_more_translations
 				if (fields.length < 3) {
 					// Empty/faulty line.
 					continue;
@@ -262,7 +256,6 @@ public class DictionaryTools {
 				}
 				String grammarNO = posAndInfl[1];
 				String extra = posAndInfl[2];
-				tags.add(posString);
 				lower.add(grammarNO);
 				info.add(extra);
 				Pos pos = Tools.string2Pos(posString);
@@ -292,11 +285,11 @@ public class DictionaryTools {
 				}
 
 				// Major meaning blocks in polysemous entries are separated by
-				// //.
+				// double slashes.
 				// TODO look up the proper terminology and rename the vars
 				String[] transl = fields[2].split("//");
 				for (int i = 0; i < transl.length; i++) {
-					// German synonyms are separated by /.
+					// German synonyms are separated by a single slash.
 					String[] translationsRaw = transl[i].split("/");
 					HashSet<String> translations = new HashSet<String>();
 					// TODO or make this a list instead? canonical order?
@@ -328,7 +321,6 @@ public class DictionaryTools {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
-		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		logger.info(lower.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 		logger.info(info.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 
