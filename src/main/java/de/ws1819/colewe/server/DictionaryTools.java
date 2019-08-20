@@ -204,6 +204,11 @@ public class DictionaryTools {
 					for (Entry entry : entryList) {
 						if (id == entry.getLemmaID()) {
 							entry.addInflection(infl, new WordForm(inflForm));
+							if (entry.getPos() == Pos.ADJ && pos == Pos.VERB) {
+								// Verb entries also contain participles that
+								// are tagged as adjectives.
+								entry.setPos(Pos.VERB);
+							}
 							addedInfl = true;
 							break;
 						}
