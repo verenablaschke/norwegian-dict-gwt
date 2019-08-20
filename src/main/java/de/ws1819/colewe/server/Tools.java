@@ -58,7 +58,7 @@ public class Tools {
 		for (Entry<String, String> entry : one2one.entrySet()) {
 			pron = pron.replaceAll(entry.getKey(), entry.getValue());
 		}
-		return pron;
+		return "/" + pron + "/";
 	}
 
 	static Pos string2Pos(String s) {

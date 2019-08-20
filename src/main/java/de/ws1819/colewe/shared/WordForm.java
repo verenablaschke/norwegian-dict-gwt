@@ -48,10 +48,10 @@ public class WordForm implements IsSerializable {
 	 *            the pronunciation to set
 	 */
 	public void setPronunciation(String pronunciation) {
-		if (pronunciation == null || pronunciation.isEmpty()) {
+		if (pronunciation == null) {
 			this.pronunciation = "";
 		} else {
-			this.pronunciation = "/" + pronunciation + "/";
+			this.pronunciation = pronunciation;
 		}
 	}
 
