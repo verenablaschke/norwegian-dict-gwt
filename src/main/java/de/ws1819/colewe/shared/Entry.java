@@ -1,8 +1,7 @@
 package de.ws1819.colewe.shared;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -12,46 +11,43 @@ public class Entry implements IsSerializable {
 	private WordForm lemma;
 	private Pos pos;
 	private HashMap<String, WordForm> inflections;
-	private HashSet<String> translations;
+	private ArrayList<TranslationalEquivalent> translations;
 	private String grammarNO;
 	private String usageNO;
 	private String abbrNO;
-	private String grammarDE;
-	private String usageDE;
-	private String abbrDE;
 	private int lemmaID;
 
 	// For GWT
 	public Entry() {
-		this(null, null, null, null, null, null, null, null, null, null, -1);
+		this(null, null, null, null, null, null, null, -1);
 	}
 
 	// For dict.cc
-	public Entry(WordForm lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO,
-			String grammarDE, String usageDE, String abbrDE) {
-		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE, -1);
+	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, String grammarNO, String usageNO,
+			String abbrNO) {
+		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, -1);
 		addTranslation(translation);
 	}
 
 	// For språkbanken
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, int lemmaID) {
-		this(lemma, pos, inflections, null, null, null, null, null, null, null, lemmaID);
+		this(lemma, pos, inflections, null, null, null, null, lemmaID);
 	}
 
 	// For språkbanken
 	public Entry(WordForm lemma, Pos pos, String infl, WordForm inflForm, int lemmaID) {
-		this(lemma, pos, null, null, null, null, null, null, null, null, lemmaID);
+		this(lemma, pos, null, null, null, null, null, lemmaID);
 		addInflection(infl, inflForm);
 	}
 
 	// For the NO>DE dictionary
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
-			String grammarNO, String usageDE) {
-		this(lemma, pos, inflections, translations, grammarNO, null, null, null, usageDE, null, -1);
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
+			ArrayList<TranslationalEquivalent> translations, String grammarNO) {
+		this(lemma, pos, inflections, translations, grammarNO, null, null, -1);
 	}
 
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
-			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE,
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
+			ArrayList<TranslationalEquivalent> translations, String grammarNO, String usageNO, String abbrNO,
 			int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
@@ -60,9 +56,6 @@ public class Entry implements IsSerializable {
 		setGrammarNO(grammarNO);
 		setUsageNO(usageNO);
 		setAbbrNO(abbrNO);
-		setGrammarDE(grammarDE);
-		setUsageDE(usageDE);
-		setAbbrDE(abbrDE);
 		setLemmaID(lemmaID);
 	}
 
@@ -95,11 +88,15 @@ public class Entry implements IsSerializable {
 				addInflection(infl.getKey(), infl.getValue());
 			}
 		}
-		if (translations == null) {
+		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
 		} else if (other.translations != null) {
-			for (String transl : other.translations) {
-				addTranslation(transl);
+			System.out.println(other.translations);
+			for (TranslationalEquivalent transl : other.translations) {
+				// TODO avoid duplicate translations
+				System.out.println(lemma + " : " + transl.getTranslationString());
+				// TODO where does the concurrent modification exception come from?
+//				 addTranslation(transl);
 			}
 		}
 		// TODO shouldn't these be lists/sets instead?
@@ -108,30 +105,15 @@ public class Entry implements IsSerializable {
 		} else if (other.grammarNO != null && !other.grammarNO.isEmpty()) {
 			grammarNO += ", " + other.grammarNO;
 		}
-		if (grammarDE == null || grammarDE.isEmpty()) {
-			setGrammarDE(other.grammarDE);
-		} else if (other.grammarDE != null && !other.grammarDE.isEmpty()) {
-			grammarDE += ", " + other.grammarDE;
-		}
 		if (usageNO == null || usageNO.isEmpty()) {
 			setUsageNO(other.usageNO);
 		} else if (other.usageNO != null && !other.usageNO.isEmpty()) {
 			usageNO += ", " + other.usageNO;
 		}
-		if (usageDE == null || usageDE.isEmpty()) {
-			setUsageDE(other.usageDE);
-		} else if (other.usageDE != null && !other.usageDE.isEmpty()) {
-			usageDE += ", " + other.usageDE;
-		}
 		if (abbrNO == null || abbrNO.isEmpty()) {
 			setAbbrNO(other.abbrNO);
 		} else if (other.abbrNO != null && !other.abbrNO.isEmpty()) {
 			abbrNO += ", " + other.abbrNO;
-		}
-		if (abbrDE == null || abbrDE.isEmpty()) {
-			setAbbrDE(other.abbrDE);
-		} else if (other.abbrDE != null && !other.abbrDE.isEmpty()) {
-			abbrDE += ", " + other.abbrDE;
 		}
 	}
 
@@ -200,26 +182,19 @@ public class Entry implements IsSerializable {
 	/**
 	 * @return the translations
 	 */
-	public HashSet<String> getTranslations() {
+	public ArrayList<TranslationalEquivalent> getTranslations() {
 		return translations;
-	}
-
-	public String getTranslationString() {
-		String transl = translations.toString();
-		// Remove [ and ]
-		// TODO sort??
-		return transl.substring(1, transl.length() - 1);
 	}
 
 	/**
 	 * @param translations
 	 *            the translations to set
 	 */
-	public void setTranslations(Collection<String> translations) {
-		this.translations = (translations == null ? new HashSet<String>() : new HashSet<String>(translations));
+	public void setTranslations(ArrayList<TranslationalEquivalent> translations) {
+		this.translations = (translations == null ? new ArrayList<TranslationalEquivalent>() : translations);
 	}
 
-	public void addTranslation(String translation) {
+	public void addTranslation(TranslationalEquivalent translation) {
 		translations.add(translation);
 	}
 
@@ -278,31 +253,6 @@ public class Entry implements IsSerializable {
 
 	}
 
-	public String getGrammarDE() {
-		return grammarDE;
-	}
-
-	public void setGrammarDE(String grammarDE) {
-		this.grammarDE = (grammarDE == null ? "" : grammarDE);
-	}
-
-	public String getUsageDE() {
-		return usageDE;
-	}
-
-	public void setUsageDE(String usageDE) {
-		this.usageDE = (usageDE == null ? "" : usageDE);
-
-	}
-
-	public String getAbbrDE() {
-		return abbrDE;
-	}
-
-	public void setAbbrDE(String abbrDE) {
-		this.abbrDE = (abbrDE == null ? "" : abbrDE);
-	}
-
 	/**
 	 * @return the lemmaID
 	 */
@@ -320,8 +270,7 @@ public class Entry implements IsSerializable {
 
 	public String toString() {
 		return lemma + ": " + translations + " (" + pos + ", {" + grammarNO + "} [" + usageNO + "] <" + abbrNO
-				+ ">, inflections: " + inflections + ", DE: " + "{" + grammarDE + "} [" + usageDE + "] <" + abbrDE
-				+ ">)";
+				+ ">, inflections: " + inflections + ")";
 	}
 
 	/*
@@ -333,15 +282,12 @@ public class Entry implements IsSerializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((abbrDE == null) ? 0 : abbrDE.hashCode());
 		result = prime * result + ((abbrNO == null) ? 0 : abbrNO.hashCode());
-		result = prime * result + ((grammarDE == null) ? 0 : grammarDE.hashCode());
 		result = prime * result + ((grammarNO == null) ? 0 : grammarNO.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
-		result = prime * result + ((usageDE == null) ? 0 : usageDE.hashCode());
 		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
 		return result;
 	}
@@ -363,25 +309,11 @@ public class Entry implements IsSerializable {
 			return false;
 		}
 		Entry other = (Entry) obj;
-		if (abbrDE == null) {
-			if (other.abbrDE != null) {
-				return false;
-			}
-		} else if (!abbrDE.equals(other.abbrDE)) {
-			return false;
-		}
 		if (abbrNO == null) {
 			if (other.abbrNO != null) {
 				return false;
 			}
 		} else if (!abbrNO.equals(other.abbrNO)) {
-			return false;
-		}
-		if (grammarDE == null) {
-			if (other.grammarDE != null) {
-				return false;
-			}
-		} else if (!grammarDE.equals(other.grammarDE)) {
 			return false;
 		}
 		if (grammarNO == null) {
@@ -413,13 +345,6 @@ public class Entry implements IsSerializable {
 				return false;
 			}
 		} else if (!translations.equals(other.translations)) {
-			return false;
-		}
-		if (usageDE == null) {
-			if (other.usageDE != null) {
-				return false;
-			}
-		} else if (!usageDE.equals(other.usageDE)) {
 			return false;
 		}
 		if (usageNO == null) {

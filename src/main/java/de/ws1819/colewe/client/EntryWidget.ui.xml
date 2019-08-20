@@ -5,37 +5,9 @@
 	.wordform {
 		display: inline;
 	}
-	
-	.translation {
-		margin-left: 20px;
-		margin-bottom: 10px;
-		display: inline-block;
-	}
-	
-	.pron {
-		display: inline;
-		color: grey;
-	}
-	
-	.info-light {
-		background-color: #81cfdb;
-		color: black;
-	}
-	
-	.warning-light {
-		background-color: #fae39c;
-	}
-	
-	.secondary-light {
-		background-color: #d4dde6;
-		color: black;
-	}
 	</ui:style>
 	<g:HTMLPanel>
 		<g:HorizontalPanel ui:field="wordPanel" styleName="wordform" />
-		<g:Label ui:field="translation" styleName="{style.translation}" />
-		<g:HTML ui:field="grammarDEBadge" styleName="badge {style.info-light}" />
-		<g:HTML ui:field="usageDEBadge" styleName="badge {style.warning-light}" />
-		<g:HTML ui:field="abbrDEBadge" styleName="badge {style.secondary-light}" />
+		<g:VerticalPanel ui:field="translationPanel" />
 	</g:HTMLPanel>
 </ui:UiBinder> 

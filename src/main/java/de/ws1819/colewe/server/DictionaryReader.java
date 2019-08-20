@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Pos;
+import de.ws1819.colewe.shared.TranslationalEquivalent;
 import de.ws1819.colewe.shared.WordForm;
 
 public class DictionaryReader {
@@ -86,9 +88,10 @@ public class DictionaryReader {
 					Pos posTag = Tools.string2Pos(pos);
 
 					entries.put(lemma,
-							new Entry(new WordForm(lemma), posTag, lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
-									usageNO, lemmaAndCommentsNO[3], lemmaAndCommentsDE[1], lemmaAndCommentsDE[2],
-									lemmaAndCommentsDE[3]));
+							new Entry(new WordForm(lemma), posTag,
+									new TranslationalEquivalent(lemmaAndCommentsDE[0], lemmaAndCommentsDE[1],
+											lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]),
+									lemmaAndCommentsNO[1], usageNO, lemmaAndCommentsNO[3]));
 				}
 
 			}
@@ -295,31 +298,30 @@ public class DictionaryReader {
 				// double slashes.
 				// TODO look up the proper terminology and rename the vars
 				String[] transl = fields[2].split("//");
+				ArrayList<TranslationalEquivalent> translations = new ArrayList<>();
 				for (int i = 0; i < transl.length; i++) {
 					// German synonyms are separated by a single slash.
-					String[] translationsRaw = transl[i].split("/");
-					HashSet<String> translations = new HashSet<String>();
-					// TODO or make this a list instead? canonical order?
+					String[] translRaw = transl[i].split("/");
+					ArrayList<String> translElements = new ArrayList<>();
 					String usageDE = "";
-					for (int j = 0; j < translationsRaw.length; j++) {
+					for (int j = 0; j < translRaw.length; j++) {
 						//
-						String[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translationsRaw[j]);
+						String[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
 						if (!wordAndComment[1].isEmpty()) {
 							// There is no more than one comment per meaning.
 							usageDE = wordAndComment[1].replace("_", " ");
 						}
-						/*
-						 * Some of the translational equivalents include domain
-						 * // information. Then, the entry in the txt file looks
-						 * like this: "anløp#["Anl2:p] Nn
-						 * Anlaufen[eines_Hafens]/Anlaufen" with the German
-						 * translational equivalent repeated.
-						 */
-						translations.add(wordAndComment[0].replace("_", " "));
+						// Some of the translational equivalents include domain
+						// information. Then, the entry in the txt file looks
+						// like this:
+						// "anløp#["Anl2:p] Nn Anlaufen[eines_Hafens]/Anlaufen"
+						// with the German translational equivalent repeated.
+						translElements.add(wordAndComment[0].replace("_", " "));
 					}
-					entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageDE));
+					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
 
+				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

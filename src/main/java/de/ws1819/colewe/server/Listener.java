@@ -124,6 +124,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
 		for (Entry existingEntry : entries.values()) {
+			
 			if (existingEntry.merge(entry)) {
 				// Could merge entries!
 
