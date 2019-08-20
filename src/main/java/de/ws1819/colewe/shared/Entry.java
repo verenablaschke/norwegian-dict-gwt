@@ -67,13 +67,13 @@ public class Entry implements IsSerializable {
 	}
 
 	public boolean merge(Entry other) {
-		if (other.lemma == null) {
+		if (other.lemma == null || other.lemma.getForm() == null) {
 			return false;
 		}
-		if (!other.lemma.equals(lemma)) {
+		if (!other.lemma.getForm().equals(lemma.getForm())) {
 			return false;
 		}
-		if (pos != null && !pos.equals(other.pos)) {
+		if (pos != null && !pos.equals(Pos.NULL) && !pos.equals(other.pos)) {
 			return false;
 		}
 		mergeWith(other);
@@ -82,10 +82,13 @@ public class Entry implements IsSerializable {
 	}
 
 	private void mergeWith(Entry other) {
-		if (pos == null) {
+		if (lemma.getPronunciation() == null || lemma.getPronunciation().isEmpty()) {
+			lemma.setPronunciation(other.lemma.getPronunciation());
+		}
+		if (pos == null || pos.equals(Pos.NULL)) {
 			setPos(other.pos);
 		}
-		if (inflections == null) {
+		if (inflections == null || inflections.isEmpty()) {
 			setInflections(other.inflections);
 		} else if (other.inflections != null) {
 			for (java.util.Map.Entry<String, WordForm> infl : other.inflections.entrySet()) {

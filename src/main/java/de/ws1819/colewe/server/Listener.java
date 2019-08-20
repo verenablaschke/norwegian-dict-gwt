@@ -72,18 +72,14 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		logger.info(allLemmata.size() + " distinct lemmata.");
 
 		// Map from all inflected versions of the word to the entries.
-		// Using list multimaps instead of set multimaps since they require less memory.
+		// Using list multimaps instead of set multimaps since they require less
+		// memory.
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
 		for (String lemma : allLemmata) {
-			List<Entry> entriesDictCc = dictcc.get(lemma);
-			List<Entry> entriesFullformsliste = fullformsliste.get(lemma);
-			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
-
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
-			// TODO proper merging with entriesW
-
 			// Map DictCC lemmas to Entry objects.
+			List<Entry> entriesDictCc = dictcc.get(lemma);
 			if (entriesDictCc != null) {
 				for (Entry entryD : entriesDictCc) {
 					addInfMarker(entryD);
@@ -93,6 +89,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
+			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
 			if (entriesWoerterbuch != null) {
 				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
@@ -105,6 +102,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				}
 			}
 
+			List<Entry> entriesFullformsliste = fullformsliste.get(lemma);
 			if (entriesFullformsliste != null) {
 				for (Entry entryF : entriesFullformsliste) {
 					addInfMarker(entryF);
@@ -125,16 +123,22 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
-		List<Entry> entryList = entries.get(wordForm);
-		if (entryList != null) {
-			for (Entry existingEntry : entryList) {
-				if (existingEntry.merge(entry)) {
-					// Could merge entries.
+		for (Entry existingEntry : entries.values()) {
+			if (existingEntry.merge(entry)) {
+				// Could merge entries!
+
+				// This would have been nicer with a SetMultimap, but the memory
+				// overhead issues are too big a downside.
+				List<Entry> entryList = entries.get(wordForm);
+				if (entryList == null || entryList.isEmpty()) {
+					entries.put(wordForm, existingEntry);
 					return;
 				}
+				
+				return;
 			}
 		}
-		if (fullformsliste){
+		if (fullformsliste) {
 			// Don't add entries without translation information,
 			// we're already struggling with memory as is.
 			return;
