@@ -11,7 +11,6 @@ public class Entry implements IsSerializable {
 
 	private WordForm lemma;
 	private Pos pos;
-	// TODO? add inflection info (map)
 	private HashMap<String, WordForm> inflections;
 	private HashSet<String> translations;
 	private String grammarNO;
@@ -52,7 +51,8 @@ public class Entry implements IsSerializable {
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
-			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE, int lemmaID) {
+			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE,
+			int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -64,6 +64,72 @@ public class Entry implements IsSerializable {
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
 		setLemmaID(lemmaID);
+	}
+
+	public boolean merge(Entry other) {
+		if (other.lemma == null) {
+			return false;
+		}
+		if (!other.lemma.equals(lemma)) {
+			return false;
+		}
+		if (pos != null && !pos.equals(other.pos)) {
+			return false;
+		}
+		mergeWith(other);
+		return true;
+
+	}
+
+	private void mergeWith(Entry other) {
+		if (pos == null) {
+			setPos(other.pos);
+		}
+		if (inflections == null) {
+			setInflections(other.inflections);
+		} else if (other.inflections != null) {
+			for (java.util.Map.Entry<String, WordForm> infl : other.inflections.entrySet()) {
+				addInflection(infl.getKey(), infl.getValue());
+			}
+		}
+		if (translations == null) {
+			translations = other.translations;
+		} else if (other.translations != null) {
+			for (String transl : other.translations) {
+				addTranslation(transl);
+			}
+		}
+		// TODO shouldn't these be lists/sets instead?
+		if (grammarNO == null || grammarNO.isEmpty()) {
+			setGrammarNO(other.grammarNO);
+		} else if (other.grammarNO != null && !other.grammarNO.isEmpty()) {
+			grammarNO += ", " + other.grammarNO;
+		}
+		if (grammarDE == null || grammarDE.isEmpty()) {
+			setGrammarDE(other.grammarDE);
+		} else if (other.grammarDE != null && !other.grammarDE.isEmpty()) {
+			grammarDE += ", " + other.grammarDE;
+		}
+		if (usageNO == null || usageNO.isEmpty()) {
+			setUsageNO(other.usageNO);
+		} else if (other.usageNO != null && !other.usageNO.isEmpty()) {
+			usageNO += ", " + other.usageNO;
+		}
+		if (usageDE == null || usageDE.isEmpty()) {
+			setUsageDE(other.usageDE);
+		} else if (other.usageDE != null && !other.usageDE.isEmpty()) {
+			usageDE += ", " + other.usageDE;
+		}
+		if (abbrNO == null || abbrNO.isEmpty()) {
+			setAbbrNO(other.abbrNO);
+		} else if (other.abbrNO != null && !other.abbrNO.isEmpty()) {
+			abbrNO += ", " + other.abbrNO;
+		}
+		if (abbrDE == null || abbrDE.isEmpty()) {
+			setAbbrDE(other.abbrDE);
+		} else if (other.abbrDE != null && !other.abbrDE.isEmpty()) {
+			abbrDE += ", " + other.abbrDE;
+		}
 	}
 
 	/**

@@ -13,9 +13,8 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import com.google.gwt.thirdparty.guava.common.collect.HashMultimap;
+import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
-import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Pos;
@@ -71,66 +70,77 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		allLemmata.addAll(fullformsliste.keySet());
 		allLemmata.addAll(woerterbuch.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
+
 		// Map from all inflected versions of the word to the entries.
-		SetMultimap<String, Entry> allEntries = HashMultimap.create();
+		// Using list multimaps instead of set multimaps since they require less memory.
+		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
 		for (String lemma : allLemmata) {
-			List<Entry> entriesD = dictcc.get(lemma);
-			List<Entry> entriesF = fullformsliste.get(lemma);
-			List<Entry> entriesW = woerterbuch.get(lemma);
+			List<Entry> entriesDictCc = dictcc.get(lemma);
+			List<Entry> entriesFullformsliste = fullformsliste.get(lemma);
+			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
+
+			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
 			// TODO proper merging with entriesW
 
+			// Map DictCC lemmas to Entry objects.
+			if (entriesDictCc != null) {
+				for (Entry entryD : entriesDictCc) {
+					addInfMarker(entryD);
+					entries.put(lemma, entryD);
+				}
+			}
+
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
-			if (entriesW != null) {
-				for (Entry entryW : entriesW) {
+			if (entriesWoerterbuch != null) {
+				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
-					allEntries.put(lemma, entryW);
+					// allEntries.put(lemma, entryW);
+					addEntry(entryW, lemma, entries, false);
 					for (WordForm wordForm : entryW.getInflections().values()) {
-						allEntries.put(wordForm.getForm(), entryW);
+						// allEntries.put(wordForm.getForm(), entryW);
+						addEntry(entryW, wordForm.getForm(), entries, false);
 					}
 				}
 			}
 
-			if (entriesD == null) {
-				for (Entry entryF : entriesF) {
+			if (entriesFullformsliste != null) {
+				for (Entry entryF : entriesFullformsliste) {
 					addInfMarker(entryF);
+					addEntry(entryF, lemma, entries, true);
 					for (WordForm wordForm : entryF.getInflections().values()) {
-						allEntries.put(wordForm.getForm(), entryF);
-					}
-				}
-				continue;
-			}
-			if (entriesF == null) {
-				for (Entry entryD : entriesD) {
-					addInfMarker(entryD);
-					allEntries.put(lemma, entryD);
-				}
-				continue;
-			}
-			for (Entry entryD : entriesD) {
-				addInfMarker(entryD);
-				for (Entry entryF : entriesF) {
-					addInfMarker(entryF);
-					if (entryD.getPos().equals(entryF.getPos())) {
-						// Same lemma and same POS tag? Merge entries!
-						entryD.setInflections(entryF.getInflections());
-						for (WordForm wordForm : entryF.getInflections().values()) {
-							allEntries.put(wordForm.getForm(), entryD);
-						}
-					} else {
-						allEntries.put(lemma, entryD);
-						for (WordForm wordForm : entryF.getInflections().values()) {
-							allEntries.put(wordForm.getForm(), entryF);
-						}
+						// allEntries.put(wordForm.getForm(), entryW);
+						addEntry(entryF, wordForm.getForm(), entries, true);
 					}
 				}
 			}
+
+			allEntries.putAll(entries);
 		}
 		logger.info(allEntries.get("ord").toString()); // TODO del?
 
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
+	}
+
+	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
+		List<Entry> entryList = entries.get(wordForm);
+		if (entryList != null) {
+			for (Entry existingEntry : entryList) {
+				if (existingEntry.merge(entry)) {
+					// Could merge entries.
+					return;
+				}
+			}
+		}
+		if (fullformsliste){
+			// Don't add entries without translation information,
+			// we're already struggling with memory as is.
+			return;
+		}
+		// Couldn't merge the entry with an existing one, add to collection:
+		entries.put(wordForm, entry);
 	}
 
 	private void addInfMarker(Entry entry) {

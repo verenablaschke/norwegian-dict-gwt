@@ -1,10 +1,11 @@
 package de.ws1819.colewe.server;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.google.gwt.thirdparty.guava.common.collect.SetMultimap;
+import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.ws1819.colewe.client.DictionaryService;
@@ -21,7 +22,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 	@SuppressWarnings("unchecked")
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
 		logger.info("Querying " + word);
-		Set<Entry> results = ((SetMultimap<String, Entry>) getServletContext().getAttribute("entries")).get(word);
+		List<Entry> results = ((ListMultimap<String, Entry>) getServletContext().getAttribute("entries")).get(word);
 		for (Entry entry : results) {
 			logger.info("-- " + entry.toString());
 		}
