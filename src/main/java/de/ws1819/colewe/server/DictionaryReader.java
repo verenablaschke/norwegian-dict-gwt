@@ -70,7 +70,7 @@ public class DictionaryReader {
 					// TODO Check if they actually add valuable information or
 					// if they add noise
 					if (fields.length >= 4) {
-						String extraInfo = fields[3].trim().replaceAll("[", "").replaceAll("]", "");
+						String extraInfo = fields[3].trim().replaceAll("\\[", "").replaceAll("\\]", "");
 						if (usageNO == null || usageNO.isEmpty()) {
 							usageNO = extraInfo;
 						} else {
