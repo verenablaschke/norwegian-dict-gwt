@@ -51,6 +51,7 @@ public class DictionaryReader {
 				// Find and remove comments.
 				String[] lemmaAndCommentsNO = Tools.extractDictCCComments(lemma);
 				lemma = lemmaAndCommentsNO[0];
+				String usageNO = lemmaAndCommentsNO[2];
 
 				// Get the translational equivalent and extract comments.
 				String[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
@@ -66,10 +67,16 @@ public class DictionaryReader {
 					}
 
 					// If available, get additional comments.
-					// TODO Where to put these? Issue #16
-					// if (fields.length >= 4) {
-					// translation += " " + fields[3].trim();
-					// }
+					// TODO Check if they actually add valuable information or
+					// if they add noise
+					if (fields.length >= 4) {
+						String extraInfo = fields[3].trim().replaceAll("[", "").replaceAll("]", "");
+						if (usageNO == null || usageNO.isEmpty()) {
+							usageNO = extraInfo;
+						} else {
+							usageNO += ", " + extraInfo;
+						}
+					}
 				} else {
 					posTags = new String[] { null };
 				}
@@ -80,8 +87,8 @@ public class DictionaryReader {
 
 					entries.put(lemma,
 							new Entry(new WordForm(lemma), posTag, lemmaAndCommentsDE[0], lemmaAndCommentsNO[1],
-									lemmaAndCommentsNO[2], lemmaAndCommentsNO[3], lemmaAndCommentsDE[1],
-									lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]));
+									usageNO, lemmaAndCommentsNO[3], lemmaAndCommentsDE[1], lemmaAndCommentsDE[2],
+									lemmaAndCommentsDE[3]));
 				}
 
 			}

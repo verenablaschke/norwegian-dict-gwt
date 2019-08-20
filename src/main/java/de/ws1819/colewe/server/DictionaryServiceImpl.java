@@ -2,7 +2,6 @@ package de.ws1819.colewe.server;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
