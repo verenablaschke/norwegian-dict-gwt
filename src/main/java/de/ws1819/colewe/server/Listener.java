@@ -71,18 +71,24 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		allLemmata.addAll(fullformsliste.keySet());
 		allLemmata.addAll(woerterbuch.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
-		SetMultimap<String, Entry> allEntries = HashMultimap.create();
 		// Map from all inflected versions of the word to the entries.
+		SetMultimap<String, Entry> allEntries = HashMultimap.create();
 		for (String lemma : allLemmata) {
 			List<Entry> entriesD = dictcc.get(lemma);
 			List<Entry> entriesF = fullformsliste.get(lemma);
 			List<Entry> entriesW = woerterbuch.get(lemma);
 
 			// TODO proper merging with entriesW
+
+			// Map lemmas and inflected forms from the NO>DE dictionary
+			// to Entry objects.
 			if (entriesW != null) {
 				for (Entry entryW : entriesW) {
 					addInfMarker(entryW);
 					allEntries.put(lemma, entryW);
+					for (WordForm wordForm : entryW.getInflections().values()) {
+						allEntries.put(wordForm.getForm(), entryW);
+					}
 				}
 			}
 
