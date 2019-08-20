@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class Entry implements IsSerializable  {
+public class Entry implements IsSerializable {
 
 	private WordForm lemma;
 	private Pos pos;
@@ -20,37 +20,39 @@ public class Entry implements IsSerializable  {
 	private String grammarDE;
 	private String usageDE;
 	private String abbrDE;
+	private int lemmaID;
 
 	// For GWT
 	public Entry() {
-		this(null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, -1);
 	}
 
 	// For dict.cc
 	public Entry(WordForm lemma, Pos pos, String translation, String grammarNO, String usageNO, String abbrNO,
 			String grammarDE, String usageDE, String abbrDE) {
-		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE);
+		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, grammarDE, usageDE, abbrDE, -1);
 		addTranslation(translation);
 	}
 
 	// For språkbanken
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections) {
-		this(lemma, pos, inflections, null, null, null, null, null, null, null);
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, int lemmaID) {
+		this(lemma, pos, inflections, null, null, null, null, null, null, null, lemmaID);
 	}
 
 	// For språkbanken
-	public Entry(WordForm lemma, Pos pos, String infl, WordForm inflForm) {
-		this(lemma, pos, null, null, null, null, null, null, null, null);
+	public Entry(WordForm lemma, Pos pos, String infl, WordForm inflForm, int lemmaID) {
+		this(lemma, pos, null, null, null, null, null, null, null, null, lemmaID);
 		addInflection(infl, inflForm);
 	}
 
 	// For the NO>DE dictionary
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations, String grammarNO, String usageDE) {
-		this(lemma, pos, inflections, translations, grammarNO, null, null, null, usageDE, null);
+	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
+			String grammarNO, String usageDE) {
+		this(lemma, pos, inflections, translations, grammarNO, null, null, null, usageDE, null, -1);
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, Collection<String> translations,
-			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE) {
+			String grammarNO, String usageNO, String abbrNO, String grammarDE, String usageDE, String abbrDE, int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -61,6 +63,7 @@ public class Entry implements IsSerializable  {
 		setGrammarDE(grammarDE);
 		setUsageDE(usageDE);
 		setAbbrDE(abbrDE);
+		setLemmaID(lemmaID);
 	}
 
 	/**
@@ -229,6 +232,21 @@ public class Entry implements IsSerializable  {
 
 	public void setAbbrDE(String abbrDE) {
 		this.abbrDE = (abbrDE == null ? "" : abbrDE);
+	}
+
+	/**
+	 * @return the lemmaID
+	 */
+	public int getLemmaID() {
+		return lemmaID;
+	}
+
+	/**
+	 * @param lemmaID
+	 *            the lemmaID to set
+	 */
+	public void setLemmaID(int lemmaID) {
+		this.lemmaID = lemmaID;
 	}
 
 	public String toString() {

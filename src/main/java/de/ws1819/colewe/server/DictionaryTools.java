@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -141,7 +142,7 @@ public class DictionaryTools {
 	}
 
 	public static ListMultimap<String, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
-		HashMap<Integer, Entry> inflections = new HashMap<>();
+		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> tags = new HashSet<>(); // TODO del
 
 		String line = null;
@@ -197,13 +198,20 @@ public class DictionaryTools {
 				String inflForm = fields[2].trim();
 
 				// Save lemma ID, inflection information and inflected form.
-				Entry entry = inflections.get(id);
-				if (entry == null) {
-					entry = new Entry(new WordForm(lemma), pos, infl, new WordForm(inflForm));
-				} else {
-					entry.addInflection(infl, new WordForm(inflForm));
+				List<Entry> entryList = entries.get(lemma);
+				boolean addedInfl = false;
+				if (entryList != null) {
+					for (Entry entry : entryList) {
+						if (id == entry.getLemmaID()) {
+							entry.addInflection(infl, new WordForm(inflForm));
+							addedInfl = true;
+							break;
+						}
+					}
 				}
-				inflections.put(id, entry);
+				if (entryList == null || !addedInfl) {
+					entries.put(lemma, new Entry(new WordForm(lemma), pos, infl, new WordForm(inflForm), id));
+				}
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -211,15 +219,13 @@ public class DictionaryTools {
 			e.printStackTrace();
 		}
 
-		logger.info("Read " + inflections.size() + " inflections for " + inflections.keySet().size()
+		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
 		logger.info(tags.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
 
-		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		for (java.util.Map.Entry<Integer, Entry> entry : inflections.entrySet()) {
-			entries.put(lemmata.get(entry.getKey()), entry.getValue());
+		for (java.util.Map.Entry<String, WordForm> infl : entries.get("bli").get(0).getInflections().entrySet()) {
+			logger.info(infl.getValue().getForm() + " : " + infl.getKey());
 		}
-		logger.info(entries.get("bli").toString());
 		return entries;
 	}
 
@@ -275,7 +281,8 @@ public class DictionaryTools {
 						if (word.startsWith("-")) {
 							// TODO #17
 						}
-						infl.put(((Integer) i).toString(), new WordForm(word, pron)); // TODO key
+						infl.put(((Integer) i).toString(), new WordForm(word, pron)); // TODO
+																						// key
 					}
 				}
 
