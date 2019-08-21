@@ -2,19 +2,14 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style>
-	.wordform {
-		display: inline;
-	}
-	
 	.translation {
 		margin-left: 20px;
-		margin-bottom: 10px;
+		margin-bottom: 3px;
 		display: inline-block;
-	}
-	
-	.pron {
-		display: inline;
-		color: grey;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+			"Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+			"Segoe UI Emoji", "Segoe UI Symbol";
+		font-size: 0.9rem;
 	}
 	
 	.info-light {

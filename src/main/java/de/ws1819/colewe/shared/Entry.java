@@ -91,8 +91,6 @@ public class Entry implements IsSerializable {
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
 		} else if (other.translations != null && !other.translations.isEmpty()) {
-
-			ArrayList<TranslationalEquivalent> toAdd = new ArrayList<>();
 			for (TranslationalEquivalent otherTransl : other.translations) {
 				// Avoid duplicate translations
 				boolean add = true;
@@ -109,11 +107,9 @@ public class Entry implements IsSerializable {
 					}
 				}
 				if (add){					
-//					toAdd.add(otherTransl);
 					translations.add(otherTransl);
 				}
 			}
-			translations.addAll(toAdd);
 		}
 		// TODO shouldn't these be lists/sets instead?
 		if (grammarNO == null || grammarNO.isEmpty()) {

@@ -4,6 +4,7 @@
 	<ui:style>
 	.wordform {
 		display: inline;
+		margin-top: 100px;
 	}
 	</ui:style>
 	<g:HTMLPanel>

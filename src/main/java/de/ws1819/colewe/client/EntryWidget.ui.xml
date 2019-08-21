@@ -3,11 +3,11 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style>
 	.wordform {
-		display: inline;
+		margin-top: 5px;
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:HorizontalPanel ui:field="wordPanel" styleName="wordform" />
+		<g:HorizontalPanel ui:field="wordPanel" styleName="{style.wordform}" />
 		<g:VerticalPanel ui:field="translationPanel" />
 	</g:HTMLPanel>
 </ui:UiBinder> 
