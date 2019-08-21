@@ -26,20 +26,34 @@ public class InputWidget extends Composite {
 	TextArea textArea;
 
 	public InputWidget() {
+		this(null);
+	}
+
+	public InputWidget(String text) {
 		initWidget(uiBinder.createAndBindUi(this));
-		textArea.addStyleName("form-control");
 		textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
-		button.setStyleName("btn btn-primary");
 		button.setEnabled(false);
+//		if (text == null || text.isEmpty()) {
+//			textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
+//			button.setEnabled(false);
+//		} else {
+//			textArea.setText(text);
+//			button.setEnabled(true);
+//			// Doesn't work :( TODO
+//			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+//				@Override
+//				public void execute() {
+//					textArea.selectAll();
+//				}
+//			});
+//		}
 	}
 
 	@UiHandler("button")
 	void onClick(ClickEvent e) {
 		String text = textArea.getText().trim();
-		// TODO RPC
-		String[] words = text.split("\\s+");
 		RootPanel.get("widgetContainer").clear();
-		RootPanel.get("widgetContainer").add(new OutputWidget(words));
+		RootPanel.get("widgetContainer").add(new OutputWidget(text));
 	}
 
 	@UiHandler("textArea")

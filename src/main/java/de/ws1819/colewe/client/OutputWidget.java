@@ -33,23 +33,24 @@ public class OutputWidget extends Composite {
 
 	@UiField
 	HTML info;
+	
+	private String content;
 
-	public OutputWidget(String[] words) {
+
+	public OutputWidget(String content) {
+		this.content = content;
 		initWidget(uiBinder.createAndBindUi(this));
-		flowPanel.setStyleName("row");
-		for (String word : words) {
+		for (String word : content.split("\\s+")) {
 			flowPanel.add(new WordWidget(word));
 		}
-		// TODO can I move this into the xml file?
 		// TODO add icon?
-		button.addStyleName("btn btn-primary");
 	}
 
 	@UiHandler("button")
 	void onClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
 		RootPanel.get("widgetContainer").clear();
-		RootPanel.get("widgetContainer").add(new InputWidget());
+		RootPanel.get("widgetContainer").add(new InputWidget(content));
 	}
 
 	// Handle CTRL-Click events. Has to be added before the click event handler.

@@ -13,8 +13,8 @@
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:TextArea styleName="{style.text-area}" ui:field="textArea" />
+		<g:TextArea styleName="{style.text-area} form-control" ui:field="textArea" />
 		<br />
-		<g:Button ui:field="button">Send</g:Button>
+		<g:Button styleName="btn btn-primary" ui:field="button">Send</g:Button>
 	</g:HTMLPanel>
 </ui:UiBinder> 
