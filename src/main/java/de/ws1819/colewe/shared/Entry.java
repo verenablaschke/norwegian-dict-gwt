@@ -91,12 +91,29 @@ public class Entry implements IsSerializable {
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
 		} else if (other.translations != null && !other.translations.isEmpty()) {
-			for (TranslationalEquivalent transl : other.translations) {
-				// TODO avoid duplicate translations
-				if (!translations.contains(transl)) {
-					addTranslation(transl);
+
+			ArrayList<TranslationalEquivalent> toAdd = new ArrayList<>();
+			for (TranslationalEquivalent otherTransl : other.translations) {
+				// Avoid duplicate translations
+				boolean add = true;
+				mid: for (TranslationalEquivalent transl : translations) {
+					if (transl.equals(otherTransl)) {
+						add = false;
+						break;
+					}
+					for (String translString : otherTransl.getTranslation()) {
+						if (transl.getTranslation().contains(translString)) {
+							add = false;
+							break mid;
+						}
+					}
+				}
+				if (add){					
+//					toAdd.add(otherTransl);
+					translations.add(otherTransl);
 				}
 			}
+			translations.addAll(toAdd);
 		}
 		// TODO shouldn't these be lists/sets instead?
 		if (grammarNO == null || grammarNO.isEmpty()) {
