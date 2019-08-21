@@ -47,8 +47,8 @@ public class Entry implements IsSerializable {
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
-			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, String usageNO,
-			String abbrNO, int lemmaID) {
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, String usageNO, String abbrNO,
+			int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -111,13 +111,16 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
-		// TODO shouldn't these be lists/sets instead?
 		if (grammarNO == null || grammarNO.isEmpty()) {
 			setGrammarNO(other.grammarNO);
 		} else if (other.grammarNO != null && !other.grammarNO.isEmpty()) {
-			// TODO avoid duplicates
-			grammarNO.addAll(other.grammarNO);
+			for (String gram : other.grammarNO) {
+				if (!grammarNO.contains(gram)) {
+					grammarNO.add(gram);
+				}
+			}
 		}
+		// TODO shouldn't these be lists/sets instead?
 		if (usageNO == null || usageNO.isEmpty()) {
 			setUsageNO(other.usageNO);
 		} else if (other.usageNO != null && !other.usageNO.isEmpty()) {
@@ -226,6 +229,20 @@ public class Entry implements IsSerializable {
 		return grammarNO;
 	}
 
+	public String getGrammarString() {
+		String s = "";
+		if (pos != null && !pos.equals(Pos.NULL)) {
+			s += pos;
+			if (grammarNO != null && !grammarNO.isEmpty()) {
+				s += ", ";
+			}
+		}
+		if (grammarNO != null && !grammarNO.isEmpty()) {
+			s += String.join(", ", grammarNO);
+		}
+		return s;
+	}
+
 	/**
 	 * @param grammarNO
 	 *            the grammarNO to set
@@ -246,7 +263,7 @@ public class Entry implements IsSerializable {
 	 *            the usageNO to set
 	 */
 	public void setUsageNO(String usageNO) {
-//		this.usageNO = (usageNO == null ? new ArrayList<>() : usageNO);
+		// this.usageNO = (usageNO == null ? new ArrayList<>() : usageNO);
 		this.usageNO = (usageNO == null ? "" : usageNO);
 
 	}
@@ -263,7 +280,7 @@ public class Entry implements IsSerializable {
 	 *            the abbrNO to set
 	 */
 	public void setAbbrNO(String abbrNO) {
-//		this.abbrNO = (abbrNO == null ? new ArrayList<>() : abbrNO);
+		// this.abbrNO = (abbrNO == null ? new ArrayList<>() : abbrNO);
 		this.abbrNO = (abbrNO == null ? "" : abbrNO);
 
 	}

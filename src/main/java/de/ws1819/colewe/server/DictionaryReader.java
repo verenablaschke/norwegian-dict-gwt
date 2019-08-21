@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,11 +61,13 @@ public class DictionaryReader {
 				// Get the translational equivalent and extract comments.
 				String[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
 				ArrayList<String> grammarNO = new ArrayList<>();
-				for (String s : lemmaAndCommentsNO[1].split(",\\s*|\\s+|/")){
-					grammarNOSet.add(s);
+				for (String s : lemmaAndCommentsNO[1].split(",\\s*|\\s+|/")) {
+					if (!grammarNO.contains(s)) {
+						grammarNOSet.add(s);
+					}
 					grammarNO.add(s);
 				}
-				
+
 				grammarDESet.add(lemmaAndCommentsDE[1]);
 
 				// If available, get POS tag.
@@ -114,13 +115,14 @@ public class DictionaryReader {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		logger.info("Dict.cc grammarNO");
-		for (String s : grammarNOSet){
-			if (s == null || s.isEmpty()){
+		for (String s : grammarNOSet) {
+			if (s == null || s.isEmpty()) {
 				continue;
 			}
 			System.out.println(s);
 		}
-//		logger.info(grammarNO.stream().map(x -> x + " : " + x.getBytes()).collect(Collectors.toCollection(TreeSet::new)).toString());
+		// logger.info(grammarNO.stream().map(x -> x + " : " +
+		// x.getBytes()).collect(Collectors.toCollection(TreeSet::new)).toString());
 		logger.info("Dict.cc grammarDE");
 		logger.info(grammarDESet.toString());
 		return entries;

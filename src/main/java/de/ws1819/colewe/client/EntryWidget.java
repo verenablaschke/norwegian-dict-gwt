@@ -32,9 +32,7 @@ public class EntryWidget extends Composite {
 	public EntryWidget(Entry entry) {
 		this();
 		setWord(entry.getLemma(), true);
-		String pos = entry.getPos().toString();
-		wordPanel.add(new BadgeWidget((pos.isEmpty() ? "" : pos + " ") + entry.getGrammarNO(), entry.getUsageNO(),
-				entry.getAbbrNO()));
+		wordPanel.add(new BadgeWidget(entry.getGrammarString(), entry.getUsageNO(), entry.getAbbrNO()));
 		for (WordForm wf : entry.getInflections().values()) {
 			setWord(wf, false);
 		}
