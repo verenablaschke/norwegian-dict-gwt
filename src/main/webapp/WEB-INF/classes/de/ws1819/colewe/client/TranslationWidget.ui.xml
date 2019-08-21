@@ -4,7 +4,7 @@
 	<ui:style>
 	.translation {
 		margin-left: 20px;
-		margin-bottom: 3px;
+		margin-bottom: 2px;
 		display: inline-block;
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 			"Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
