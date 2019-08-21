@@ -302,6 +302,8 @@ public class DictionaryReader {
 				for (int i = 0; i < transl.length; i++) {
 					// German synonyms are separated by a single slash.
 					String[] translRaw = transl[i].split("/");
+					// A list instead of a set so that we can keep the order the
+					// dictionary editors deemed best.
 					ArrayList<String> translElements = new ArrayList<>();
 					String usageDE = "";
 					for (int j = 0; j < translRaw.length; j++) {
@@ -316,7 +318,10 @@ public class DictionaryReader {
 						// like this:
 						// "anløp#["Anl2:p] Nn Anlaufen[eines_Hafens]/Anlaufen"
 						// with the German translational equivalent repeated.
-						translElements.add(wordAndComment[0].replace("_", " "));
+						String translation = wordAndComment[0].replace("_", " ");
+						if (!translElements.contains(translation)) {
+							translElements.add(translation);
+						}
 					}
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
