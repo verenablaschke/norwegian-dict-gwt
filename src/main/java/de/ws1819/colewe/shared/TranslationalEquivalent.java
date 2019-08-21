@@ -150,20 +150,6 @@ public class TranslationalEquivalent implements IsSerializable {
 			return false;
 		}
 		TranslationalEquivalent other = (TranslationalEquivalent) obj;
-		if (abbr == null) {
-			if (other.abbr != null) {
-				return false;
-			}
-		} else if (!abbr.equals(other.abbr)) {
-			return false;
-		}
-		if (grammar == null) {
-			if (other.grammar != null) {
-				return false;
-			}
-		} else if (!grammar.equals(other.grammar)) {
-			return false;
-		}
 		if (translation == null) {
 			if (other.translation != null) {
 				return false;
@@ -171,14 +157,27 @@ public class TranslationalEquivalent implements IsSerializable {
 		} else if (!translation.equals(other.translation)) {
 			return false;
 		}
-		if (usage == null) {
-			if (other.usage != null) {
-				return false;
-			}
-		} else if (!usage.equals(other.usage)) {
+		if (!equalsOrBothEmpty(abbr, other.abbr)) {
+			return false;
+		}
+		if (!equalsOrBothEmpty(grammar, other.grammar)) {
+			return false;
+		}
+
+		if (!equalsOrBothEmpty(usage, other.usage)) {
 			return false;
 		}
 		return true;
+	}
+
+	private static boolean equalsOrBothEmpty(String s, String t) {
+		if (s == null) {
+			return t == null || t.isEmpty();
+		}
+		if (t == null) {
+			return s.isEmpty();
+		}
+		return s.equals(t);
 	}
 
 }

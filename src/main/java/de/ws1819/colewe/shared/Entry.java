@@ -90,14 +90,17 @@ public class Entry implements IsSerializable {
 		}
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
-		} else if (other.translations != null) {
+		} else if (other.translations != null && !other.translations.isEmpty()) {
+			System.out.println();
+			System.out.println(translations);
 			System.out.println(other.translations);
 			for (TranslationalEquivalent transl : other.translations) {
 				// TODO avoid duplicate translations
-				System.out.println(lemma + " : " + transl.getTranslationString());
-				// TODO where does the concurrent modification exception come from?
-//				 addTranslation(transl);
+				if (!translations.contains(transl)) {
+					addTranslation(transl);
+				}
 			}
+			System.out.println(translations);
 		}
 		// TODO shouldn't these be lists/sets instead?
 		if (grammarNO == null || grammarNO.isEmpty()) {
