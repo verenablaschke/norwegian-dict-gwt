@@ -157,6 +157,11 @@ public class Tools {
 			gender = s.substring(i, startExtra);
 		}
 
+		if (gender.equals("t")) {
+			// Typo: 'Vt' instead of 'VT'.
+			gender = "";
+		}
+
 		return new String[] { pos, gender, extra };
 	}
 
