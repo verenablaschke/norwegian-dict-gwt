@@ -150,3 +150,11 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 
 # End of https://www.gitignore.io/api/gwt,git,java,maven,eclipse
+
+
+**/font-awesome/css/*.css
+**/font-awesome/webfonts/*.eot
+**/font-awesome/webfonts/*.svg
+**/font-awesome/webfonts/*.ttf
+**/font-awesome/webfonts/*.woff
+**/font-awesome/webfonts/*.woff2

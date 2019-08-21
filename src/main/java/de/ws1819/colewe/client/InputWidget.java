@@ -51,6 +51,7 @@ public class InputWidget extends Composite {
 
 	@UiHandler("button")
 	void onClick(ClickEvent e) {
+		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(true);
 		String text = textArea.getText().trim();
 		RootPanel.get("widgetContainer").clear();
 		RootPanel.get("widgetContainer").add(new OutputWidget(text));

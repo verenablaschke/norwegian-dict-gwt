@@ -49,6 +49,7 @@ public class OutputWidget extends Composite {
 	@UiHandler("button")
 	void onClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
+		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(false);
 		RootPanel.get("widgetContainer").clear();
 		RootPanel.get("widgetContainer").add(new InputWidget(content));
 	}

@@ -8,12 +8,13 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class Ordbok implements EntryPoint {
 
-  /**
-   * This is the entry point method.
-   */
-  public void onModuleLoad() {
+	/**
+	 * This is the entry point method.
+	 */
+	public void onModuleLoad() {
+		RootPanel.get("headerContainer").add(new HeaderWidget());
 		RootPanel.get("widgetContainer").add(new InputWidget());
-  }
-  
-  // TODO info/about page
+	}
+
+	// TODO info/about page
 }

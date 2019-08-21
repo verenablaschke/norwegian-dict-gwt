@@ -11,7 +11,7 @@
 		<g:FlowPanel styleName="row" ui:field="flowPanel" />
 		</g:FocusPanel>
 		<br />
-		<g:Button styleName="{style.space} btn btn-primary" ui:field="button">Igjen</g:Button>
+		<g:Button styleName="{style.space} btn btn-primary" ui:field="button"><i class="fa fa-undo"></i> Igjen</g:Button>
 		<br />
 		<g:HTML ui:field="info" />
 	</g:HTMLPanel>

@@ -15,6 +15,6 @@
 	<g:HTMLPanel>
 		<g:TextArea styleName="{style.text-area} form-control" ui:field="textArea" />
 		<br />
-		<g:Button styleName="btn btn-primary" ui:field="button">Send</g:Button>
+		<g:Button styleName="btn btn-primary" ui:field="button"><i class="fa fa-arrow-circle-right"></i> Send</g:Button>
 	</g:HTMLPanel>
 </ui:UiBinder> 
