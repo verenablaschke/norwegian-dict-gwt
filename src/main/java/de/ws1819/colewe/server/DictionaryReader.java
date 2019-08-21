@@ -31,7 +31,7 @@ public class DictionaryReader {
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
 		String[] fields = null;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.startsWith("#")) {
@@ -113,7 +113,7 @@ public class DictionaryReader {
 		String line = null;
 		String[] fields = null;
 		int id = -1;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
 				/*
 				 * TSV structure: LOEPENR LEMMA_ID GRUNNFORM 'BM_ORDBOK' (line
@@ -158,7 +158,7 @@ public class DictionaryReader {
 		String[] fields = null;
 		int id = -1;
 		String lemma = null;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
 				/*
 				 * TSV structure: LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
@@ -248,7 +248,7 @@ public class DictionaryReader {
 
 		String line = null;
 		String[] fields = null;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				fields = line.split("\\s+");
