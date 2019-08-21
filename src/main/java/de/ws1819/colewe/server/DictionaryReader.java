@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -27,6 +29,8 @@ public class DictionaryReader {
 
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		Set<String> grammarNOSet = new HashSet<>(); // TODO del
+		Set<String> grammarDESet = new HashSet<>(); // TODO del
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
@@ -57,6 +61,13 @@ public class DictionaryReader {
 
 				// Get the translational equivalent and extract comments.
 				String[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
+				ArrayList<String> grammarNO = new ArrayList<>();
+				for (String s : lemmaAndCommentsNO[1].split(",\\s*|\\s+|/")){
+					grammarNOSet.add(s);
+					grammarNO.add(s);
+				}
+				
+				grammarDESet.add(lemmaAndCommentsDE[1]);
 
 				// If available, get POS tag.
 				String posTags[] = null;
@@ -91,7 +102,7 @@ public class DictionaryReader {
 							new Entry(new WordForm(lemma), posTag,
 									new TranslationalEquivalent(lemmaAndCommentsDE[0], lemmaAndCommentsDE[1],
 											lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]),
-									lemmaAndCommentsNO[1], usageNO, lemmaAndCommentsNO[3]));
+									grammarNO, usageNO, lemmaAndCommentsNO[3]));
 				}
 
 			}
@@ -102,6 +113,16 @@ public class DictionaryReader {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
+		logger.info("Dict.cc grammarNO");
+		for (String s : grammarNOSet){
+			if (s == null || s.isEmpty()){
+				continue;
+			}
+			System.out.println(s);
+		}
+//		logger.info(grammarNO.stream().map(x -> x + " : " + x.getBytes()).collect(Collectors.toCollection(TreeSet::new)).toString());
+		logger.info("Dict.cc grammarDE");
+		logger.info(grammarDESet.toString());
 		return entries;
 	}
 
@@ -264,9 +285,11 @@ public class DictionaryReader {
 					// Duplicate entry.
 					continue;
 				}
-				String grammarNO = posAndInfl[1];
+				// TODO
+				ArrayList<String> grammarNO = new ArrayList<>();
+				grammarNO.add(posAndInfl[1]);
 				String extra = posAndInfl[2];
-				lower.add(grammarNO);
+				lower.add(posAndInfl[1]);
 				info.add(extra);
 				Pos pos = Tools.string2Pos(posString);
 

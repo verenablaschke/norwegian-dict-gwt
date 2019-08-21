@@ -12,7 +12,7 @@ public class Entry implements IsSerializable {
 	private Pos pos;
 	private HashMap<String, WordForm> inflections;
 	private ArrayList<TranslationalEquivalent> translations;
-	private String grammarNO;
+	private ArrayList<String> grammarNO;
 	private String usageNO;
 	private String abbrNO;
 	private int lemmaID;
@@ -23,8 +23,8 @@ public class Entry implements IsSerializable {
 	}
 
 	// For dict.cc
-	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, String grammarNO, String usageNO,
-			String abbrNO) {
+	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, ArrayList<String> grammarNO,
+			String usageNO, String abbrNO) {
 		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, -1);
 		addTranslation(translation);
 	}
@@ -42,13 +42,13 @@ public class Entry implements IsSerializable {
 
 	// For the NO>DE dictionary
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
-			ArrayList<TranslationalEquivalent> translations, String grammarNO) {
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO) {
 		this(lemma, pos, inflections, translations, grammarNO, null, null, -1);
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
-			ArrayList<TranslationalEquivalent> translations, String grammarNO, String usageNO, String abbrNO,
-			int lemmaID) {
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, String usageNO,
+			String abbrNO, int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -106,7 +106,7 @@ public class Entry implements IsSerializable {
 						}
 					}
 				}
-				if (add){					
+				if (add) {
 					translations.add(otherTransl);
 				}
 			}
@@ -115,7 +115,8 @@ public class Entry implements IsSerializable {
 		if (grammarNO == null || grammarNO.isEmpty()) {
 			setGrammarNO(other.grammarNO);
 		} else if (other.grammarNO != null && !other.grammarNO.isEmpty()) {
-			grammarNO += ", " + other.grammarNO;
+			// TODO avoid duplicates
+			grammarNO.addAll(other.grammarNO);
 		}
 		if (usageNO == null || usageNO.isEmpty()) {
 			setUsageNO(other.usageNO);
@@ -221,7 +222,7 @@ public class Entry implements IsSerializable {
 	/**
 	 * @return the grammarNO
 	 */
-	public String getGrammarNO() {
+	public ArrayList<String> getGrammarNO() {
 		return grammarNO;
 	}
 
@@ -229,8 +230,8 @@ public class Entry implements IsSerializable {
 	 * @param grammarNO
 	 *            the grammarNO to set
 	 */
-	public void setGrammarNO(String grammarNO) {
-		this.grammarNO = (grammarNO == null ? "" : grammarNO);
+	public void setGrammarNO(ArrayList<String> grammarNO) {
+		this.grammarNO = (grammarNO == null ? new ArrayList<>() : grammarNO);
 	}
 
 	/**
@@ -245,6 +246,7 @@ public class Entry implements IsSerializable {
 	 *            the usageNO to set
 	 */
 	public void setUsageNO(String usageNO) {
+//		this.usageNO = (usageNO == null ? new ArrayList<>() : usageNO);
 		this.usageNO = (usageNO == null ? "" : usageNO);
 
 	}
@@ -261,6 +263,7 @@ public class Entry implements IsSerializable {
 	 *            the abbrNO to set
 	 */
 	public void setAbbrNO(String abbrNO) {
+//		this.abbrNO = (abbrNO == null ? new ArrayList<>() : abbrNO);
 		this.abbrNO = (abbrNO == null ? "" : abbrNO);
 
 	}
