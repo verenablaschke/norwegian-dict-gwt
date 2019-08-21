@@ -78,27 +78,25 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		for (String lemma : allLemmata) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
-			// Map DictCC lemmas to Entry objects.
-			List<Entry> entriesDictCc = dictcc.get(lemma);
-			if (entriesDictCc != null) {
-				for (Entry entryD : entriesDictCc) {
-					addInfMarker(entryD);
-					entries.put(lemma, entryD);
-				}
-			}
-
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
 			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
 			if (entriesWoerterbuch != null) {
 				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
-					// allEntries.put(lemma, entryW);
 					addEntry(entryW, lemma, entries, false);
 					for (WordForm wordForm : entryW.getInflections().values()) {
-						// allEntries.put(wordForm.getForm(), entryW);
 						addEntry(entryW, wordForm.getForm(), entries, false);
 					}
+				}
+			}
+			
+			// Map DictCC lemmas to Entry objects.
+			List<Entry> entriesDictCc = dictcc.get(lemma);
+			if (entriesDictCc != null) {
+				for (Entry entryD : entriesDictCc) {
+					addInfMarker(entryD);
+					addEntry(entryD, lemma, entries, false);
 				}
 			}
 
