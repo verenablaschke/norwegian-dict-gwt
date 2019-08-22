@@ -90,6 +90,7 @@ public class WordWidget extends Composite implements HasText {
 		if (ctrl) {
 			fullQuery = (query.getText() + " " + fullQuery).trim();
 		}
+		fullQuery = fullQuery.toLowerCase();
 		query.setText(fullQuery);
 		logger.info("QUERY: " + fullQuery);
 

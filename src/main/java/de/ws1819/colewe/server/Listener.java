@@ -90,7 +90,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					}
 				}
 			}
-			
+
 			// Map DictCC lemmas to Entry objects.
 			List<Entry> entriesDictCc = dictcc.get(lemma);
 			if (entriesDictCc != null) {
@@ -106,7 +106,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					addInfMarker(entryF);
 					addEntry(entryF, lemma, entries, true);
 					for (WordForm wordForm : entryF.getInflections().values()) {
-						// allEntries.put(wordForm.getForm(), entryW);
 						addEntry(entryF, wordForm.getForm(), entries, true);
 					}
 				}
@@ -121,11 +120,11 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
+		wordForm = wordForm.toLowerCase();
+		
+		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
-			
 			if (existingEntry.merge(entry)) {
-				// Could merge entries!
-
 				// This would have been nicer with a SetMultimap, but the memory
 				// overhead issues are too big a downside.
 				List<Entry> entryList = entries.get(wordForm);
@@ -133,15 +132,17 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					entries.put(wordForm, existingEntry);
 					return;
 				}
-				
+
 				return;
 			}
 		}
+
+		// Don't add entries without translation information,
+		// we're already struggling with memory as is.
 		if (fullformsliste) {
-			// Don't add entries without translation information,
-			// we're already struggling with memory as is.
 			return;
 		}
+		
 		// Couldn't merge the entry with an existing one, add to collection:
 		entries.put(wordForm, entry);
 	}
