@@ -81,12 +81,8 @@ public class DictionaryReader {
 
 					// If available, get additional comments.
 					if (fields.length >= 4) {
-//						String extraInfo = fields[3].trim().replaceAll("\\[", "").replaceAll("\\]", "");
-//						for (String s : extraInfo.split(",\\s*")) {
-						for (String s : Tools.extractDictCCCommentsSquare(fields[3].trim())) {
-							if (!usageNO.contains(s)) {
-								usageNO.add(s);
-							}
+						for (String s : Tools.extractDictCCCommentsSquare(fields[3])) {
+							usageNO.add(s);
 							extraNOSet.add(s);
 						}
 					}
@@ -120,10 +116,10 @@ public class DictionaryReader {
 		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
-		 logger.info("Dict.cc extra info");
-		 infoList = new ArrayList<>(extraNOSet);
-		 infoList.sort(String::compareToIgnoreCase);
-		 logger.info(infoList.toString());
+		logger.info("Dict.cc extra info");
+		infoList = new ArrayList<>(extraNOSet);
+		infoList.sort(String::compareToIgnoreCase);
+		logger.info(infoList.toString());
 		// logger.info("Dict.cc grammarDE");
 		// logger.info(grammarDESet.toString());
 		return entries;

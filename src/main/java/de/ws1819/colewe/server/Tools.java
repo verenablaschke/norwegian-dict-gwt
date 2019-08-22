@@ -194,10 +194,17 @@ public class Tools {
 		// abbr[0] is the lemma
 		return new Object[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
-	
-	@SuppressWarnings("unchecked")
-	static ArrayList<String> extractDictCCCommentsSquare(String lemma) {
-		return (ArrayList<String>) match(patternSquare, lemma)[1];
+
+	static ArrayList<String> extractDictCCCommentsSquare(String s) {
+		ArrayList<String> matches = new ArrayList<>();
+		Matcher matcher = patternSquareWithoutWS.matcher(s);
+		String match;
+		while (matcher.find()) {
+			match = matcher.group().trim();
+			// Remove the brackets around the comment.
+			matches.add(match.substring(1, match.length() - 1).trim());
+		}
+		return matches;
 	}
 
 	static Object[] match(Pattern pattern, String lemma) {
