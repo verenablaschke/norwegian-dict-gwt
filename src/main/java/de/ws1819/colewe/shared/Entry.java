@@ -3,6 +3,7 @@ package de.ws1819.colewe.shared;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -230,17 +231,9 @@ public class Entry implements IsSerializable {
 	}
 
 	public String getGrammarString() {
-		String s = "";
-		if (pos != null && !pos.equals(Pos.NULL)) {
-			s += pos;
-			if (grammarNO != null && !grammarNO.isEmpty()) {
-				s += ", ";
-			}
-		}
-		if (grammarNO != null && !grammarNO.isEmpty()) {
-			s += String.join(", ", grammarNO);
-		}
-		return s;
+		ArrayList<String> contents = new ArrayList<>(grammarNO);
+		contents.add(0, pos.toString());
+		return String.join(", ", contents);
 	}
 
 	/**
@@ -248,7 +241,13 @@ public class Entry implements IsSerializable {
 	 *            the grammarNO to set
 	 */
 	public void setGrammarNO(ArrayList<String> grammarNO) {
-		this.grammarNO = (grammarNO == null ? new ArrayList<>() : grammarNO);
+		if (grammarNO == null){
+			this.grammarNO = new ArrayList<>();
+			return;
+		}
+		grammarNO.removeIf(Objects::isNull);
+		grammarNO.removeIf(String::isEmpty);
+		this.grammarNO = grammarNO;
 	}
 
 	/**
