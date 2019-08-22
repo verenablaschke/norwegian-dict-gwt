@@ -1,5 +1,6 @@
 package de.ws1819.colewe.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -38,7 +39,9 @@ public class Tools {
 			put("2", "ø");
 			put("9", "œ");
 			put("\\?", "ʔ");
-			put("_", " "); // Custom: word break
+			put("_", " "); // Custom:
+							// word
+							// break
 			// Custom: combination of primary stress and tone information
 			put("'", "¹");
 			put("\"", "²");
@@ -124,25 +127,27 @@ public class Tools {
 		case "v":
 		case "vi":
 		case "vt":
+		case "vtt":
 		case "vr": // typo ('vt')
 			return Pos.VERB;
 		}
 		return Pos.NULL;
 	}
 
-	static String[] parsePOS(String s) {
+	static Object[] parsePOS(String s) {
 		// POSTAGnoungender[extra=info]
-		String pos = "";
+		String posString = "";
 		int i;
 		for (i = 0; i < s.length(); i++) {
 			if (Character.isUpperCase(s.charAt(i))) {
-				pos += s.charAt(i);
+				posString += s.charAt(i);
 			} else {
 				break;
 			}
 		}
+		Pos pos = string2Pos(posString);
 		if (i == s.length()) {
-			return new String[] { pos, "", "" };
+			return new Object[] { pos, new ArrayList<>(), new ArrayList<>() };
 		}
 		int startExtra = s.indexOf("[");
 		String extra = "";
@@ -157,12 +162,27 @@ public class Tools {
 			gender = s.substring(i, startExtra);
 		}
 
-		if (gender.equals("t")) {
+		if (gender.equals("t") || gender.equals("u")) {
 			// Typo: 'Vt' instead of 'VT'.
+			// Typo: "Nu" is a typo for "Nm", "Nn" or "N".
 			gender = "";
 		}
+		ArrayList<String> grammar = new ArrayList<>();
+		grammar.add(gender);
+		ArrayList<String> usage = new ArrayList<>();
+		for (String extraInfo : extra.split(",\\s*")) {
+			if (extraInfo.startsWith("sty=")) {
+				// Style (familiar, vulgar, polite, etc.)
+				usage.add(extraInfo);
+			} else if (extraInfo.startsWith("tmp=") || extraInfo.startsWith("prs=") || extraInfo.startsWith("mod=")) {
+				// Redundant and used inconsistently.
+				continue;
+			} else {
+				grammar.add(extraInfo.replace("gen=", "").replace("num=", "").replace("cas=", ""));
+			}
+		}
 
-		return new String[] { pos, gender, extra };
+		return new Object[] { pos, grammar, usage };
 	}
 
 	static String[] extractDictCCComments(String lemma) {

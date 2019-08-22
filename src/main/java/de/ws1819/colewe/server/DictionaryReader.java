@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
@@ -259,7 +257,6 @@ public class DictionaryReader {
 
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		HashSet<String> lower = new HashSet<>(); // TODO del
 		HashSet<String> info = new HashSet<>(); // TODO del
 
 		String line = null;
@@ -274,19 +271,16 @@ public class DictionaryReader {
 					continue;
 				}
 
-				String[] posAndInfl = Tools.parsePOS(fields[1]);
-				String posString = posAndInfl[0];
-				if (posString.equals("VTT")) {
-					// Duplicate entry.
+				Object[] posAndInfl = Tools.parsePOS(fields[1]);
+				Pos pos = (Pos) posAndInfl[0];
+				@SuppressWarnings("unchecked")
+				ArrayList<String> grammarNO = (ArrayList<String>) posAndInfl[1];
+				String usageNO = ((ArrayList<String>) posAndInfl[2]).toString(); // TODO leave this as a list
+				if (grammarNO.contains("deg=cmp") || grammarNO.contains("deg=sup")){
+					// We don't need entries for inflected adjectives since we show the lemma instead.
 					continue;
 				}
-				// TODO
-				ArrayList<String> grammarNO = new ArrayList<>();
-				grammarNO.add(posAndInfl[1]);
-				String extra = posAndInfl[2];
-				lower.add(posAndInfl[1]);
-				info.add(extra);
-				Pos pos = Tools.string2Pos(posString);
+				info.addAll(grammarNO);
 
 				String[] inflections = fields[0].trim().split(",");
 				WordForm lemma = null;
@@ -344,7 +338,7 @@ public class DictionaryReader {
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
 
-				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO));
+				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageNO));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -353,8 +347,9 @@ public class DictionaryReader {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
-		logger.info(lower.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
-		logger.info(info.stream().collect(Collectors.toCollection(TreeSet::new)).toString());
+		ArrayList<String> infoList = new ArrayList<>(info);
+		infoList.sort(String::compareToIgnoreCase);
+		logger.info(infoList.toString());
 
 		logger.info(entries.get("bli").toString());
 		return entries;
