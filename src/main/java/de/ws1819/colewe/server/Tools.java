@@ -195,10 +195,10 @@ public class Tools {
 		return new Object[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
 	
-//	static String[] extractDictCCCommentsSquare(String lemma) {
-//		String[] usage = match(patternSquare, lemma);
-//		return new String[] { abbr[0], grammar[1], usage[1], abbr[1] };
-//	}
+	@SuppressWarnings("unchecked")
+	static ArrayList<String> extractDictCCCommentsSquare(String lemma) {
+		return (ArrayList<String>) match(patternSquare, lemma)[1];
+	}
 
 	static Object[] match(Pattern pattern, String lemma) {
 		Matcher matcher = pattern.matcher(lemma);

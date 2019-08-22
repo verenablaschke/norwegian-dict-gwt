@@ -27,7 +27,6 @@ public class DictionaryReader {
 	@SuppressWarnings("unchecked")
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		Set<String> usageNOSet = new HashSet<>(); // TODO del
 		Set<String> extraNOSet = new HashSet<>(); // TODO del
 		Set<String> grammarNOSet = new HashSet<>(); // TODO del
 
@@ -63,7 +62,7 @@ public class DictionaryReader {
 				ArrayList<String> grammarNO = new ArrayList<>();
 				for (String gram : (ArrayList<String>) lemmaAndCommentsNO[1]) {
 					for (String s : gram.split(",\\s*|\\s+|/")) {
-						grammarNO.add(s.replace("\\[", "\\]"));
+						grammarNO.add(s.replace("[", "").replace("]", ""));
 					}
 				}
 				grammarNOSet.addAll(grammarNO);
@@ -82,8 +81,9 @@ public class DictionaryReader {
 
 					// If available, get additional comments.
 					if (fields.length >= 4) {
-						String extraInfo = fields[3].trim().replaceAll("\\[", "").replaceAll("\\]", "");
-						for (String s : extraInfo.split(",\\s*")) {
+//						String extraInfo = fields[3].trim().replaceAll("\\[", "").replaceAll("\\]", "");
+//						for (String s : extraInfo.split(",\\s*")) {
+						for (String s : Tools.extractDictCCCommentsSquare(fields[3].trim())) {
 							if (!usageNO.contains(s)) {
 								usageNO.add(s);
 							}
@@ -120,10 +120,10 @@ public class DictionaryReader {
 		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
-		// logger.info("Dict.cc extra info");
-		// infoList = new ArrayList<>(extraNOSet);
-		// infoList.sort(String::compareToIgnoreCase);
-		// logger.info(infoList.toString());
+		 logger.info("Dict.cc extra info");
+		 infoList = new ArrayList<>(extraNOSet);
+		 infoList.sort(String::compareToIgnoreCase);
+		 logger.info(infoList.toString());
 		// logger.info("Dict.cc grammarDE");
 		// logger.info(grammarDESet.toString());
 		return entries;
