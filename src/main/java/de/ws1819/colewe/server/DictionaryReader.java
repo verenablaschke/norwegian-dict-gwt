@@ -24,10 +24,12 @@ public class DictionaryReader {
 
 	private static final Logger logger = Logger.getLogger(DictionaryReader.class.getSimpleName());
 
+	@SuppressWarnings("unchecked")
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		Set<String> usageNOSet = new HashSet<>(); // TODO del
+		Set<String> extraNOSet = new HashSet<>(); // TODO del
 		Set<String> grammarNOSet = new HashSet<>(); // TODO del
-		Set<String> grammarDESet = new HashSet<>(); // TODO del
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
@@ -52,22 +54,22 @@ public class DictionaryReader {
 				lemma = lemma.replaceAll(" \\[mannlig\\]", "");
 
 				// Find and remove comments.
-				String[] lemmaAndCommentsNO = Tools.extractDictCCComments(lemma);
-				lemma = lemmaAndCommentsNO[0];
-				String usageNO = lemmaAndCommentsNO[2];
+				Object[] lemmaAndCommentsNO = Tools.extractDictCCComments(lemma);
+				lemma = (String) lemmaAndCommentsNO[0];
 
 				// Get the translational equivalent and extract comments.
-				String[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
+				Object[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
+
 				ArrayList<String> grammarNO = new ArrayList<>();
-				for (String s : lemmaAndCommentsNO[1].split(",\\s*|\\s+|/")) {
-					if (!grammarNO.contains(s)) {
-						grammarNOSet.add(s);
+				for (String gram : (ArrayList<String>) lemmaAndCommentsNO[1]) {
+					for (String s : gram.split(",\\s*|\\s+|/")) {
+						grammarNO.add(s.replace("\\[", "\\]"));
 					}
-					grammarNO.add(s);
 				}
+				grammarNOSet.addAll(grammarNO);
+				// grammarDESet.add(lemmaAndCommentsDE[1]);
 
-				grammarDESet.add(lemmaAndCommentsDE[1]);
-
+				ArrayList<String> usageNO = new ArrayList<String>();
 				// If available, get POS tag.
 				String posTags[] = null;
 				if (fields.length >= 3) {
@@ -79,14 +81,13 @@ public class DictionaryReader {
 					}
 
 					// If available, get additional comments.
-					// TODO Check if they actually add valuable information or
-					// if they add noise
 					if (fields.length >= 4) {
 						String extraInfo = fields[3].trim().replaceAll("\\[", "").replaceAll("\\]", "");
-						if (usageNO == null || usageNO.isEmpty()) {
-							usageNO = extraInfo;
-						} else {
-							usageNO += ", " + extraInfo;
+						for (String s : extraInfo.split(",\\s*")) {
+							if (!usageNO.contains(s)) {
+								usageNO.add(s);
+							}
+							extraNOSet.add(s);
 						}
 					}
 				} else {
@@ -99,9 +100,12 @@ public class DictionaryReader {
 
 					entries.put(lemma,
 							new Entry(new WordForm(lemma), posTag,
-									new TranslationalEquivalent(lemmaAndCommentsDE[0], lemmaAndCommentsDE[1],
-											lemmaAndCommentsDE[2], lemmaAndCommentsDE[3]),
-									grammarNO, usageNO, lemmaAndCommentsNO[3]));
+									// TODO types
+									new TranslationalEquivalent((String) lemmaAndCommentsDE[0],
+											((ArrayList<String>) lemmaAndCommentsDE[1]).toString(),
+											((ArrayList<String>) lemmaAndCommentsDE[2]).toString(),
+											((ArrayList<String>) lemmaAndCommentsDE[3]).toString()),
+									grammarNO, usageNO, ((ArrayList<String>) lemmaAndCommentsNO[3]).toString()));
 				}
 
 			}
@@ -113,9 +117,15 @@ public class DictionaryReader {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		logger.info("Dict.cc grammarNO");
-		logger.info(grammarNOSet.toString());
-		logger.info("Dict.cc grammarDE");
-		logger.info(grammarDESet.toString());
+		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
+		infoList.sort(String::compareToIgnoreCase);
+		logger.info(infoList.toString());
+		// logger.info("Dict.cc extra info");
+		// infoList = new ArrayList<>(extraNOSet);
+		// infoList.sort(String::compareToIgnoreCase);
+		// logger.info(infoList.toString());
+		// logger.info("Dict.cc grammarDE");
+		// logger.info(grammarDESet.toString());
 		return entries;
 	}
 
@@ -255,6 +265,7 @@ public class DictionaryReader {
 		return entries;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> info = new HashSet<>(); // TODO del
@@ -273,11 +284,11 @@ public class DictionaryReader {
 
 				Object[] posAndInfl = Tools.parsePOS(fields[1]);
 				Pos pos = (Pos) posAndInfl[0];
-				@SuppressWarnings("unchecked")
 				ArrayList<String> grammarNO = (ArrayList<String>) posAndInfl[1];
-				String usageNO = ((ArrayList<String>) posAndInfl[2]).toString(); // TODO leave this as a list
-				if (grammarNO.contains("deg=cmp") || grammarNO.contains("deg=sup")){
-					// We don't need entries for inflected adjectives since we show the lemma instead.
+				ArrayList<String> usageNO = (ArrayList<String>) posAndInfl[2];
+				if (grammarNO.contains("deg=cmp") || grammarNO.contains("deg=sup")) {
+					// We don't need entries for inflected adjectives since we
+					// show the lemma instead.
 					continue;
 				}
 				info.addAll(grammarNO);
@@ -320,17 +331,18 @@ public class DictionaryReader {
 					String usageDE = "";
 					for (int j = 0; j < translRaw.length; j++) {
 						//
-						String[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
-						if (!wordAndComment[1].isEmpty()) {
+						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
+						if (!((ArrayList<String>) wordAndComment[1]).isEmpty()) {
 							// There is no more than one comment per meaning.
-							usageDE = wordAndComment[1].replace("_", " ");
+							// TODO type?
+							usageDE = ((ArrayList<String>) wordAndComment[1]).toString().replace("_", " ");
 						}
 						// Some of the translational equivalents include domain
 						// information. Then, the entry in the txt file looks
 						// like this:
 						// "anløp#["Anl2:p] Nn Anlaufen[eines_Hafens]/Anlaufen"
 						// with the German translational equivalent repeated.
-						String translation = wordAndComment[0].replace("_", " ");
+						String translation = ((String) wordAndComment[0]).replace("_", " ");
 						if (!translElements.contains(translation)) {
 							translElements.add(translation);
 						}

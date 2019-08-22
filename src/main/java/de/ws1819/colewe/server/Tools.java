@@ -185,36 +185,37 @@ public class Tools {
 		return new Object[] { pos, grammar, usage };
 	}
 
-	static String[] extractDictCCComments(String lemma) {
-		String[] grammar = match(patternCurly, lemma);
-		lemma = grammar[0];
-		String[] usage = match(patternSquare, lemma);
-		lemma = usage[0];
-		String[] abbr = match(patternTriangle, lemma);
+	static Object[] extractDictCCComments(String lemma) {
+		Object[] grammar = match(patternCurly, lemma);
+		lemma = (String) grammar[0];
+		Object[] usage = match(patternSquare, lemma);
+		lemma = (String) usage[0];
+		Object[] abbr = match(patternTriangle, lemma);
 		// abbr[0] is the lemma
-		return new String[] { abbr[0], grammar[1], usage[1], abbr[1] };
+		return new Object[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
+	
+//	static String[] extractDictCCCommentsSquare(String lemma) {
+//		String[] usage = match(patternSquare, lemma);
+//		return new String[] { abbr[0], grammar[1], usage[1], abbr[1] };
+//	}
 
-	static String[] match(Pattern pattern, String lemma) {
+	static Object[] match(Pattern pattern, String lemma) {
 		Matcher matcher = pattern.matcher(lemma);
-		String comment = "";
+		ArrayList<String> comments = new ArrayList<>();
 		String match;
 		Stack<Integer> matches = new Stack<>();
 		while (matcher.find()) {
 			match = matcher.group().trim();
 			// Remove the brackets around the comment.
-			comment += match.substring(1, match.length() - 1) + ", ";
+			comments.add(match.substring(1, match.length() - 1));
 			matches.push(matcher.end());
 			matches.push(matcher.start());
-		}
-		// Remove trailing ', '.
-		if (comment.length() > 2) {
-			comment = comment.substring(0, comment.length() - 2);
 		}
 		while (!matches.isEmpty()) {
 			lemma = lemma.substring(0, matches.pop()) + lemma.substring(matches.pop());
 		}
-		return new String[] { lemma.trim(), comment.trim() };
+		return new Object[] { lemma.trim(), comments };
 	}
 
 }

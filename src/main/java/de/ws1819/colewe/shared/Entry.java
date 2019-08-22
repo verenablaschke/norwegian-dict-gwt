@@ -14,7 +14,7 @@ public class Entry implements IsSerializable {
 	private HashMap<String, WordForm> inflections;
 	private ArrayList<TranslationalEquivalent> translations;
 	private ArrayList<String> grammarNO;
-	private String usageNO;
+	private ArrayList<String> usageNO;
 	private String abbrNO;
 	private int lemmaID;
 
@@ -25,7 +25,7 @@ public class Entry implements IsSerializable {
 
 	// For dict.cc
 	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, ArrayList<String> grammarNO,
-			String usageNO, String abbrNO) {
+			ArrayList<String> usageNO, String abbrNO) {
 		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, -1);
 		addTranslation(translation);
 	}
@@ -43,13 +43,13 @@ public class Entry implements IsSerializable {
 
 	// For the NO>DE dictionary
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
-			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, String usageNO) {
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO) {
 		this(lemma, pos, inflections, translations, grammarNO, usageNO, null, -1);
 	}
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
-			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, String usageNO, String abbrNO,
-			int lemmaID) {
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
+			String abbrNO, int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -121,12 +121,16 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
-		// TODO shouldn't these be lists/sets instead?
 		if (usageNO == null || usageNO.isEmpty()) {
 			setUsageNO(other.usageNO);
 		} else if (other.usageNO != null && !other.usageNO.isEmpty()) {
-			usageNO += ", " + other.usageNO;
+			for (String usage : other.usageNO) {
+				if (!usageNO.contains(usage)) {
+					usageNO.add(usage);
+				}
+			}
 		}
+		// TODO should this be a list instead?
 		if (abbrNO == null || abbrNO.isEmpty()) {
 			setAbbrNO(other.abbrNO);
 		} else if (other.abbrNO != null && !other.abbrNO.isEmpty()) {
@@ -241,7 +245,7 @@ public class Entry implements IsSerializable {
 	 *            the grammarNO to set
 	 */
 	public void setGrammarNO(ArrayList<String> grammarNO) {
-		if (grammarNO == null){
+		if (grammarNO == null) {
 			this.grammarNO = new ArrayList<>();
 			return;
 		}
@@ -253,18 +257,26 @@ public class Entry implements IsSerializable {
 	/**
 	 * @return the usageNO
 	 */
-	public String getUsageNO() {
+	public ArrayList<String> getUsageNO() {
 		return usageNO;
+	}
+
+	public String getUsageString() {
+		return String.join(", ", usageNO);
 	}
 
 	/**
 	 * @param usageNO
 	 *            the usageNO to set
 	 */
-	public void setUsageNO(String usageNO) {
-		// this.usageNO = (usageNO == null ? new ArrayList<>() : usageNO);
-		this.usageNO = (usageNO == null ? "" : usageNO);
-
+	public void setUsageNO(ArrayList<String> usageNO) {
+		if (usageNO == null) {
+			this.usageNO = new ArrayList<>();
+			return;
+		}
+		usageNO.removeIf(Objects::isNull);
+		usageNO.removeIf(String::isEmpty);
+		this.usageNO = usageNO;
 	}
 
 	/**
