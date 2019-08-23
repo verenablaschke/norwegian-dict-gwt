@@ -37,9 +37,9 @@ public class TranslationWidget extends Composite {
 	public TranslationWidget(TranslationalEquivalent transl) {
 		this();
 		setTranslation(transl.getTranslationString());
-		setGrammar(transl.getGrammar());
-		setUsage(transl.getUsage());
-		setAbbr(transl.getAbbr());
+		setGrammar(transl.getGrammarString());
+		setUsage(transl.getUsageString());
+		setAbbr(transl.getAbbrString());
 	}
 
 	public void setTranslation(String translation) {

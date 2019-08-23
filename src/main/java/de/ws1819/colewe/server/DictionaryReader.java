@@ -90,11 +90,10 @@ public class DictionaryReader {
 
 					entries.put(lemma,
 							new Entry(new WordForm(lemma), posTag,
-									// TODO types
 									new TranslationalEquivalent((String) lemmaAndCommentsDE[0],
-											((ArrayList<String>) lemmaAndCommentsDE[1]).toString(),
-											((ArrayList<String>) lemmaAndCommentsDE[2]).toString(),
-											((ArrayList<String>) lemmaAndCommentsDE[3]).toString()),
+											(ArrayList<String>) lemmaAndCommentsDE[1],
+											(ArrayList<String>) lemmaAndCommentsDE[2],
+											(ArrayList<String>) lemmaAndCommentsDE[3]),
 									grammarNO, usageNO, (ArrayList<String>) lemmaAndCommentsNO[3]));
 				}
 
@@ -110,8 +109,6 @@ public class DictionaryReader {
 		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
-		// logger.info("Dict.cc grammarDE");
-		// logger.info(grammarDESet.toString());
 		return entries;
 	}
 
@@ -255,7 +252,7 @@ public class DictionaryReader {
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> info = new HashSet<>(); // TODO del
-		HashSet<String> usage = new HashSet<>(); // TODO del
+		HashSet<String> usageDESet = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -315,14 +312,13 @@ public class DictionaryReader {
 					// A list instead of a set so that we can keep the order the
 					// dictionary editors deemed best.
 					ArrayList<String> translElements = new ArrayList<>();
-					String usageDE = "";
+					ArrayList<String> usageDE = new ArrayList<>();
 					for (int j = 0; j < translRaw.length; j++) {
 						//
 						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
-						if (!((ArrayList<String>) wordAndComment[1]).isEmpty()) {
-							// There is no more than one comment per meaning.
-							// TODO type?
-							usageDE = ((ArrayList<String>) wordAndComment[1]).toString().replace("_", " ");
+						for (String usage : (ArrayList<String>) wordAndComment[1]) {
+							usageDE.add(usage.replace("_", " "));
+							usageDESet.add(usage.replace("_", " "));
 						}
 						// Some of the translational equivalents include domain
 						// information. Then, the entry in the txt file looks
@@ -336,7 +332,6 @@ public class DictionaryReader {
 					}
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
-				usage.addAll(usageNO);
 				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageNO));
 			}
 		} catch (FileNotFoundException e) {
@@ -350,7 +345,7 @@ public class DictionaryReader {
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
 		logger.info("Usage no-de");
-		infoList = new ArrayList<>(usage);
+		infoList = new ArrayList<>(usageDESet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
 		logger.info(entries.get("bli").toString());

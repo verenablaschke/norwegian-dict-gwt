@@ -13,9 +13,9 @@ public class Entry implements IsSerializable {
 	private Pos pos;
 	private HashMap<String, WordForm> inflections;
 	private ArrayList<TranslationalEquivalent> translations;
-	private ArrayList<String> grammarNO;
-	private ArrayList<String> usageNO;
-	private ArrayList<String> abbrNO;
+	private ArrayList<String> grammar;
+	private ArrayList<String> usage;
+	private ArrayList<String> abbr;
 	private int lemmaID;
 
 	// For GWT
@@ -54,9 +54,9 @@ public class Entry implements IsSerializable {
 		setPos(pos);
 		setInflections(inflections);
 		setTranslations(translations);
-		setGrammarNO(grammarNO);
-		setUsageNO(usageNO);
-		setAbbrNO(abbrNO);
+		setGrammar(grammarNO);
+		setUsage(usageNO);
+		setAbbr(abbrNO);
 		setLemmaID(lemmaID);
 	}
 
@@ -100,9 +100,12 @@ public class Entry implements IsSerializable {
 						add = false;
 						break;
 					}
-					for (String translString : otherTransl.getTranslation()) {
-						if (transl.getTranslation().contains(translString)) {
+					for (String otherTranslString : otherTransl.getTranslation()) {
+						if (transl.getTranslation().contains(otherTranslString)) {
 							add = false;
+							transl.addGrammar(otherTransl.getGrammar());
+							transl.addUsage(otherTransl.getUsage());
+							transl.addAbbr(otherTransl.getAbbr());
 							break mid;
 						}
 					}
@@ -112,30 +115,30 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
-		if (grammarNO == null || grammarNO.isEmpty()) {
-			setGrammarNO(other.grammarNO);
-		} else if (other.grammarNO != null && !other.grammarNO.isEmpty()) {
-			for (String gram : other.grammarNO) {
-				if (!grammarNO.contains(gram)) {
-					grammarNO.add(gram);
+		if (grammar == null || grammar.isEmpty()) {
+			setGrammar(other.grammar);
+		} else if (other.grammar != null && !other.grammar.isEmpty()) {
+			for (String gram : other.grammar) {
+				if (!grammar.contains(gram)) {
+					grammar.add(gram);
 				}
 			}
 		}
-		if (usageNO == null || usageNO.isEmpty()) {
-			setUsageNO(other.usageNO);
-		} else if (other.usageNO != null && !other.usageNO.isEmpty()) {
-			for (String usage : other.usageNO) {
-				if (!usageNO.contains(usage)) {
-					usageNO.add(usage);
+		if (usage == null || usage.isEmpty()) {
+			setUsage(other.usage);
+		} else if (other.usage != null && !other.usage.isEmpty()) {
+			for (String use : other.usage) {
+				if (!usage.contains(use)) {
+					usage.add(use);
 				}
 			}
 		}
-		if (abbrNO == null || abbrNO.isEmpty()) {
-			setAbbrNO(other.abbrNO);
-		} else if (other.abbrNO != null && !other.abbrNO.isEmpty()) {
-			for (String abbr : other.abbrNO) {
-				if (!abbrNO.contains(abbr)) {
-					abbrNO.add(abbr);
+		if (abbr == null || abbr.isEmpty()) {
+			setAbbr(other.abbr);
+		} else if (other.abbr != null && !other.abbr.isEmpty()) {
+			for (String abbrev : other.abbr) {
+				if (!abbr.contains(abbrev)) {
+					abbr.add(abbrev);
 				}
 			}
 		}
@@ -231,80 +234,80 @@ public class Entry implements IsSerializable {
 	}
 
 	/**
-	 * @return the grammarNO
+	 * @return the grammar
 	 */
-	public ArrayList<String> getGrammarNO() {
-		return grammarNO;
+	public ArrayList<String> getGrammar() {
+		return grammar;
 	}
 
 	public String getGrammarString() {
-		ArrayList<String> contents = new ArrayList<>(grammarNO);
+		ArrayList<String> contents = new ArrayList<>(grammar);
 		contents.add(0, pos.toString());
 		return String.join(", ", contents);
 	}
 
 	/**
-	 * @param grammarNO
-	 *            the grammarNO to set
+	 * @param grammar
+	 *            the grammar to set
 	 */
-	public void setGrammarNO(ArrayList<String> grammarNO) {
-		if (grammarNO == null) {
-			this.grammarNO = new ArrayList<>();
+	public void setGrammar(ArrayList<String> grammar) {
+		if (grammar == null) {
+			this.grammar = new ArrayList<>();
 			return;
 		}
-		grammarNO.removeIf(Objects::isNull);
-		grammarNO.removeIf(String::isEmpty);
-		this.grammarNO = grammarNO;
+		grammar.removeIf(Objects::isNull);
+		grammar.removeIf(String::isEmpty);
+		this.grammar = grammar;
 	}
 
 	/**
-	 * @return the usageNO
+	 * @return the usage
 	 */
-	public ArrayList<String> getUsageNO() {
-		return usageNO;
+	public ArrayList<String> getUsage() {
+		return usage;
 	}
 
 	public String getUsageString() {
-		return String.join(", ", usageNO);
+		return String.join(", ", usage);
 	}
 
 	/**
-	 * @param usageNO
-	 *            the usageNO to set
+	 * @param usage
+	 *            the usage to set
 	 */
-	public void setUsageNO(ArrayList<String> usageNO) {
-		if (usageNO == null) {
-			this.usageNO = new ArrayList<>();
+	public void setUsage(ArrayList<String> usage) {
+		if (usage == null) {
+			this.usage = new ArrayList<>();
 			return;
 		}
-		usageNO.removeIf(Objects::isNull);
-		usageNO.removeIf(String::isEmpty);
-		this.usageNO = usageNO;
+		usage.removeIf(Objects::isNull);
+		usage.removeIf(String::isEmpty);
+		this.usage = usage;
 	}
 
 	/**
-	 * @return the abbrNO
+	 * @return the abbr
 	 */
-	public ArrayList<String> getAbbrNO() {
-		return abbrNO;
+	public ArrayList<String> getAbbr() {
+		return abbr;
 	}
 
 	/**
-	 * @param abbrNO
-	 *            the abbrNO to set
+	 * @param abbr
+	 *            the abbr to set
 	 */
-	public void setAbbrNO(ArrayList<String> abbrNO) {
-		if (abbrNO == null) {
-			this.abbrNO = new ArrayList<>();
+	public void setAbbr(ArrayList<String> abbr) {
+		if (abbr == null) {
+			this.abbr = new ArrayList<>();
 			return;
 		}
-		abbrNO.removeIf(Objects::isNull);
-		abbrNO.removeIf(String::isEmpty);
-		this.abbrNO = abbrNO;
+		abbr.removeIf(Objects::isNull);
+		abbr.removeIf(String::isEmpty);
+		this.abbr = abbr;
 	}
 
 	public String getAbbrString() {
-		return String.join(", ", abbrNO);
+		return String.join(", ", abbr);
 	}
 
 	/**
@@ -323,7 +326,7 @@ public class Entry implements IsSerializable {
 	}
 
 	public String toString() {
-		return lemma + ": " + translations + " (" + pos + ", {" + grammarNO + "} [" + usageNO + "] <" + abbrNO
+		return lemma + ": " + translations + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
 				+ ">, inflections: " + inflections + ")";
 	}
 
@@ -336,13 +339,13 @@ public class Entry implements IsSerializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((abbrNO == null) ? 0 : abbrNO.hashCode());
-		result = prime * result + ((grammarNO == null) ? 0 : grammarNO.hashCode());
+		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
+		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
-		result = prime * result + ((usageNO == null) ? 0 : usageNO.hashCode());
+		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
 		return result;
 	}
 
@@ -363,18 +366,18 @@ public class Entry implements IsSerializable {
 			return false;
 		}
 		Entry other = (Entry) obj;
-		if (abbrNO == null) {
-			if (other.abbrNO != null) {
+		if (abbr == null) {
+			if (other.abbr != null) {
 				return false;
 			}
-		} else if (!abbrNO.equals(other.abbrNO)) {
+		} else if (!abbr.equals(other.abbr)) {
 			return false;
 		}
-		if (grammarNO == null) {
-			if (other.grammarNO != null) {
+		if (grammar == null) {
+			if (other.grammar != null) {
 				return false;
 			}
-		} else if (!grammarNO.equals(other.grammarNO)) {
+		} else if (!grammar.equals(other.grammar)) {
 			return false;
 		}
 		if (inflections == null) {
@@ -401,11 +404,11 @@ public class Entry implements IsSerializable {
 		} else if (!translations.equals(other.translations)) {
 			return false;
 		}
-		if (usageNO == null) {
-			if (other.usageNO != null) {
+		if (usage == null) {
+			if (other.usage != null) {
 				return false;
 			}
-		} else if (!usageNO.equals(other.usageNO)) {
+		} else if (!usage.equals(other.usage)) {
 			return false;
 		}
 		return true;

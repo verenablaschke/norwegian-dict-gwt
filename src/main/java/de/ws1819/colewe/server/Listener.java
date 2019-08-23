@@ -98,7 +98,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				for (Entry entryD : entriesDictCc) {
 					addInfMarker(entryD);
 					addEntry(entryD, lemma, entries, false);
-					for (String abbr : entryD.getAbbrNO()) {
+					for (String abbr : entryD.getAbbr()) {
 						addEntry(entryD, abbr, entries, false);
 					}
 				}
@@ -125,7 +125,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "");
-
+		
 		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
 			if (existingEntry.merge(entry)) {
