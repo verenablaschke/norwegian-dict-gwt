@@ -27,7 +27,6 @@ public class DictionaryReader {
 	@SuppressWarnings("unchecked")
 	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		Set<String> extraNOSet = new HashSet<>(); // TODO del
 		Set<String> grammarNOSet = new HashSet<>(); // TODO del
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
@@ -109,10 +108,6 @@ public class DictionaryReader {
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		logger.info("Dict.cc grammarNO");
 		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
-		infoList.sort(String::compareToIgnoreCase);
-		logger.info(infoList.toString());
-		logger.info("Dict.cc extra info");
-		infoList = new ArrayList<>(extraNOSet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
 		// logger.info("Dict.cc grammarDE");

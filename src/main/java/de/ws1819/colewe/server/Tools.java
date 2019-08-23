@@ -173,7 +173,7 @@ public class Tools {
 		for (String extraInfo : extra.split(",\\s*")) {
 			if (extraInfo.startsWith("sty=")) {
 				// Style (familiar, vulgar, polite, etc.)
-				usage.add(extraInfo);
+				usage.add(abbr2Style(extraInfo));
 			} else if (extraInfo.startsWith("tmp=") || extraInfo.startsWith("prs=") || extraInfo.startsWith("mod=")) {
 				// Redundant and used inconsistently.
 				continue;
@@ -183,6 +183,24 @@ public class Tools {
 		}
 
 		return new Object[] { pos, grammar, usage };
+	}
+	
+	private static String abbr2Style(String abbr) {
+		switch (abbr) {
+		case "sty=anc":
+			// "anchor"? ("siehe")
+			// Only used in one entry ("syv - s. sju" (sieben)).
+			return "";
+		case "sty=fam":
+			return "colloquial";
+		case "sty=pej":
+			return "pejorative";
+		case "sty=pol":
+			return "polite";
+		case "sty=vlg":
+			return "vulgar";
+		}
+		return "";
 	}
 
 	static Object[] extractDictCCComments(String lemma) {
