@@ -195,14 +195,40 @@ public class Tools {
 		return new Object[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
 
-	static ArrayList<String> extractDictCCCommentsSquare(String s) {
+	static ArrayList<String> extractDictCCExtraComments(String s) {
 		ArrayList<String> matches = new ArrayList<>();
 		Matcher matcher = patternSquareWithoutWS.matcher(s);
 		String match;
 		while (matcher.find()) {
 			match = matcher.group().trim();
-			// Remove the brackets around the comment.
-			matches.add(match.substring(1, match.length() - 1).trim());
+			match = match.substring(1, match.length() - 1).trim();
+			switch(match){
+			case "F":
+				match = "fiction";
+				break;
+			case "FoodInd.":
+				match = "food ind.";
+				break;
+			case "FireResc":
+				match = "fire rescue";
+				break;
+			case "Internet":
+				match = "internet";
+				break;
+			case "MedTech.":
+				match = "medical techn.";
+				break;
+			case "RadioTV":
+				match = "radio & tv";
+				break;
+			case "RealEst.":
+				match = "real estate";
+				break;
+			case "VetMed.":
+				match = "vet. medicine";
+				break;
+			}
+			matches.add(match);
 		}
 		return matches;
 	}

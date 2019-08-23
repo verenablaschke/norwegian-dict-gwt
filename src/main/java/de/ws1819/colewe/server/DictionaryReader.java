@@ -81,7 +81,7 @@ public class DictionaryReader {
 
 					// If available, get additional comments.
 					if (fields.length >= 4) {
-						for (String s : Tools.extractDictCCCommentsSquare(fields[3])) {
+						for (String s : Tools.extractDictCCExtraComments(fields[3])) {
 							usageNO.add(s);
 							extraNOSet.add(s);
 						}
