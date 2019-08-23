@@ -1,6 +1,7 @@
 package de.ws1819.colewe.server;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -113,15 +114,15 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 			allEntries.putAll(entries);
 		}
-		logger.info(allEntries.get("ord").toString()); // TODO del?
 
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
-		wordForm = wordForm.toLowerCase();
-		
+		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
+		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "");
+
 		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
 			if (existingEntry.merge(entry)) {
@@ -142,7 +143,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		if (fullformsliste) {
 			return;
 		}
-		
+
 		// Couldn't merge the entry with an existing one, add to collection:
 		entries.put(wordForm, entry);
 	}
