@@ -79,13 +79,8 @@ public class DictionaryReader {
 						lemma = lemma.substring(2);
 					}
 
-					// If available, get additional comments.
-					if (fields.length >= 4) {
-						for (String s : Tools.extractDictCCExtraComments(fields[3])) {
-							usageNO.add(s);
-							extraNOSet.add(s);
-						}
-					}
+					// Ignore potential domain informatio (fields[3]), since it
+					// does not add helpful information, only visual noise.
 				} else {
 					posTags = new String[] { null };
 				}
@@ -265,6 +260,7 @@ public class DictionaryReader {
 	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> info = new HashSet<>(); // TODO del
+		HashSet<String> usage = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -345,7 +341,7 @@ public class DictionaryReader {
 					}
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
-
+				usage.addAll(usageNO);
 				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageNO));
 			}
 		} catch (FileNotFoundException e) {
@@ -358,7 +354,10 @@ public class DictionaryReader {
 		ArrayList<String> infoList = new ArrayList<>(info);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
-
+		logger.info("Usage no-de");
+		infoList = new ArrayList<>(usage);
+		infoList.sort(String::compareToIgnoreCase);
+		logger.info(infoList.toString());
 		logger.info(entries.get("bli").toString());
 		return entries;
 	}
