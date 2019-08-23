@@ -78,7 +78,7 @@ public class DictionaryReader {
 						lemma = lemma.substring(2);
 					}
 
-					// Ignore potential domain informatio (fields[3]), since it
+					// Ignore potential domain information (fields[3]), since it
 					// does not add helpful information, only visual noise.
 				} else {
 					posTags = new String[] { null };
@@ -95,7 +95,7 @@ public class DictionaryReader {
 											((ArrayList<String>) lemmaAndCommentsDE[1]).toString(),
 											((ArrayList<String>) lemmaAndCommentsDE[2]).toString(),
 											((ArrayList<String>) lemmaAndCommentsDE[3]).toString()),
-									grammarNO, usageNO, ((ArrayList<String>) lemmaAndCommentsNO[3]).toString()));
+									grammarNO, usageNO, (ArrayList<String>) lemmaAndCommentsNO[3]));
 				}
 
 			}

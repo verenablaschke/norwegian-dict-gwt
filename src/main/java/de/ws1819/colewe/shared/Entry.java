@@ -15,7 +15,7 @@ public class Entry implements IsSerializable {
 	private ArrayList<TranslationalEquivalent> translations;
 	private ArrayList<String> grammarNO;
 	private ArrayList<String> usageNO;
-	private String abbrNO;
+	private ArrayList<String> abbrNO;
 	private int lemmaID;
 
 	// For GWT
@@ -25,7 +25,7 @@ public class Entry implements IsSerializable {
 
 	// For dict.cc
 	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, ArrayList<String> grammarNO,
-			ArrayList<String> usageNO, String abbrNO) {
+			ArrayList<String> usageNO, ArrayList<String> abbrNO) {
 		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, -1);
 		addTranslation(translation);
 	}
@@ -49,7 +49,7 @@ public class Entry implements IsSerializable {
 
 	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
 			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
-			String abbrNO, int lemmaID) {
+			ArrayList<String> abbrNO, int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
@@ -130,11 +130,14 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
-		// TODO should this be a list instead?
 		if (abbrNO == null || abbrNO.isEmpty()) {
 			setAbbrNO(other.abbrNO);
 		} else if (other.abbrNO != null && !other.abbrNO.isEmpty()) {
-			abbrNO += ", " + other.abbrNO;
+			for (String abbr : other.abbrNO) {
+				if (!abbrNO.contains(abbr)) {
+					abbrNO.add(abbr);
+				}
+			}
 		}
 	}
 
@@ -282,7 +285,7 @@ public class Entry implements IsSerializable {
 	/**
 	 * @return the abbrNO
 	 */
-	public String getAbbrNO() {
+	public ArrayList<String> getAbbrNO() {
 		return abbrNO;
 	}
 
@@ -290,10 +293,18 @@ public class Entry implements IsSerializable {
 	 * @param abbrNO
 	 *            the abbrNO to set
 	 */
-	public void setAbbrNO(String abbrNO) {
-		// this.abbrNO = (abbrNO == null ? new ArrayList<>() : abbrNO);
-		this.abbrNO = (abbrNO == null ? "" : abbrNO);
+	public void setAbbrNO(ArrayList<String> abbrNO) {
+		if (abbrNO == null) {
+			this.abbrNO = new ArrayList<>();
+			return;
+		}
+		abbrNO.removeIf(Objects::isNull);
+		abbrNO.removeIf(String::isEmpty);
+		this.abbrNO = abbrNO;
+	}
 
+	public String getAbbrString() {
+		return String.join(", ", abbrNO);
 	}
 
 	/**

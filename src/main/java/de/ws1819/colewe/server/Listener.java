@@ -98,6 +98,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				for (Entry entryD : entriesDictCc) {
 					addInfMarker(entryD);
 					addEntry(entryD, lemma, entries, false);
+					for (String abbr : entryD.getAbbrNO()) {
+						addEntry(entryD, abbr, entries, false);
+					}
 				}
 			}
 
