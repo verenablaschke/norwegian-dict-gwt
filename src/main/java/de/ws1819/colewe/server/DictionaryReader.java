@@ -270,9 +270,9 @@ public class DictionaryReader {
 				Pos pos = (Pos) posAndInfl[0];
 				ArrayList<String> grammarNO = (ArrayList<String>) posAndInfl[1];
 				ArrayList<String> usageNO = (ArrayList<String>) posAndInfl[2];
-				if (grammarNO.contains("deg=cmp") || grammarNO.contains("deg=sup")) {
-					// We don't need entries for inflected adjectives since we
-					// show the lemma instead.
+				if (grammarNO.contains("INFLECTED")) {
+					// We don't need entries for inflected adjectives/verbs
+					// since we show the lemma instead.
 					continue;
 				}
 				info.addAll(grammarNO);

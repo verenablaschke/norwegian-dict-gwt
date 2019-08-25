@@ -174,9 +174,12 @@ public class Tools {
 			if (extraInfo.startsWith("sty=")) {
 				// Style (familiar, vulgar, polite, etc.)
 				usage.add(abbr2Style(extraInfo));
-			} else if (extraInfo.startsWith("tmp=") || extraInfo.startsWith("prs=") || extraInfo.startsWith("mod=")) {
-				// Redundant and used inconsistently.
-				continue;
+			} else if (extraInfo.startsWith("tmp=") || extraInfo.startsWith("prs=") || extraInfo.startsWith("mod=")
+					|| extraInfo.startsWith("deg=")) {
+				// Redundant (and used inconsistently).
+				// We don't need entries for inflected adjectives/verbs
+				// since we show the lemma instead.
+				grammar.add("INFLECTED");
 			} else {
 				grammar.add(extraInfo.replace("gen=", "").replace("num=", "").replace("cas=", ""));
 			}
@@ -184,7 +187,7 @@ public class Tools {
 
 		return new Object[] { pos, grammar, usage };
 	}
-	
+
 	private static String abbr2Style(String abbr) {
 		switch (abbr) {
 		case "sty=anc":
