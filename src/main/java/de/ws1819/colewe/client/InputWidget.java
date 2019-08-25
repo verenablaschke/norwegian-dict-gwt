@@ -19,8 +19,18 @@ public class InputWidget extends Composite {
 	interface InputWidgetUiBinder extends UiBinder<Widget, InputWidget> {
 	}
 
+	// Copied from https://no.wikipedia.org/wiki/Ordbok, Aug 25th, 2019.
+	private static String exampleText = "En ordbok er en samling av ord fra ett eller flere språk. "
+			+ "Den angir hvordan ordene staves, og gir gjerne definisjoner, bøyninger, uttalehjelp, "
+			+ "eksempler på bruk og ordenes etymologi. Hvis det er en ordbok mellom ulike språk "
+			+ "(flerspråklig ordbok), gir ordboken tilsvarende ord eller et forklarende uttrykk på "
+			+ "det andre språket. Ordene i ordbøker er vanligvis ordnet alfabetisk.";
+
 	@UiField
-	Button button;
+	Button send;
+
+	@UiField
+	Button example;
 
 	@UiField
 	TextArea textArea;
@@ -32,38 +42,30 @@ public class InputWidget extends Composite {
 	public InputWidget(String text) {
 		initWidget(uiBinder.createAndBindUi(this));
 		textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
-		button.setEnabled(false);
-//		if (text == null || text.isEmpty()) {
-//			textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
-//			button.setEnabled(false);
-//		} else {
-//			textArea.setText(text);
-//			button.setEnabled(true);
-//			// Doesn't work :( TODO
-//			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-//				@Override
-//				public void execute() {
-//					textArea.selectAll();
-//				}
-//			});
-//		}
+		send.setEnabled(false);
 	}
 
-	@UiHandler("button")
-	void onClick(ClickEvent e) {
+	@UiHandler("send")
+	void onSendClick(ClickEvent e) {
 		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(true);
 		String text = textArea.getText().trim();
 		RootPanel.get("widgetContainer").clear();
 		RootPanel.get("widgetContainer").add(new OutputWidget(text));
+	}
+	
+	@UiHandler("example")
+	void onExampleClick(ClickEvent e) {
+		textArea.setText(exampleText);
+		send.setEnabled(true);
 	}
 
 	@UiHandler("textArea")
 	void onKeyPress(KeyUpEvent e) {
 		// Only enable clicking on the button if there's an actual query.
 		if (textArea.getText().trim().length() > 0) {
-			button.setEnabled(true);
+			send.setEnabled(true);
 		} else {
-			button.setEnabled(false);
+			send.setEnabled(false);
 		}
 	}
 
