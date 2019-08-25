@@ -189,6 +189,19 @@ public class Entry implements IsSerializable {
 		return inflections;
 	}
 
+	public ArrayList<WordForm> getDisplayableInflections() {
+		// Only display noteworthy inflections, i.e. inflections that were
+		// listed in the curated dictionary.
+		ArrayList<WordForm> inflectionsToDisplay = new ArrayList<>();
+		int i = 1;
+		WordForm infl = null;
+		while ((infl = inflections.get(((Integer) i).toString())) != null) {
+			inflectionsToDisplay.add(infl);
+			i++;
+		}
+		return inflectionsToDisplay;
+	}
+
 	/**
 	 * @param inflections
 	 *            the inflections to set

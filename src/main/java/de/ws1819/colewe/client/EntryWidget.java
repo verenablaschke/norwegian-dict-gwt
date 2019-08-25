@@ -33,7 +33,7 @@ public class EntryWidget extends Composite {
 		this();
 		setWord(entry.getLemma(), true);
 		wordPanel.add(new BadgeWidget(entry.getGrammarString(), entry.getUsageString(), entry.getAbbrString()));
-		for (WordForm wf : entry.getInflections().values()) {
+		for (WordForm wf : entry.getDisplayableInflections()) {
 			setWord(wf, false);
 		}
 		for (TranslationalEquivalent transl : entry.getTranslations()) {
