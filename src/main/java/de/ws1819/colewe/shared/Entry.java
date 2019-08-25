@@ -242,7 +242,9 @@ public class Entry implements IsSerializable {
 
 	public String getGrammarString() {
 		ArrayList<String> contents = new ArrayList<>(grammar);
-		contents.add(0, pos.toString());
+		if (pos != null && !pos.equals(Pos.NULL)) {
+			contents.add(0, pos.toString());
+		}
 		return String.join(", ", contents);
 	}
 
