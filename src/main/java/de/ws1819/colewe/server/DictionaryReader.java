@@ -301,6 +301,12 @@ public class DictionaryReader {
 					}
 				}
 
+				if (lemma.getForm().equals("å") && pos.equals(Pos.VERB)) {
+					// The entries for the infinitive marker 'å' clash quite
+					// horribly -> skip this one.
+					continue;
+				}
+
 				// Major meaning blocks in polysemous entries are separated by
 				// double slashes.
 				// TODO look up the proper terminology and rename the vars
