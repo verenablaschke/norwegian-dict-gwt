@@ -95,11 +95,10 @@ public class Tools {
 		case "itj":
 		case "fitj": // question interjection
 			return Pos.ITJ;
-		case "ne":
-			return Pos.NE;
 		case "noun":
 		case "subst":
 		case "n":
+		case "ne": // named entity, here: languages/countries/etc.
 		case "nm": // typo ('n')
 			return Pos.NOUN;
 		case "pref":
