@@ -280,6 +280,7 @@ public class DictionaryReader {
 				if (grammarNO.contains("INFLECTED")) {
 					// We don't need entries for inflected adjectives/verbs
 					// since we show the lemma instead.
+					System.out.println(line);
 					continue;
 				}
 				info.addAll(grammarNO);

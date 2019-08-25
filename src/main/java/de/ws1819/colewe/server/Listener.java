@@ -119,23 +119,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			allEntries.putAll(entries);
 		}
 
-		HashSet<Entry> pronDet = new HashSet<>();
-		for (Entry e : allEntries.values()) {
-			if (e.getPos().equals(Pos.PRON) || e.getPos().equals(Pos.DET)) {
-				pronDet.add(e);
-			}
-		}
-		ArrayList<Entry> al = new ArrayList<>(pronDet);
-		al.sort(new Comparator<Entry>() {
-			@Override
-			public int compare(Entry o1, Entry o2) {
-				return o1.getLemma().getForm().compareTo(o2.getLemma().getForm());
-			}
-		});
-		for (Entry e : al){			
-			System.out.println(e);
-		}
-
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 	}

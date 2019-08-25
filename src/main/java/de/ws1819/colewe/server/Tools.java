@@ -174,7 +174,7 @@ public class Tools {
 				// Style (familiar, vulgar, polite, etc.)
 				usage.add(abbr2Style(extraInfo));
 			} else if (extraInfo.startsWith("tmp=") || extraInfo.startsWith("prs=") || extraInfo.startsWith("mod=")
-					|| extraInfo.startsWith("deg=")) {
+					|| extraInfo.startsWith("deg=") || extraInfo.startsWith("cas=")) {
 				// Redundant (and used inconsistently).
 				// We don't need entries for inflected adjectives/verbs
 				// since we show the lemma instead.
