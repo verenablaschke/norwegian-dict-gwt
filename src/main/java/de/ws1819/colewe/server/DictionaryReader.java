@@ -54,6 +54,11 @@ public class DictionaryReader {
 				// Find and remove comments.
 				Object[] lemmaAndCommentsNO = Tools.extractDictCCComments(lemma);
 				lemma = (String) lemmaAndCommentsNO[0];
+				if (lemma.equals("en")) {
+					// Get this entry for the INDEF article from the other
+					// dictionary instead.
+					continue;
+				}
 
 				// Get the translational equivalent and extract comments.
 				Object[] lemmaAndCommentsDE = Tools.extractDictCCComments(fields[1].trim());
@@ -65,7 +70,6 @@ public class DictionaryReader {
 					}
 				}
 				grammarNOSet.addAll(grammarNO);
-				// grammarDESet.add(lemmaAndCommentsDE[1]);
 
 				ArrayList<String> usageNO = new ArrayList<String>();
 				// If available, get POS tag.
@@ -280,7 +284,6 @@ public class DictionaryReader {
 				if (grammarNO.contains("INFLECTED")) {
 					// We don't need entries for inflected adjectives/verbs
 					// since we show the lemma instead.
-					System.out.println(line);
 					continue;
 				}
 				info.addAll(grammarNO);
