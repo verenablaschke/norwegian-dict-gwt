@@ -2,6 +2,7 @@ package de.ws1819.colewe.server;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -118,14 +119,31 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			allEntries.putAll(entries);
 		}
 
+		HashSet<Entry> pronDet = new HashSet<>();
+		for (Entry e : allEntries.values()) {
+			if (e.getPos().equals(Pos.PRON) || e.getPos().equals(Pos.DET)) {
+				pronDet.add(e);
+			}
+		}
+		ArrayList<Entry> al = new ArrayList<>(pronDet);
+		al.sort(new Comparator<Entry>() {
+			@Override
+			public int compare(Entry o1, Entry o2) {
+				return o1.getLemma().getForm().compareTo(o2.getLemma().getForm());
+			}
+		});
+		for (Entry e : al){			
+			System.out.println(e);
+		}
+
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
-		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "");
-		
+		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
+
 		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
 			if (existingEntry.merge(entry)) {
