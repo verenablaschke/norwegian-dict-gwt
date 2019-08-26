@@ -17,9 +17,13 @@
 	.pron {
 		color: grey;
 	}
+	
+	.left {
+		margin-left: 5px;
+	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:Label ui:field="word" styleName="{style.word}" />
+		<g:Label ui:field="word" styleName="{style.word} {style.left}" />
 		<g:Label ui:field="pron" styleName="{style.word} {style.pron}" />
 		<br />
 	</g:HTMLPanel>

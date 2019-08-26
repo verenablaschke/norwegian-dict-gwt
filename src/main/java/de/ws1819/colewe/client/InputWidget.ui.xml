@@ -16,12 +16,12 @@
 		<g:TextArea styleName="{style.text-area} form-control"
 			ui:field="textArea" />
 		<br />
-		<g:Button styleName="btn btn-outline-primary" ui:field="example">
-			Eksempeltekst
-		</g:Button>
 		<g:Button styleName="btn btn-primary" ui:field="send">
 			<i class="fa fa-arrow-circle-right"></i>
 			Send
+		</g:Button>
+		<g:Button styleName="btn btn-outline-primary" ui:field="example">
+			Eksempeltekst
 		</g:Button>
 	</g:HTMLPanel>
 </ui:UiBinder> 
