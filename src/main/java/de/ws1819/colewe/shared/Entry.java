@@ -1,8 +1,7 @@
 package de.ws1819.colewe.shared;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -11,7 +10,8 @@ public class Entry implements IsSerializable {
 
 	private WordForm lemma;
 	private Pos pos;
-	private HashMap<String, WordForm> inflections;
+	private HashSet<String> inflections;
+	private ArrayList<WordForm> displayableInflections;
 	private ArrayList<TranslationalEquivalent> translations;
 	private ArrayList<String> grammar;
 	private ArrayList<String> usage;
@@ -20,39 +20,42 @@ public class Entry implements IsSerializable {
 
 	// For GWT
 	public Entry() {
-		this(null, null, null, null, null, null, null, -1);
+		this(null, null, null, null, null, null, null, null, -1);
 	}
 
 	// For dict.cc
 	public Entry(WordForm lemma, Pos pos, TranslationalEquivalent translation, ArrayList<String> grammarNO,
 			ArrayList<String> usageNO, ArrayList<String> abbrNO) {
-		this(lemma, pos, null, null, grammarNO, usageNO, abbrNO, -1);
+		this(lemma, pos, null, null, null, grammarNO, usageNO, abbrNO, -1);
 		addTranslation(translation);
 	}
 
 	// For språkbanken
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections, int lemmaID) {
-		this(lemma, pos, inflections, null, null, null, null, lemmaID);
+	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
+			int lemmaID) {
+		this(lemma, pos, inflections, displayableInflections, null, null, null, null, lemmaID);
 	}
 
 	// For språkbanken
-	public Entry(WordForm lemma, Pos pos, String infl, WordForm inflForm, int lemmaID) {
-		this(lemma, pos, null, null, null, null, null, lemmaID);
-		addInflection(infl, inflForm);
+	public Entry(WordForm lemma, Pos pos, String infl, WordForm displayableInfl, int lemmaID) {
+		this(lemma, pos, null, null, null, null, null, null, lemmaID);
+		addInflection(infl);
+		addDisplayableInflection(displayableInfl);
 	}
 
 	// For the NO>DE dictionary
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
+	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
 			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO) {
-		this(lemma, pos, inflections, translations, grammarNO, usageNO, null, -1);
+		this(lemma, pos, inflections, displayableInflections, translations, grammarNO, usageNO, null, -1);
 	}
 
-	public Entry(WordForm lemma, Pos pos, Map<String, WordForm> inflections,
+	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
 			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
 			ArrayList<String> abbrNO, int lemmaID) {
 		setLemma(lemma);
 		setPos(pos);
 		setInflections(inflections);
+		setDisplayableInflections(displayableInflections);
 		setTranslations(translations);
 		setGrammar(grammarNO);
 		setUsage(usageNO);
@@ -82,11 +85,12 @@ public class Entry implements IsSerializable {
 		if (pos == null || pos.equals(Pos.NULL)) {
 			setPos(other.pos);
 		}
-		if (inflections == null || inflections.isEmpty()) {
-			setInflections(other.inflections);
-		} else if (other.inflections != null) {
-			for (java.util.Map.Entry<String, WordForm> infl : other.inflections.entrySet()) {
-				addInflection(infl.getKey(), infl.getValue());
+		// The other inflections are not relevant.
+		if (displayableInflections == null || displayableInflections.isEmpty()) {
+			setDisplayableInflections(other.displayableInflections);
+		} else if (other.displayableInflections != null) {
+			for (WordForm infl : other.displayableInflections) {
+				addDisplayableInflection(infl);
 			}
 		}
 		if (translations == null || translations.isEmpty()) {
@@ -185,39 +189,40 @@ public class Entry implements IsSerializable {
 	/**
 	 * @return the inflections
 	 */
-	public Map<String, WordForm> getInflections() {
+	public HashSet<String> getInflections() {
 		return inflections;
-	}
-
-	public ArrayList<WordForm> getDisplayableInflections() {
-		// Only display noteworthy inflections, i.e. inflections that were
-		// listed in the curated dictionary.
-		ArrayList<WordForm> inflectionsToDisplay = new ArrayList<>();
-		int i = 1;
-		WordForm infl = null;
-		while ((infl = inflections.get(((Integer) i).toString())) != null) {
-			inflectionsToDisplay.add(infl);
-			i++;
-		}
-		return inflectionsToDisplay;
 	}
 
 	/**
 	 * @param inflections
 	 *            the inflections to set
 	 */
-	public void setInflections(Map<String, WordForm> inflections) {
-		this.inflections = (inflections == null ? new HashMap<String, WordForm>()
-				: new HashMap<String, WordForm>(inflections));
+	public void setInflections(HashSet<String> inflections) {
+		this.inflections = (inflections == null ? new HashSet<String>() : inflections);
 	}
 
-	public void addInflection(String infl, WordForm form) {
-		inflections.put(infl, form);
+	public void addInflection(String infl) {
+		inflections.add(infl);
 	}
 
-	// public void addInflection(String infl, String form) {
-	// inflections.put(infl, new WordForm(form));
-	// }
+	public void setDisplayableInflections(ArrayList<WordForm> displayableInflections) {
+		this.displayableInflections = (displayableInflections == null ? new ArrayList<>() : displayableInflections);
+	}
+
+	public ArrayList<WordForm> getDisplayableInflections() {
+		// Only display noteworthy inflections, i.e. inflections that were
+		// listed in the curated dictionary.
+		return displayableInflections;
+	}
+
+	public void addDisplayableInflection(WordForm infl) {
+		if (infl == null) {
+			return;
+		}
+		if (!displayableInflections.contains(infl)) {
+			displayableInflections.add(infl);
+		}
+	}
 
 	/**
 	 * @return the translations
@@ -236,14 +241,6 @@ public class Entry implements IsSerializable {
 
 	public void addTranslation(TranslationalEquivalent translation) {
 		translations.add(translation);
-	}
-
-	/**
-	 * @param inflections
-	 *            the inflections to set
-	 */
-	public void setInflections(HashMap<String, WordForm> inflections) {
-		this.inflections = inflections;
 	}
 
 	/**
@@ -342,7 +339,7 @@ public class Entry implements IsSerializable {
 
 	public String toString() {
 		return lemma + ": " + translations + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
-				+ ">, inflections: " + inflections + ")";
+				+ ">, irreg infl: " + displayableInflections + ", all: " + inflections + ")";
 	}
 
 	/*
@@ -355,9 +352,11 @@ public class Entry implements IsSerializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
+		result = prime * result + ((displayableInflections == null) ? 0 : displayableInflections.hashCode());
 		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
+		result = prime * result + lemmaID;
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
 		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
@@ -388,6 +387,13 @@ public class Entry implements IsSerializable {
 		} else if (!abbr.equals(other.abbr)) {
 			return false;
 		}
+		if (displayableInflections == null) {
+			if (other.displayableInflections != null) {
+				return false;
+			}
+		} else if (!displayableInflections.equals(other.displayableInflections)) {
+			return false;
+		}
 		if (grammar == null) {
 			if (other.grammar != null) {
 				return false;
@@ -407,6 +413,9 @@ public class Entry implements IsSerializable {
 				return false;
 			}
 		} else if (!lemma.equals(other.lemma)) {
+			return false;
+		}
+		if (lemmaID != other.lemmaID) {
 			return false;
 		}
 		if (pos != other.pos) {

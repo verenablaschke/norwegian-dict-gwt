@@ -1,8 +1,6 @@
 package de.ws1819.colewe.server;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,8 +85,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
 					addEntry(entryW, lemma, entries, false);
-					for (WordForm wordForm : entryW.getInflections().values()) {
-						addEntry(entryW, wordForm.getForm(), entries, false);
+					for (String wordForm : entryW.getInflections()) {
+						addEntry(entryW, wordForm, entries, false);
 					}
 				}
 			}
@@ -110,8 +108,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				for (Entry entryF : entriesFullformsliste) {
 					addInfMarker(entryF);
 					addEntry(entryF, lemma, entries, true);
-					for (WordForm wordForm : entryF.getInflections().values()) {
-						addEntry(entryF, wordForm.getForm(), entries, true);
+					for (String wordForm : entryF.getInflections()) {
+						addEntry(entryF, wordForm, entries, true);
 					}
 				}
 			}

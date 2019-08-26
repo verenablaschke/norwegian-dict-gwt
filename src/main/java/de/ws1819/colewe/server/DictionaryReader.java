@@ -223,13 +223,38 @@ public class DictionaryReader {
 				// abbreviation or a multi-word phrase.
 				String inflForm = fields[2].trim();
 
+				WordForm irregularInfl = null;
+				// Look for irregular inflections that should be explicitly
+				// displayed to the user.
+				if (infl.startsWith("verb pret") && !inflForm.endsWith("et") && !inflForm.endsWith("de")
+						&& !inflForm.endsWith("te") && !inflForm.endsWith("a")) {
+					// TODO more sophisticated!
+					irregularInfl = new WordForm(inflForm, "(pret)");
+				} else if (infl.startsWith("verb perf-part") && !inflForm.endsWith("et") && !inflForm.endsWith("d")
+						&& !inflForm.endsWith("t") && !inflForm.endsWith("a")) {
+					// TODO more sophisticated!
+					irregularInfl = new WordForm(inflForm, "(past perf)");
+				} else if (pos.equals(Pos.NOUN)) {
+					String lemmaASCII = lemma.replace("é", "e");
+					if (infl.contains(" fl ub ") && !inflForm.equals(lemmaASCII + "er")
+							&& !inflForm.equals(lemmaASCII + "r") && !inflForm.equals(lemmaASCII + "e")) {
+						// TODO more sophisticated! (sg. -er, -el)
+						irregularInfl = new WordForm(inflForm, "(pl)");
+					}
+				}
+				// TODO del
+				// if (irregularInfl != null) {
+				// System.out.println(lemma + " : " + irregularInfl);
+				// }
+
 				// Save lemma ID, inflection information and inflected form.
 				List<Entry> entryList = entries.get(lemma);
 				boolean addedInfl = false;
 				if (entryList != null) {
 					for (Entry entry : entryList) {
 						if (id == entry.getLemmaID()) {
-							entry.addInflection(infl, new WordForm(inflForm));
+							entry.addInflection(inflForm);
+							entry.addDisplayableInflection(irregularInfl);
 							if (entry.getPos() == Pos.ADJ && pos == Pos.VERB) {
 								// Verb entries also contain participles that
 								// are tagged as adjectives.
@@ -241,7 +266,7 @@ public class DictionaryReader {
 					}
 				}
 				if (entryList == null || !addedInfl) {
-					entries.put(lemma, new Entry(new WordForm(lemma), pos, infl, new WordForm(inflForm), id));
+					entries.put(lemma, new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id));
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -253,9 +278,11 @@ public class DictionaryReader {
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
 
-		for (java.util.Map.Entry<String, WordForm> infl : entries.get("bli").get(0).getInflections().entrySet()) {
-			logger.info(infl.getValue().getForm() + " : " + infl.getKey());
+		for (WordForm infl : entries.get("bli").get(1).getDisplayableInflections()) {
+			System.out.println(infl.getForm());
 		}
+		System.out.println(entries.get("bli").get(1).getInflections());
+
 		return entries;
 	}
 
@@ -290,7 +317,8 @@ public class DictionaryReader {
 
 				String[] inflections = fields[0].trim().split(",");
 				WordForm lemma = null;
-				HashMap<String, WordForm> infl = new HashMap<String, WordForm>();
+				ArrayList<WordForm> infl = new ArrayList<WordForm>();
+				HashSet<String> inflSet = new HashSet<>();
 				for (int i = 0; i < inflections.length; i++) {
 					String[] wordPron = inflections[i].trim().split("#");
 					String word = wordPron[0].replace("_", " ");
@@ -307,8 +335,9 @@ public class DictionaryReader {
 						if (word.startsWith("-")) {
 							// TODO #17
 						}
-						infl.put(((Integer) i).toString(), new WordForm(word, pron)); // TODO
-																						// key
+						// TODO gav/ga
+						inflSet.add(word);
+						infl.add(new WordForm(word, pron));
 					}
 				}
 
@@ -349,7 +378,7 @@ public class DictionaryReader {
 					}
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
-				entries.put(lemma.getForm(), new Entry(lemma, pos, infl, translations, grammarNO, usageNO));
+				entries.put(lemma.getForm(), new Entry(lemma, pos, inflSet, infl, translations, grammarNO, usageNO));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
