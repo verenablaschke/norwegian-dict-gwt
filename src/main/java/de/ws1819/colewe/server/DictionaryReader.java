@@ -277,12 +277,6 @@ public class DictionaryReader {
 
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-
-		for (WordForm infl : entries.get("bli").get(1).getDisplayableInflections()) {
-			System.out.println(infl.getForm());
-		}
-		System.out.println(entries.get("bli").get(1).getInflections());
-
 		return entries;
 	}
 

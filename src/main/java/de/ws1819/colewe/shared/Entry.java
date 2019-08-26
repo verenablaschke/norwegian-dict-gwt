@@ -85,13 +85,15 @@ public class Entry implements IsSerializable {
 		if (pos == null || pos.equals(Pos.NULL)) {
 			setPos(other.pos);
 		}
-		// The other inflections are not relevant.
+		if (inflections == null || inflections.isEmpty()){
+			inflections = other.inflections;
+		} else if (other.inflections != null && !other.inflections.isEmpty()){
+			inflections.addAll(other.inflections);
+		}
+		// Only add irregular inflections from fullformsliste if there weren't
+		// any in no-de-dict.
 		if (displayableInflections == null || displayableInflections.isEmpty()) {
 			setDisplayableInflections(other.displayableInflections);
-		} else if (other.displayableInflections != null) {
-			for (WordForm infl : other.displayableInflections) {
-				addDisplayableInflection(infl);
-			}
 		}
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
