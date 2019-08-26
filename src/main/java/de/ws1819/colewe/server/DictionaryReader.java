@@ -226,26 +226,14 @@ public class DictionaryReader {
 				WordForm irregularInfl = null;
 				// Look for irregular inflections that should be explicitly
 				// displayed to the user.
-				if (infl.startsWith("verb pret") && !inflForm.endsWith("et") && !inflForm.endsWith("de")
-						&& !inflForm.endsWith("te") && !inflForm.endsWith("a")) {
-					// TODO more sophisticated!
+				if (infl.startsWith("verb pret") && !Tools.isRegularPret(lemma, inflForm)) {
 					irregularInfl = new WordForm(inflForm, "(pret)");
-				} else if (infl.startsWith("verb perf-part") && !inflForm.endsWith("et") && !inflForm.endsWith("d")
-						&& !inflForm.endsWith("t") && !inflForm.endsWith("a")) {
-					// TODO more sophisticated!
+				} else if (infl.startsWith("verb perf-part") && !Tools.isRegularPerf(lemma, inflForm)) {
 					irregularInfl = new WordForm(inflForm, "(past perf)");
-				} else if (pos.equals(Pos.NOUN)) {
-					String lemmaASCII = lemma.replace("é", "e");
-					if (infl.contains(" fl ub ") && !inflForm.equals(lemmaASCII + "er")
-							&& !inflForm.equals(lemmaASCII + "r") && !inflForm.equals(lemmaASCII + "e")) {
-						// TODO more sophisticated! (sg. -er, -el)
-						irregularInfl = new WordForm(inflForm, "(pl)");
-					}
+				} else if (pos.equals(Pos.NOUN) && infl.contains(" fl ub ")
+						&& !Tools.isRegularPlural(lemma, inflForm)) {
+					irregularInfl = new WordForm(inflForm, "(pl)");
 				}
-				// TODO del
-				// if (irregularInfl != null) {
-				// System.out.println(lemma + " : " + irregularInfl);
-				// }
 
 				// Save lemma ID, inflection information and inflected form.
 				List<Entry> entryList = entries.get(lemma);
@@ -269,7 +257,9 @@ public class DictionaryReader {
 					entries.put(lemma, new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id));
 				}
 			}
-		} catch (FileNotFoundException e) {
+		} catch (
+
+		FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

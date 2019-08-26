@@ -233,4 +233,108 @@ public class Tools {
 		return new Object[] { lemma.trim(), comments };
 	}
 
+	static boolean isRegularPret(String lemma, String form) {
+		if (lemma.length() > 2 && lemma.endsWith("e")) {
+			if (form.equals(lemma + "t")) {
+				// Conjugation Ia, e.g. 'regn+et'.
+				return true;
+			}
+			String stem = lemma.substring(0, lemma.length() - 1);
+			if (form.equals(stem + "a")) {
+				// Conjugation Ib, e.g. 'regn+a'.
+				return true;
+			}
+			if (form.endsWith("te")) {
+				// Conjugation II, e.g. 'reis+te'.
+				if (form.equals(stem + "te")) {
+					return true;
+				}
+				// 'kjenne' -> 'kjen+te'
+				return stem.charAt(stem.length() - 1) == stem.charAt(stem.length() - 2);
+			}
+			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d")
+					|| (isVowel(stem.charAt(stem.length() - 1)) && isVowel(stem.charAt(stem.length() - 2))))
+					&& form.equals(stem + "de")) {
+				// Conjugation III, e.g. 'prøv+de'.
+				return true;
+			}
+		} else {
+			// Conjugation IV, e.g. 'bo+dde'.
+			return (form.equals(lemma + "dde"));
+			// TODO check trodde vs. trudde
+		}
+		return false;
+	}
+
+	static boolean isRegularPerf(String lemma, String form) {
+		if (lemma.length() > 2 && lemma.endsWith("e")) {
+			if (form.equals(lemma + "t")) {
+				// Conjugation Ia, e.g. 'regn+et'.
+				return true;
+			}
+			String stem = lemma.substring(0, lemma.length() - 1);
+			if (form.equals(stem + "a")) {
+				// Conjugation Ib, e.g. 'regn+a'.
+				return true;
+			}
+			if (form.endsWith("t")) {
+				// Conjugation II, e.g. 'reis+t'.
+				if (form.equals(stem + "t")) {
+					return true;
+				}
+				// 'kjenne' -> 'kjen+t'
+				return stem.charAt(stem.length() - 1) == stem.charAt(stem.length() - 2);
+			}
+			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d")
+					|| (isVowel(stem.charAt(stem.length() - 1)) && isVowel(stem.charAt(stem.length() - 2))))
+					&& form.equals(stem + "d")) {
+				// Conjugation III, e.g. 'prøv+d'.
+				return true;
+			}
+		} else {
+			// Conjugation IV, e.g. 'bo+dd'.
+			return (form.equals(lemma + "dd"));
+			// TODO check trodd vs. trudd
+		}
+		return false;
+	}
+
+	static boolean isRegularPlural(String lemma, String form) {
+		String lemmaASCII = lemma.replace("é", "e");
+		if (form.equals(lemmaASCII)) {
+			return false;
+		}
+		if (form.equals(lemmaASCII + "er") || form.equals(lemmaASCII + "r") || form.equals(lemmaASCII + "e")) {
+			return true;
+		}
+		if (lemmaASCII.endsWith("el") || lemmaASCII.endsWith("er")) {
+			// Stem: 'eksempel' -> 'eksempl', 'sommer' -> 'somr'
+			String stem = lemmaASCII.substring(0, lemmaASCII.length() - 2);
+			if (stem.length() > 2 && stem.charAt(stem.length() - 1) == stem.charAt(stem.length() - 2)) {
+				stem = stem.substring(0, stem.length() - 1);
+
+			}
+			stem = stem + lemmaASCII.substring(lemmaASCII.length() - 1);
+			return form.equals(stem + "er") || form.equals(stem + "e");
+		}
+		return false;
+	}
+
+	private static boolean isVowel(char c) {
+		switch (c) {
+		case 'i':
+		case 'e':
+		case 'a':
+		case 'o':
+		case 'u':
+		case 'y':
+		case 'å':
+		case 'ø':
+		case 'æ':
+			return true;
+		default:
+			return false;
+		}
+	}
+
 }
