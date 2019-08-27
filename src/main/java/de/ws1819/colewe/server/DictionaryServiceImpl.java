@@ -27,16 +27,25 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		if (results.isEmpty()) {
 			// Attempt compound splitting.
 			String first, second;
-			for (int i = 1; i < word.length(); i++){
+			for (int i = 1; i < word.length() - 1; i++) {
 				first = word.substring(0, i);
 				ArrayList<Entry> resultsFirst = query(entries, first);
-				if (resultsFirst.isEmpty()){
+				if (resultsFirst.isEmpty()) {
 					continue;
 				}
 				second = word.substring(i);
 				ArrayList<Entry> resultsSecond = query(entries, second);
-				if (resultsSecond.isEmpty()){
-					continue;
+				if (resultsSecond.isEmpty()) {
+					if (i < word.length() - 3 && (second.startsWith("e") || second.startsWith("s"))) {
+						// -e- and -s- can be used to join compounds
+						second = word.substring(i + 1);
+						resultsSecond = query(entries, second);
+						if (resultsSecond.isEmpty()) {
+							continue;
+						}
+					} else {
+						continue;
+					}
 				}
 				results.addAll(resultsFirst);
 				results.addAll(resultsSecond);
