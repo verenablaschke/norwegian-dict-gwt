@@ -115,7 +115,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					}
 				}
 			}
-
+			
 			allEntries.putAll(entries);
 		}
 
@@ -126,6 +126,18 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
+		
+		// Noun forms used in compounds.
+		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())){
+			if (! wordForm.endsWith("s")){
+				addEntry(entry, wordForm + "s", entries, fullformsliste);
+			}
+			if (! wordForm.endsWith("e") && ! wordForm.endsWith("a")){
+				// TODO look up the actual conditions for this
+				addEntry(entry, wordForm + "e", entries, fullformsliste);
+			}
+		}
+		
 
 		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
