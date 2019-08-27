@@ -165,10 +165,6 @@ public class Entry implements IsSerializable {
 		this.lemma = lemma;
 	}
 
-	// public void setLemma(String lemma) {
-	// this.lemma = new WordForm(lemma);
-	// }
-
 	/**
 	 * @return the pos
 	 */

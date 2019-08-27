@@ -120,6 +120,7 @@ public class DictionaryReader {
 		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
+
 		return entries;
 	}
 
@@ -254,7 +255,11 @@ public class DictionaryReader {
 					}
 				}
 				if (entryList == null || !addedInfl) {
-					entries.put(lemma, new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id));
+					Entry entry = new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id);
+					if (lemma.startsWith("-")) {
+						entry.setPos(Pos.SFX);
+					}
+					entries.put(lemma, entry);
 				}
 			}
 		} catch (
@@ -362,7 +367,8 @@ public class DictionaryReader {
 					}
 					translations.add(new TranslationalEquivalent(translElements, usageDE));
 				}
-				entries.put(lemma.getForm(), new Entry(lemma, pos, inflSet, infl, translations, grammarNO, usageNO));
+				Entry entry = new Entry(lemma, pos, inflSet, infl, translations, grammarNO, usageNO);
+				entries.put(lemma.getForm(), entry);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

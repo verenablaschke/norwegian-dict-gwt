@@ -75,10 +75,10 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		// Using list multimaps instead of set multimaps since they require less
 		// memory.
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
-		HashSet<String> compoundCandidates = new HashSet<String>();
+		ListMultimap<String, Entry> prefixes = ArrayListMultimap.create();
+		ListMultimap<String, Entry> suffixes = ArrayListMultimap.create();
 		for (String lemma : allLemmata) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-			compoundCandidates.add(lemma);
 
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
@@ -86,9 +86,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesWoerterbuch != null) {
 				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
-					addEntry(entryW, lemma, entries, false);
+					addEntry(entryW, lemma, entries, prefixes, suffixes, false);
 					for (String wordForm : entryW.getInflections()) {
-						addEntry(entryW, wordForm, entries, false);
+						addEntry(entryW, wordForm, entries, prefixes, suffixes, false);
 					}
 				}
 			}
@@ -98,9 +98,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesDictCc != null) {
 				for (Entry entryD : entriesDictCc) {
 					addInfMarker(entryD);
-					addEntry(entryD, lemma, entries, false);
+					addEntry(entryD, lemma, entries, prefixes, suffixes, false);
 					for (String abbr : entryD.getAbbr()) {
-						addEntry(entryD, abbr, entries, false);
+						addEntry(entryD, abbr, entries, prefixes, suffixes, false);
 					}
 				}
 			}
@@ -109,35 +109,60 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesFullformsliste != null) {
 				for (Entry entryF : entriesFullformsliste) {
 					addInfMarker(entryF);
-					addEntry(entryF, lemma, entries, true);
+					addEntry(entryF, lemma, entries, prefixes, suffixes, true);
 					for (String wordForm : entryF.getInflections()) {
-						addEntry(entryF, wordForm, entries, true);
+						addEntry(entryF, wordForm, entries, prefixes, suffixes, true);
 					}
 				}
 			}
-			
+
 			allEntries.putAll(entries);
 		}
 
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
+		sce.getServletContext().setAttribute("prefixes", prefixes);
+		sce.getServletContext().setAttribute("suffixes", suffixes);
 	}
 
-	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean fullformsliste) {
+	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
+			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, boolean fullformsliste) {
+		switch (entry.getPos()) {
+		case PFX:
+			addEntry(entry, wordForm, prefixes, true, fullformsliste);
+			if (!fullformsliste) {
+				addEntry(entry, wordForm, entries, true, fullformsliste);
+			}
+			break;
+		case SFX:
+			addEntry(entry, wordForm, suffixes, true, fullformsliste);
+			if (!fullformsliste) {
+				addEntry(entry, wordForm, entries, true, fullformsliste);
+			}
+			break;
+		default:
+			addEntry(entry, wordForm, entries, false, fullformsliste);
+		}
+	}
+
+	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean affixes,
+			boolean fullformsliste) {
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
-		
+		if (affixes) {
+			wordForm = wordForm.replace("-", "");
+		}
+
 		// Noun forms used in compounds.
-		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())){
-			if (! wordForm.endsWith("s")){
-				addEntry(entry, wordForm + "s", entries, fullformsliste);
+		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())) {
+			if (!wordForm.endsWith("s")) {
+				addEntry(entry, wordForm + "s", entries, affixes, fullformsliste);
 			}
-			if (! wordForm.endsWith("e") && ! wordForm.endsWith("a")){
+			if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))) {
 				// TODO look up the actual conditions for this
-				addEntry(entry, wordForm + "e", entries, fullformsliste);
+				addEntry(entry, wordForm + "e", entries, affixes, fullformsliste);
 			}
 		}
-		
 
 		// Try to merge entries.
 		for (Entry existingEntry : entries.values()) {
@@ -156,7 +181,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		// Don't add entries without translation information,
 		// we're already struggling with memory as is.
-		if (fullformsliste) {
+		if (fullformsliste && !affixes) {
 			return;
 		}
 

@@ -104,8 +104,6 @@ public class Tools {
 		case "pref":
 		case "prefix":
 		case "pfx":
-		case "i": // i sms = i samansetning = initial morphemes/words in
-					// compound words
 			return Pos.PFX;
 		case "prep":
 		case "prp":
@@ -320,7 +318,7 @@ public class Tools {
 		return false;
 	}
 
-	private static boolean isVowel(char c) {
+	public static boolean isVowel(char c) {
 		switch (c) {
 		case 'i':
 		case 'e':
