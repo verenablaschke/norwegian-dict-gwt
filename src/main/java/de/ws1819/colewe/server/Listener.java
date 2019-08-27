@@ -159,7 +159,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				addEntry(entry, wordForm + "s", entries, affixes, fullformsliste);
 			}
 			if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))) {
-				// TODO look up the actual conditions for this
 				addEntry(entry, wordForm + "e", entries, affixes, fullformsliste);
 			}
 		}

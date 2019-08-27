@@ -244,9 +244,14 @@ public class DictionaryReader {
 						if (id == entry.getLemmaID()) {
 							entry.addInflection(inflForm);
 							entry.addDisplayableInflection(irregularInfl);
+							// Genitive forms are missing from fullformsliste.
+							// -> Add them to definite forms of nouns.
+							if (pos.equals(Pos.NOUN) && infl.contains(" be ")){
+								entry.addInflection(inflForm + "s");
+							}
+							// Verb entries also contain participles that
+							// are tagged as adjectives.
 							if (entry.getPos() == Pos.ADJ && pos == Pos.VERB) {
-								// Verb entries also contain participles that
-								// are tagged as adjectives.
 								entry.setPos(Pos.VERB);
 							}
 							addedInfl = true;
@@ -258,6 +263,11 @@ public class DictionaryReader {
 					Entry entry = new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id);
 					if (lemma.startsWith("-")) {
 						entry.setPos(Pos.SFX);
+					}
+					// Genitive forms are missing from fullformsliste.
+					// -> Add them to definite forms of nouns.
+					if (pos.equals(Pos.NOUN) && infl.contains(" be ")){
+						entry.addInflection(inflForm + "s");
 					}
 					entries.put(lemma, entry);
 				}
