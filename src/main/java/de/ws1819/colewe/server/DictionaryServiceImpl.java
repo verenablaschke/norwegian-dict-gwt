@@ -1,6 +1,7 @@
 package de.ws1819.colewe.server;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,8 +21,34 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
+		logger.info("QUERY: " + word);
+		ListMultimap<String, Entry> entries = (ListMultimap<String, Entry>) getServletContext().getAttribute("entries");
+		ArrayList<Entry> results = query(entries, word);
+		if (results.isEmpty()) {
+			// Attempt compound splitting.
+			String first, second;
+			for (int i = 1; i < word.length(); i++){
+				first = word.substring(0, i);
+				ArrayList<Entry> resultsFirst = query(entries, first);
+				if (resultsFirst.isEmpty()){
+					continue;
+				}
+				second = word.substring(i);
+				ArrayList<Entry> resultsSecond = query(entries, second);
+				if (resultsSecond.isEmpty()){
+					continue;
+				}
+				results.addAll(resultsFirst);
+				results.addAll(resultsSecond);
+				break;
+			}
+		}
+		return results;
+	}
+
+	private ArrayList<Entry> query(ListMultimap<String, Entry> entries, String word) {
 		logger.info("Querying " + word);
-		List<Entry> results = ((ListMultimap<String, Entry>) getServletContext().getAttribute("entries")).get(word);
+		List<Entry> results = entries.get(word);
 		for (Entry entry : results) {
 			logger.info("-- " + entry.toString());
 		}

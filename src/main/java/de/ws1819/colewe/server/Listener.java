@@ -75,8 +75,10 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		// Using list multimaps instead of set multimaps since they require less
 		// memory.
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
+		HashSet<String> compoundCandidates = new HashSet<String>();
 		for (String lemma : allLemmata) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+			compoundCandidates.add(lemma);
 
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
