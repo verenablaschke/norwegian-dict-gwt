@@ -147,8 +147,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean affixes,
 			boolean fullformsliste) {
-		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
+		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
 		}
