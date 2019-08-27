@@ -52,7 +52,7 @@ public class WordWidget extends Composite implements HasText {
 
 	public String getText() {
 		// TODO improve this!!
-		return div.getHTML().trim().replaceAll("[\\.,;\"]$", "");
+		return div.getHTML().replaceAll("[®&:§–@\"\\(\\)\\[\\]\\{\\}\\!\\?\\.,%]+", "").trim();
 	}
 
 	public void setInactive() {
