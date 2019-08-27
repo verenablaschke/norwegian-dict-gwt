@@ -18,54 +18,20 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 	private static final Logger logger = Logger.getLogger(DictionaryServiceImpl.class.getSimpleName());
 
+	@SuppressWarnings("unchecked")
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
 		logger.info("QUERY: " + word);
-		ArrayList<Entry> results = startQuery(word);
+		ListMultimap<String, Entry> entries = (ListMultimap<String, Entry>) getServletContext().getAttribute("entries");
+		ListMultimap<String, Entry> prefixes = (ListMultimap<String, Entry>) getServletContext()
+				.getAttribute("prefixes");
+		ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
+				.getAttribute("suffixes");
+		ArrayList<Entry> results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
 		logger.info("RESULTS: " + word);
 		for (Entry entry : results) {
 			logger.info("-- " + entry.toString());
 		}
 		return results;
-	}
-
-	@SuppressWarnings("unchecked")
-	private ArrayList<Entry> startQuery(String word) {
-		ListMultimap<String, Entry> entries = (ListMultimap<String, Entry>) getServletContext().getAttribute("entries");
-
-		ArrayList<Entry> results = queryWithPossibleSplit(entries, word);
-		if (!results.isEmpty()) {
-			return results;
-		}
-
-		// Try combinations with (possibly untranslated) prefixes.
-		ListMultimap<String, Entry> prefixes = (ListMultimap<String, Entry>) getServletContext()
-				.getAttribute("prefixes");
-		for (String pfx : prefixes.keySet()) {
-			if (word.startsWith(pfx)) {
-				results = queryWithPossibleSplit(entries, word.substring(pfx.length()));
-				if (results.isEmpty()) {
-					continue;
-				}
-				results.addAll(0, prefixes.get(pfx));
-				return results;
-			}
-		}
-
-		// Try combinations with (possibly untranslated) suffixes.
-		ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
-				.getAttribute("suffixes");
-		for (String sfx : suffixes.keySet()) {
-			if (word.endsWith(sfx)) {
-				results = queryWithPossibleSplit(entries, word.substring(0, word.length() - sfx.length()));
-				if (results.isEmpty()) {
-					continue;
-				}
-				results.addAll(suffixes.get(sfx));
-				return results;
-			}
-		}
-
-		return results; // empty list
 	}
 
 	private ArrayList<Entry> querySingleWord(ListMultimap<String, Entry> entries, String word) {
@@ -77,7 +43,8 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return new ArrayList<Entry>(results);
 	}
 
-	private ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries, String word) {
+	private ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
+			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, String word) {
 		ArrayList<Entry> results = querySingleWord(entries, word);
 		if (results.isEmpty()) {
 			// Attempt compound splitting.
@@ -88,12 +55,18 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 				first = word.substring(0, i);
 				ArrayList<Entry> resultsFirst = querySingleWord(entries, first);
 				if (resultsFirst.isEmpty()) {
-					continue;
+					resultsFirst = querySingleWord(prefixes, first);
+					if (resultsFirst.isEmpty()) {
+						continue;
+					}
 				}
 				second = word.substring(i);
 				ArrayList<Entry> resultsSecond = querySingleWord(entries, second);
 				if (resultsSecond.isEmpty()) {
-					continue;
+					resultsSecond = querySingleWord(suffixes, second);
+					if (resultsSecond.isEmpty()) {
+						continue;
+					}
 				}
 				results.addAll(resultsFirst);
 				results.addAll(resultsSecond);
@@ -108,7 +81,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 					continue;
 				}
 				second = word.substring(i);
-				ArrayList<Entry> resultsSecond = queryWithPossibleSplit(entries, second);
+				ArrayList<Entry> resultsSecond = queryWithPossibleSplit(entries, prefixes, suffixes, second);
 				if (resultsSecond.isEmpty()) {
 					continue;
 				}
