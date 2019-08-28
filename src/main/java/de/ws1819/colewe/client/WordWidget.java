@@ -29,6 +29,9 @@ public class WordWidget extends Composite implements HasText {
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
 	private boolean ctrl = false;
 	private static final String HIGHLIGHT = "bg-info";
+	// Needs to be an instance variable so we can refer to it in the
+	// AsyncCallback:
+	private static String fullQuery;
 
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
@@ -86,7 +89,7 @@ public class WordWidget extends Composite implements HasText {
 			RootPanel.get("queryContainer").add(query);
 		}
 
-		String fullQuery = getText();
+		fullQuery = getText();
 		if (ctrl) {
 			fullQuery = (query.getText() + " " + fullQuery).trim();
 		}
@@ -98,7 +101,7 @@ public class WordWidget extends Composite implements HasText {
 			@Override
 			public void onSuccess(ArrayList<Entry> results) {
 				if (results == null || results.isEmpty()) {
-					RootPanel.get("infoContainer").add(new Label("No results found."));
+					RootPanel.get("infoContainer").add(new Label("No results found for \"" + fullQuery + "\"."));
 				}
 				for (Entry entry : results) {
 					logger.info("-- " + entry.toString());

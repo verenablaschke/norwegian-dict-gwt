@@ -33,6 +33,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 			logger.info("-- " + entry.toString());
 		}
 
+		// Look up collocations.
 		ArrayList<Entry> collocs = new ArrayList<>();
 		HashMultimap<String, String> collocations = (HashMultimap<String, String>) getServletContext()
 				.getAttribute("collocations");
