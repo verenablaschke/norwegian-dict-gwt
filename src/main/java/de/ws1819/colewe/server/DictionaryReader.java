@@ -25,9 +25,10 @@ public class DictionaryReader {
 	private static final Logger logger = Logger.getLogger(DictionaryReader.class.getSimpleName());
 
 	@SuppressWarnings("unchecked")
-	public static ListMultimap<String, Entry> readDictCc(InputStream stream) {
+	public static Object[] readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		Set<String> grammarNOSet = new HashSet<>(); // TODO del
+		HashSet<String> stopwords = new HashSet<>();
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
@@ -98,6 +99,14 @@ public class DictionaryReader {
 						// in redundant entries.
 						continue;
 					}
+					switch (posTag) {
+					case CONJ:
+					case DET:
+					case PREP:
+						stopwords.add(lemma);
+					default:
+						break;
+					}
 
 					entries.put(lemma,
 							new Entry(new WordForm(lemma), posTag,
@@ -121,7 +130,7 @@ public class DictionaryReader {
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
 
-		return entries;
+		return new Object[] { entries, stopwords };
 	}
 
 	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
@@ -170,8 +179,9 @@ public class DictionaryReader {
 		return lemmata;
 	}
 
-	public static ListMultimap<String, Entry> readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
+	public static Object[] readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		HashSet<String> stopwords = new HashSet<>();
 
 		String line = null;
 		String[] fields = null;
@@ -234,6 +244,17 @@ public class DictionaryReader {
 				} else if (pos.equals(Pos.NOUN) && infl.contains(" fl ub ")
 						&& !Tools.isRegularPlural(lemma, inflForm)) {
 					irregularInfl = new WordForm(inflForm, "(pl)");
+				} else {
+					// Get entries from the functional categories as stopwords.
+					switch (pos) {
+					case CONJ:
+					case DET:
+					case PREP:
+					case PRON:
+						stopwords.add(lemma);
+					default:
+						break;
+					}
 				}
 
 				// Save lemma ID, inflection information and inflected form.
@@ -246,7 +267,7 @@ public class DictionaryReader {
 							entry.addDisplayableInflection(irregularInfl);
 							// Genitive forms are missing from fullformsliste.
 							// -> Add them to definite forms of nouns.
-							if (pos.equals(Pos.NOUN) && infl.contains(" be ")){
+							if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 								entry.addInflection(inflForm + "s");
 							}
 							// Verb entries also contain participles that
@@ -266,7 +287,7 @@ public class DictionaryReader {
 					}
 					// Genitive forms are missing from fullformsliste.
 					// -> Add them to definite forms of nouns.
-					if (pos.equals(Pos.NOUN) && infl.contains(" be ")){
+					if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 						entry.addInflection(inflForm + "s");
 					}
 					entries.put(lemma, entry);
@@ -282,12 +303,13 @@ public class DictionaryReader {
 
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		return entries;
+		return new Object[] { entries, stopwords };
 	}
 
 	@SuppressWarnings("unchecked")
-	public static ListMultimap<String, Entry> readWoerterbuch(InputStream stream) {
+	public static Object[] readWoerterbuch(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		HashSet<String> stopwords = new HashSet<>();
 		HashSet<String> info = new HashSet<>(); // TODO del
 		HashSet<String> usageDESet = new HashSet<>(); // TODO del
 
@@ -328,6 +350,18 @@ public class DictionaryReader {
 						pron = pron.substring(1, pron.length() - 1);
 						pron = Tools.xsampaToIPA(pron);
 					}
+
+					// Get entries from the functional categories as stopwords.
+					switch (pos) {
+					case CONJ:
+					case DET:
+					case PREP:
+					case PRON:
+						stopwords.add(word);
+					default:
+						break;
+					}
+
 					if (i == 0) {
 						lemma = new WordForm(word, pron);
 					} else {
@@ -359,7 +393,6 @@ public class DictionaryReader {
 					ArrayList<String> translElements = new ArrayList<>();
 					ArrayList<String> usageDE = new ArrayList<>();
 					for (int j = 0; j < translRaw.length; j++) {
-						//
 						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
 						for (String usage : (ArrayList<String>) wordAndComment[1]) {
 							usageDE.add(usage.replace("_", " "));
@@ -395,7 +428,7 @@ public class DictionaryReader {
 		infoList.sort(String::compareToIgnoreCase);
 		logger.info(infoList.toString());
 		logger.info(entries.get("bli").toString());
-		return entries;
+		return new Object[] { entries, stopwords };
 	}
 
 }

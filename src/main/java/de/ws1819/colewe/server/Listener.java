@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
+import com.google.gwt.thirdparty.guava.common.collect.HashMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
@@ -39,6 +40,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	// -------------------------------------------------------
 	// ServletContextListener implementation
 	// -------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	public void contextInitialized(ServletContextEvent sce) {
 		/*
 		 * This method is called when the servlet context is initialized (when
@@ -56,13 +58,19 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream woerterbuchInputStream = sce.getServletContext().getResourceAsStream(WOERTERBUCH_PATH);
 
 		logger.info("Start reading dict.cc");
-		ListMultimap<String, Entry> dictcc = DictionaryReader.readDictCc(dictccInputStream);
+		Object[] dictccResults = DictionaryReader.readDictCc(dictccInputStream);
+		ListMultimap<String, Entry> dictcc = (ListMultimap<String, Entry>) dictccResults[0];
+		HashSet<String> stopwords = (HashSet<String>) dictccResults[1];
 		logger.info("Start reading lemma.txt");
 		HashMap<Integer, String> lemmata = DictionaryReader.readLemmaList(lemmaInputStream);
 		logger.info("Start reading fullformsliste.txt");
-		ListMultimap<String, Entry> fullformsliste = DictionaryReader.readSpraakbanken(lemmata, inflInputStream);
+		Object[] fullformslisteResults = DictionaryReader.readSpraakbanken(lemmata, inflInputStream);
+		ListMultimap<String, Entry> fullformsliste = (ListMultimap<String, Entry>) fullformslisteResults[0];
+		stopwords.addAll((HashSet<String>) fullformslisteResults[1]);
 		logger.info("Start reading no-de-dict.txt");
-		ListMultimap<String, Entry> woerterbuch = DictionaryReader.readWoerterbuch(woerterbuchInputStream);
+		Object[] woerterbuchResults = DictionaryReader.readWoerterbuch(woerterbuchInputStream);
+		ListMultimap<String, Entry> woerterbuch = (ListMultimap<String, Entry>) woerterbuchResults[0];
+		stopwords.addAll((HashSet<String>) woerterbuchResults[1]);
 
 		// Combine the information from both sources by merging the entries when
 		// possible.
@@ -77,6 +85,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
 		ListMultimap<String, Entry> prefixes = ArrayListMultimap.create();
 		ListMultimap<String, Entry> suffixes = ArrayListMultimap.create();
+		HashMultimap<String, String> collocations = HashMultimap.create();
 		for (String lemma : allLemmata) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
@@ -86,9 +95,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesWoerterbuch != null) {
 				for (Entry entryW : entriesWoerterbuch) {
 					addInfMarker(entryW);
-					addEntry(entryW, lemma, entries, prefixes, suffixes, false);
+					addEntry(entryW, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
 					for (String wordForm : entryW.getInflections()) {
-						addEntry(entryW, wordForm, entries, prefixes, suffixes, false);
+						addEntry(entryW, wordForm, entries, collocations, stopwords, prefixes, suffixes, false);
 					}
 				}
 			}
@@ -98,9 +107,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesDictCc != null) {
 				for (Entry entryD : entriesDictCc) {
 					addInfMarker(entryD);
-					addEntry(entryD, lemma, entries, prefixes, suffixes, false);
+					addEntry(entryD, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
 					for (String abbr : entryD.getAbbr()) {
-						addEntry(entryD, abbr, entries, prefixes, suffixes, false);
+						addEntry(entryD, abbr, entries, collocations, stopwords, prefixes, suffixes, false);
 					}
 				}
 			}
@@ -109,9 +118,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			if (entriesFullformsliste != null) {
 				for (Entry entryF : entriesFullformsliste) {
 					addInfMarker(entryF);
-					addEntry(entryF, lemma, entries, prefixes, suffixes, true);
+					addEntry(entryF, lemma, entries, collocations, stopwords, prefixes, suffixes, true);
 					for (String wordForm : entryF.getInflections()) {
-						addEntry(entryF, wordForm, entries, prefixes, suffixes, true);
+						addEntry(entryF, wordForm, entries, collocations, stopwords, prefixes, suffixes, true);
 					}
 				}
 			}
@@ -123,43 +132,65 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		sce.getServletContext().setAttribute("entries", allEntries);
 		sce.getServletContext().setAttribute("prefixes", prefixes);
 		sce.getServletContext().setAttribute("suffixes", suffixes);
+		sce.getServletContext().setAttribute("collocations", collocations);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
-			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, boolean fullformsliste) {
+			HashMultimap<String, String> collocations, HashSet<String> stopwords, ListMultimap<String, Entry> prefixes,
+			ListMultimap<String, Entry> suffixes, boolean fullformsliste) {
 		switch (entry.getPos()) {
 		case PFX:
-			addEntry(entry, wordForm, prefixes, true, fullformsliste);
+			addEntry(entry, wordForm, prefixes, null, null, true, fullformsliste);
 			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, true, fullformsliste);
+				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
 			}
 			break;
 		case SFX:
-			addEntry(entry, wordForm, suffixes, true, fullformsliste);
+			addEntry(entry, wordForm, suffixes, null, null, true, fullformsliste);
 			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, true, fullformsliste);
+				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
 			}
 			break;
 		default:
-			addEntry(entry, wordForm, entries, false, fullformsliste);
+			addEntry(entry, wordForm, entries, collocations, stopwords, false, fullformsliste);
 		}
 	}
 
-	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries, boolean affixes,
+	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
+			HashMultimap<String, String> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste) {
+		if (entry.getPos().equals(Pos.VERB)) {
+			// Remove 'noen' ('somebody') and 'noe' ('something').
+			wordForm = wordForm.replace(" noen/noe", "");
+			wordForm = wordForm.replace(" noe/noen", "");
+			wordForm = wordForm.replace(" noens", "");
+			wordForm = wordForm.replace(" noen", "");
+			wordForm = wordForm.replace(" noe", "");
+		}
 		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
+		} else {
+			// Extract collocations.
+			String[] components = wordForm.split(" ");
+			if (components.length > 1) {
+				for (int i = 0; i < components.length; i++) {
+					if (stopwords.contains(components[i])) {
+						continue;
+					}
+					collocations.put(components[i], wordForm);
+				}
+			}
 		}
 
 		// Noun forms used in compounds.
 		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())) {
 			if (!wordForm.endsWith("s")) {
-				addEntry(entry, wordForm + "s", entries, affixes, fullformsliste);
+				addEntry(entry, wordForm + "s", entries, collocations, stopwords, affixes, fullformsliste);
 			}
 			if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))) {
-				addEntry(entry, wordForm + "e", entries, affixes, fullformsliste);
+				addEntry(entry, wordForm + "e", entries, collocations, stopwords, affixes, fullformsliste);
 			}
 		}
 
