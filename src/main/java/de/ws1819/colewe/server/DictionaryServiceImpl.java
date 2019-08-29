@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.google.gwt.thirdparty.guava.common.collect.HashMultimap;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -32,21 +31,6 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		for (Entry entry : results) {
 			logger.info("-- " + entry.toString());
 		}
-
-		// Look up collocations.
-		ArrayList<Entry> collocs = new ArrayList<>();
-		HashMultimap<String, String> collocations = (HashMultimap<String, String>) getServletContext()
-				.getAttribute("collocations");
-		logger.info("COLLOCATIONS: " + word);
-		// TODO should be lemma
-		for (String colloc : collocations.get(word)) {
-			logger.info("-- " + colloc);
-			collocs.addAll(entries.get(colloc));
-		}
-
-		// TODO
-		results.addAll(collocs);
-
 		return results;
 	}
 

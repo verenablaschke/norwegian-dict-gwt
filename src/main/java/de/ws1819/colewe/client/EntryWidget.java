@@ -3,14 +3,13 @@ package de.ws1819.colewe.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
-import de.ws1819.colewe.shared.TranslationalEquivalent;
-import de.ws1819.colewe.shared.WordForm;
 
 public class EntryWidget extends Composite {
 
@@ -20,10 +19,16 @@ public class EntryWidget extends Composite {
 	}
 
 	@UiField
-	HorizontalPanel wordPanel;
+	HTMLPanel entryPanel;
 
 	@UiField
-	VerticalPanel translationPanel;
+	HTMLPanel collocOuterPanel;
+
+	@UiField
+	Button collocButton;
+
+	@UiField
+	VerticalPanel collocInnerPanel;
 
 	public EntryWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -31,18 +36,20 @@ public class EntryWidget extends Composite {
 
 	public EntryWidget(Entry entry) {
 		this();
-		setWord(entry.getLemma(), true);
-		wordPanel.add(new BadgeWidget(entry.getGrammarString(), entry.getUsageString(), entry.getAbbrString()));
-		for (WordForm wf : entry.getDisplayableInflections()) {
-			setWord(wf, false);
-		}
-		for (TranslationalEquivalent transl : entry.getTranslations()) {
-			translationPanel.add(new TranslationWidget(transl));
-		}
-	}
+		entryPanel.add(new SimpleEntryWidget(entry));
 
-	private void setWord(WordForm wordform, boolean isLemma) {
-		wordPanel.add(new WordFormWidget(wordform, isLemma));
+		if (entry.hasColloctations()) {
+			String id = "collapse-" + entry.htmlAnchor();
+			collocButton.getElement().setAttribute("data-toggle", "collapse");
+			collocButton.getElement().setAttribute("data-target", "#" + id);
+			collocInnerPanel.getElement().setAttribute("id", id);
+			
+			for (Entry colloc : entry.getCollocations()) {
+				collocInnerPanel.add(new SimpleEntryWidget(colloc));
+			}
+		} else {
+			collocOuterPanel.setVisible(false);
+		}
 	}
 
 }

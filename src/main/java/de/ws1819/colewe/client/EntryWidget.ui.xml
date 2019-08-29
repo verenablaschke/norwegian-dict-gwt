@@ -5,9 +5,19 @@
 	.wordform {
 		margin-top: 5px;
 	}
+	
+	.colloc {
+		margin-left: 40px;
+	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:HorizontalPanel ui:field="wordPanel" styleName="{style.wordform}" />
-		<g:VerticalPanel ui:field="translationPanel" />
+		<g:HTMLPanel ui:field="entryPanel">
+		</g:HTMLPanel>
+		<g:HTMLPanel ui:field="collocOuterPanel" styleName="{style.colloc}">
+			<g:Button ui:field="collocButton" styleName="btn btn-outline-secondary">Collocations
+			</g:Button>
+			<g:VerticalPanel ui:field="collocInnerPanel" styleName="collapse">
+			</g:VerticalPanel>
+		</g:HTMLPanel>
 	</g:HTMLPanel>
 </ui:UiBinder> 

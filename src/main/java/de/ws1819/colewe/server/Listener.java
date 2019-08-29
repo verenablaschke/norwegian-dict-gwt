@@ -85,7 +85,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
 		ListMultimap<String, Entry> prefixes = ArrayListMultimap.create();
 		ListMultimap<String, Entry> suffixes = ArrayListMultimap.create();
-		HashMultimap<String, String> collocations = HashMultimap.create();
+		HashMultimap<String, Entry> collocations = HashMultimap.create();
 		for (String lemma : allLemmata) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
@@ -128,15 +128,21 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			allEntries.putAll(entries);
 		}
 
+		// Set the collocations.
+		for (java.util.Map.Entry<String, Entry> colloc : collocations.entries()) {
+			for (Entry entry : allEntries.get(colloc.getKey())) {
+				entry.addCollocation(colloc.getValue());
+			}
+		}
+
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 		sce.getServletContext().setAttribute("prefixes", prefixes);
 		sce.getServletContext().setAttribute("suffixes", suffixes);
-		sce.getServletContext().setAttribute("collocations", collocations);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
-			HashMultimap<String, String> collocations, HashSet<String> stopwords, ListMultimap<String, Entry> prefixes,
+			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, ListMultimap<String, Entry> prefixes,
 			ListMultimap<String, Entry> suffixes, boolean fullformsliste) {
 		switch (entry.getPos()) {
 		case PFX:
@@ -157,7 +163,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
-			HashMultimap<String, String> collocations, HashSet<String> stopwords, boolean affixes,
+			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste) {
 		if (entry.getPos().equals(Pos.VERB)) {
 			// Remove 'noen' ('somebody') and 'noe' ('something').
@@ -171,7 +177,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
-		} else {
+		} else if (! fullformsliste) {
 			// Extract collocations.
 			String[] components = wordForm.split(" ");
 			if (components.length > 1) {
@@ -179,7 +185,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					if (stopwords.contains(components[i])) {
 						continue;
 					}
-					collocations.put(components[i], wordForm);
+					collocations.put(components[i], entry);
 				}
 			}
 		}

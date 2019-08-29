@@ -16,7 +16,8 @@ public class Entry implements IsSerializable {
 	private ArrayList<String> grammar;
 	private ArrayList<String> usage;
 	private ArrayList<String> abbr;
-	private int lemmaID;
+	private int lemmaID; // TODO check when this is needed
+	private HashSet<Entry> collocations;
 
 	// For GWT
 	public Entry() {
@@ -61,6 +62,7 @@ public class Entry implements IsSerializable {
 		setUsage(usageNO);
 		setAbbr(abbrNO);
 		setLemmaID(lemmaID);
+		setCollocations(null);
 	}
 
 	public boolean merge(Entry other) {
@@ -85,9 +87,9 @@ public class Entry implements IsSerializable {
 		if (pos == null || pos.equals(Pos.NULL)) {
 			setPos(other.pos);
 		}
-		if (inflections == null || inflections.isEmpty()){
+		if (inflections == null || inflections.isEmpty()) {
 			inflections = other.inflections;
-		} else if (other.inflections != null && !other.inflections.isEmpty()){
+		} else if (other.inflections != null && !other.inflections.isEmpty()) {
 			inflections.addAll(other.inflections);
 		}
 		// Only add irregular inflections from fullformsliste if there weren't
@@ -148,6 +150,7 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
+		// Collocations don't matter here, since they're set at a later step.
 	}
 
 	/**
@@ -321,6 +324,29 @@ public class Entry implements IsSerializable {
 	}
 
 	/**
+	 * @return the collocations
+	 */
+	public HashSet<Entry> getCollocations() {
+		return collocations;
+	}
+
+	public boolean hasColloctations() {
+		return !collocations.isEmpty();
+	}
+
+	/**
+	 * @param collocations
+	 *            the collocations to set
+	 */
+	public void setCollocations(HashSet<Entry> collocations) {
+		this.collocations = (collocations == null ? new HashSet<>() : collocations);
+	}
+
+	public void addCollocation(Entry colloc) {
+		collocations.add(colloc);
+	}
+
+	/**
 	 * @return the lemmaID
 	 */
 	public int getLemmaID() {
@@ -339,6 +365,10 @@ public class Entry implements IsSerializable {
 		return lemma + ": " + translations + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
 				+ ">, irreg infl: " + displayableInflections + ", all: " + inflections + ")";
 	}
+	
+	public String htmlAnchor(){
+		return lemma.getForm().replace(" ", "_") + "-" + pos;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -350,6 +380,7 @@ public class Entry implements IsSerializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
+		result = prime * result + ((collocations == null) ? 0 : collocations.hashCode());
 		result = prime * result + ((displayableInflections == null) ? 0 : displayableInflections.hashCode());
 		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
@@ -383,6 +414,13 @@ public class Entry implements IsSerializable {
 				return false;
 			}
 		} else if (!abbr.equals(other.abbr)) {
+			return false;
+		}
+		if (collocations == null) {
+			if (other.collocations != null) {
+				return false;
+			}
+		} else if (!collocations.equals(other.collocations)) {
 			return false;
 		}
 		if (displayableInflections == null) {

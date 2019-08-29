@@ -13,7 +13,7 @@ public class WordForm implements IsSerializable {
 	}
 
 	public WordForm(String form, String pronunciation) {
-		this.form = form;
+		setForm(form);
 		setPronunciation(pronunciation);
 	}
 
@@ -33,7 +33,7 @@ public class WordForm implements IsSerializable {
 	 *            the form to set
 	 */
 	public void setForm(String form) {
-		this.form = form;
+		this.form = form.replaceAll("\\s+", " ");
 	}
 
 	/**
