@@ -16,7 +16,7 @@ public class Entry implements IsSerializable {
 	private ArrayList<String> grammar;
 	private ArrayList<String> usage;
 	private ArrayList<String> abbr;
-	private int lemmaID; // TODO check when this is needed
+	private int lemmaID;
 	private HashSet<Entry> collocations;
 
 	// For GWT

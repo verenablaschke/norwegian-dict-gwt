@@ -43,7 +43,6 @@ public class OutputWidget extends Composite {
 		for (String word : content.split("\\s+")) {
 			flowPanel.add(new WordWidget(word));
 		}
-		// TODO add icon?
 	}
 
 	@UiHandler("button")

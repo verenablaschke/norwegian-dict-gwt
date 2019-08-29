@@ -259,7 +259,6 @@ public class Tools {
 		} else {
 			// Conjugation IV, e.g. 'bo+dde'.
 			return (form.equals(lemma + "dde"));
-			// TODO check trodde vs. trudde
 		}
 		return false;
 	}
@@ -292,7 +291,6 @@ public class Tools {
 		} else {
 			// Conjugation IV, e.g. 'bo+dd'.
 			return (form.equals(lemma + "dd"));
-			// TODO check trodd vs. trudd
 		}
 		return false;
 	}

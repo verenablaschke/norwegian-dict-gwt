@@ -54,7 +54,6 @@ public class WordWidget extends Composite implements HasText {
 	}
 
 	public String getText() {
-		// TODO improve this!!
 		return div.getHTML().replaceAll("[®&:§–@\"\\(\\)\\[\\]\\{\\}\\!\\?\\.,%]+", "").trim();
 	}
 
@@ -84,7 +83,7 @@ public class WordWidget extends Composite implements HasText {
 		Label query = new Label();
 		try {
 			query = (Label) RootPanel.get("queryContainer").getWidget(0);
-		} catch (Exception exc) { // TODO more specific
+		} catch (Exception exc) {
 			// No query yet.
 			RootPanel.get("queryContainer").add(query);
 		}
@@ -110,7 +109,9 @@ public class WordWidget extends Composite implements HasText {
 					} catch (Exception exc) {
 						logger.warning(exc.getMessage());
 						logger.warning(exc.getStackTrace().toString());
-						// TODO user-appropriate display
+						RootPanel.get("infoContainer").clear();
+						RootPanel.get("infoContainer")
+								.add(new Label("Something went wrong. Please try another query or try again later."));
 						RootPanel.get("infoContainer").add(new Label(exc.getMessage()));
 					}
 				}
@@ -120,9 +121,11 @@ public class WordWidget extends Composite implements HasText {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO user-appropriate display
 				logger.warning(caught.getMessage());
 				logger.warning(caught.getStackTrace().toString());
+				RootPanel.get("infoContainer").clear();
+				RootPanel.get("infoContainer")
+						.add(new Label("Something went wrong. Please try another query or try again later."));
 				RootPanel.get("infoContainer")
 						.add(new Label("RPC error: " + caught.getMessage() + caught.getStackTrace()));
 			}

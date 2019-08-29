@@ -227,8 +227,9 @@ public class DictionaryReader {
 					continue;
 				}
 				if (posString.contains("+") || posString.contains("-")) {
-					// TODO mention in documentation?
-					// multi-word phrases
+					// Multi-word phrases. Irrelevant for the way we deal with
+					// inflection.
+					continue;
 				}
 				// If the POS tag is OTHER, we're either dealing with an
 				// abbreviation or a multi-word phrase.
@@ -336,7 +337,7 @@ public class DictionaryReader {
 				}
 				info.addAll(grammarNO);
 
-				String[] inflections = fields[0].trim().split(",");
+				String[] inflections = fields[0].trim().split("[,/]");
 				WordForm lemma = null;
 				ArrayList<WordForm> infl = new ArrayList<WordForm>();
 				HashSet<String> inflSet = new HashSet<>();
@@ -365,10 +366,6 @@ public class DictionaryReader {
 					if (i == 0) {
 						lemma = new WordForm(word, pron);
 					} else {
-						if (word.startsWith("-")) {
-							// TODO #17
-						}
-						// TODO gav/ga
 						inflSet.add(word);
 						infl.add(new WordForm(word, pron));
 					}
