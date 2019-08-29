@@ -365,9 +365,10 @@ public class Entry implements IsSerializable {
 		return lemma + ": " + translations + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
 				+ ">, irreg infl: " + displayableInflections + ", all: " + inflections + ")";
 	}
-	
-	public String htmlAnchor(){
-		return lemma.getForm().replace(" ", "_") + "-" + pos;
+
+	public String htmlAnchor() {
+		return lemma.getForm().replaceAll("[®&:§–@\"\\{\\}\\[\\]\\(\\)\\!\\?\\.,%/]+", " ").replace(" ", "_") + "-"
+				+ pos;
 	}
 
 	/*
@@ -380,7 +381,6 @@ public class Entry implements IsSerializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
-		result = prime * result + ((collocations == null) ? 0 : collocations.hashCode());
 		result = prime * result + ((displayableInflections == null) ? 0 : displayableInflections.hashCode());
 		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
@@ -389,6 +389,7 @@ public class Entry implements IsSerializable {
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
 		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
+		// Exclude collocations!
 		return result;
 	}
 
@@ -414,13 +415,6 @@ public class Entry implements IsSerializable {
 				return false;
 			}
 		} else if (!abbr.equals(other.abbr)) {
-			return false;
-		}
-		if (collocations == null) {
-			if (other.collocations != null) {
-				return false;
-			}
-		} else if (!collocations.equals(other.collocations)) {
 			return false;
 		}
 		if (displayableInflections == null) {
@@ -472,6 +466,7 @@ public class Entry implements IsSerializable {
 			return false;
 		}
 		return true;
+		// Exclude collocations!
 	}
 
 }

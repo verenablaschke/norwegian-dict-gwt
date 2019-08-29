@@ -165,19 +165,16 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
 			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste) {
+		wordForm = wordForm.toLowerCase().replaceAll("[®&:§–@\"\\{\\}\\[\\]\\(\\)\\!\\?\\.,%/]+", " ");
 		if (entry.getPos().equals(Pos.VERB)) {
 			// Remove 'noen' ('somebody') and 'noe' ('something').
-			wordForm = wordForm.replace(" noen/noe", "");
-			wordForm = wordForm.replace(" noe/noen", "");
-			wordForm = wordForm.replace(" noens", "");
-			wordForm = wordForm.replace(" noen", "");
-			wordForm = wordForm.replace(" noe", "");
+			wordForm = wordForm.replaceAll(" noen?s?", "");
 		}
-		wordForm = wordForm.replaceAll("[®&:§–@\"\\{\\}\\!\\?\\.,%]+", "").trim();
-		wordForm = wordForm.toLowerCase().replaceAll("\\s+", " ");
+		wordForm = wordForm.replaceAll("\\s+", " ").trim();
+
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
-		} else if (! fullformsliste) {
+		} else if (!fullformsliste) {
 			// Extract collocations.
 			String[] components = wordForm.split(" ");
 			if (components.length > 1) {
