@@ -1,6 +1,7 @@
 package de.ws1819.colewe.server;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,6 +28,31 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
 				.getAttribute("suffixes");
 		ArrayList<Entry> results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
+
+		// Multi-word phrase with inflected word forms?
+		if (results.isEmpty() && word.contains(" ")) {
+			String[] words = word.split(" ");
+			HashSet<String> lemmatized = new HashSet<>();
+			lemmatized.add("");
+			for (int i = 0; i < words.length; i++) {
+				ArrayList<Entry> intermResults = querySingleWord(entries, words[i]);
+				if (intermResults.isEmpty()) {
+					break;
+				}
+				HashSet<String> temp = new HashSet<>();
+				for (String lemmatizedVersion : lemmatized){
+					for (Entry lemma : intermResults){
+						temp.add(lemmatizedVersion + " " + lemma.getLemma().getForm());
+					}
+				}
+				lemmatized = temp;
+			}
+			logger.info("Possible lemmatized versions: " + lemmatized);
+			for (String s : lemmatized) {
+				results.addAll(querySingleWord(entries, s.trim()));
+			}
+		}
+
 		logger.info("RESULTS: " + word);
 		for (Entry entry : results) {
 			logger.info("-- " + entry.toString());
@@ -46,7 +72,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 	private ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
 			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, String word) {
 		ArrayList<Entry> results = querySingleWord(entries, word);
-		if (results.isEmpty()) {
+		if (results.isEmpty() && !word.contains(" ")) {
 			// Attempt compound splitting.
 			String first, second;
 			// Try to do the least amount of splits possible.

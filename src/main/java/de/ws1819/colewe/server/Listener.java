@@ -111,6 +111,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					for (String abbr : entryD.getAbbr()) {
 						addEntry(entryD, abbr, entries, collocations, stopwords, prefixes, suffixes, false);
 					}
+					for (String wordForm : entryD.getInflections()) {
+						addEntry(entryD, wordForm, entries, collocations, stopwords, prefixes, suffixes, false);
+					}
 				}
 			}
 
@@ -226,6 +229,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		// If appropriate, add the infinitive marker.
 		if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().getForm().startsWith("å ")) {
 			entry.setLemma(new WordForm("å " + entry.getLemma().getForm(), entry.getLemma().getPronunciation()));
+			entry.addInflection(entry.getLemma().getForm());
 		}
 	}
 
