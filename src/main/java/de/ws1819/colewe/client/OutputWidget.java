@@ -14,6 +14,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import de.ws1819.colewe.shared.Language;
+
 public class OutputWidget extends Composite {
 
 	private static OutputWidgetUiBinder uiBinder = GWT.create(OutputWidgetUiBinder.class);
@@ -37,11 +39,11 @@ public class OutputWidget extends Composite {
 	private String content;
 
 
-	public OutputWidget(String content) {
+	public OutputWidget(String content, Language lang) {
 		this.content = content;
 		initWidget(uiBinder.createAndBindUi(this));
 		for (String word : content.split("\\s+")) {
-			flowPanel.add(new WordWidget(word));
+			flowPanel.add(new WordWidget(word, lang));
 		}
 	}
 

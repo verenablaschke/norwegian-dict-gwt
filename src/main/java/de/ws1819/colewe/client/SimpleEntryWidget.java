@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Language;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 import de.ws1819.colewe.shared.WordForm;
 
@@ -29,10 +30,10 @@ public class SimpleEntryWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public SimpleEntryWidget(Entry entry) {
+	public SimpleEntryWidget(Entry entry, Language lang) {
 		this();
 		setWord(entry.getLemma(), true);
-		wordPanel.add(new BadgeWidget(entry.getGrammarString(), entry.getUsageString(), entry.getAbbrString()));
+		wordPanel.add(new BadgeWidget(entry.getGrammarString(lang), entry.getUsageString(), entry.getAbbrString()));
 		for (WordForm wf : entry.getDisplayableInflections()) {
 			setWord(wf, false);
 		}

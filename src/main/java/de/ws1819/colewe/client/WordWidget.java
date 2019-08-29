@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Language;
 
 public class WordWidget extends Composite implements HasText {
 
@@ -31,7 +32,8 @@ public class WordWidget extends Composite implements HasText {
 	private static final String HIGHLIGHT = "bg-info";
 	// Needs to be an instance variable so we can refer to it in the
 	// AsyncCallback:
-	private static String fullQuery;
+	private String fullQuery;
+	private Language lang;
 
 	interface WordWidgetUiBinder extends UiBinder<Widget, WordWidget> {
 	}
@@ -43,10 +45,11 @@ public class WordWidget extends Composite implements HasText {
 	@UiField
 	HTML div;
 
-	public WordWidget(String text) {
+	public WordWidget(String text, Language lang) {
 		initWidget(uiBinder.createAndBindUi(this));
 		div.addStyleName("col-xs");
 		setText(text);
+		this.lang = lang;
 	}
 
 	public void setText(String text) {
@@ -105,7 +108,7 @@ public class WordWidget extends Composite implements HasText {
 				for (Entry entry : results) {
 					logger.info("-- " + entry.toString());
 					try {
-						RootPanel.get("infoContainer").add(new EntryWidget(entry));
+						RootPanel.get("infoContainer").add(new EntryWidget(entry, lang));
 					} catch (Exception exc) {
 						logger.warning(exc.getMessage());
 						logger.warning(exc.getStackTrace().toString());

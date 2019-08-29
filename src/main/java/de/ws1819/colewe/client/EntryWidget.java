@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Language;
 
 public class EntryWidget extends Composite {
 
@@ -34,18 +35,18 @@ public class EntryWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public EntryWidget(Entry entry) {
+	public EntryWidget(Entry entry, Language lang) {
 		this();
-		entryPanel.add(new SimpleEntryWidget(entry));
+		entryPanel.add(new SimpleEntryWidget(entry, lang));
 
 		if (entry.hasColloctations()) {
 			String id = "collapse-" + entry.htmlAnchor();
 			collocButton.getElement().setAttribute("data-toggle", "collapse");
 			collocButton.getElement().setAttribute("data-target", "#" + id);
 			collocInnerPanel.getElement().setAttribute("id", id);
-			
+
 			for (Entry colloc : entry.getCollocations()) {
-				collocInnerPanel.add(new SimpleEntryWidget(colloc));
+				collocInnerPanel.add(new SimpleEntryWidget(colloc, lang));
 			}
 		} else {
 			collocOuterPanel.setVisible(false);

@@ -8,9 +8,12 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
+
+import de.ws1819.colewe.shared.Language;
 
 public class InputWidget extends Composite {
 
@@ -27,6 +30,15 @@ public class InputWidget extends Composite {
 			+ "det andre språket. Ordene i ordbøker er vanligvis ordnet alfabetisk.";
 
 	@UiField
+	RadioButton radioNO;
+
+	@UiField
+	RadioButton radioDE;
+
+	@UiField
+	RadioButton radioEN;
+
+	@UiField
 	Button send;
 
 	@UiField
@@ -34,6 +46,8 @@ public class InputWidget extends Composite {
 
 	@UiField
 	TextArea textArea;
+
+	private Language lang;
 
 	public InputWidget() {
 		this(null);
@@ -43,6 +57,8 @@ public class InputWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 		textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
 		send.setEnabled(false);
+		radioNO.setValue(true);
+		lang = Language.NO;
 	}
 
 	@UiHandler("send")
@@ -50,13 +66,28 @@ public class InputWidget extends Composite {
 		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(true);
 		String text = textArea.getText().trim();
 		RootPanel.get("widgetContainer").clear();
-		RootPanel.get("widgetContainer").add(new OutputWidget(text));
+		RootPanel.get("widgetContainer").add(new OutputWidget(text, lang));
 	}
-	
+
 	@UiHandler("example")
 	void onExampleClick(ClickEvent e) {
 		textArea.setText(exampleText);
 		send.setEnabled(true);
+	}
+
+	@UiHandler("radioNO")
+	void onRadioNOClick(ClickEvent e) {
+		lang = Language.NO;
+	}
+
+	@UiHandler("radioDE")
+	void onRadioDEClick(ClickEvent e) {
+		lang = Language.DE;
+	}
+
+	@UiHandler("radioEN")
+	void onRadioENClick(ClickEvent e) {
+		lang = Language.EN;
 	}
 
 	@UiHandler("textArea")
