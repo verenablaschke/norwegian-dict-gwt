@@ -206,7 +206,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				// This would have been nicer with a SetMultimap, but the memory
 				// overhead issues are too big a downside.
 				List<Entry> entryList = entries.get(wordForm);
-				if (entryList == null || entryList.isEmpty()) {
+				if (entryList == null || entryList.isEmpty() || !entryList.contains(existingEntry)) {
 					entries.put(wordForm, existingEntry);
 					return;
 				}

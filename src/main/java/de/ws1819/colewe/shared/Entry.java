@@ -72,7 +72,8 @@ public class Entry implements IsSerializable {
 		if (!other.lemma.getForm().equals(lemma.getForm())) {
 			return false;
 		}
-		if (pos != null && !pos.equals(Pos.NULL) && !pos.equals(other.pos)) {
+		if (pos != null && other.pos != null && !pos.equals(Pos.NULL) && !other.pos.equals(Pos.NULL)
+				&& !pos.equals(other.pos)) {
 			return false;
 		}
 		mergeWith(other);
