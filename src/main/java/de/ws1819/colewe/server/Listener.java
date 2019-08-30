@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -168,6 +169,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
 			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste) {
+
 		wordForm = wordForm.toLowerCase().replaceAll("[®&:§–@\"\\{\\}\\[\\]\\(\\)\\!\\?\\.,%/]+", " ");
 		if (entry.getPos().equals(Pos.VERB)) {
 			// Remove 'noen' ('somebody') and 'noe' ('something').
@@ -210,7 +212,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					entries.put(wordForm, existingEntry);
 					return;
 				}
-
 				return;
 			}
 		}
