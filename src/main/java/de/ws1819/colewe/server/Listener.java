@@ -180,7 +180,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		} else if (!fullformsliste) {
 			// Extract collocations.
 			String[] components = wordForm.split(" ");
-			if (components.length > 1) {
+			if (components.length > 1 && !(components.length == 2 && components[0].equals("å"))) {
 				for (int i = 0; i < components.length; i++) {
 					if (stopwords.contains(components[i])) {
 						continue;
