@@ -54,11 +54,25 @@ public class InputWidget extends Composite {
 	}
 
 	public InputWidget(String text) {
+		this(text, Language.NO);
+	}
+
+	public InputWidget(String text, Language lang) {
 		initWidget(uiBinder.createAndBindUi(this));
-		textArea.getElement().setPropertyString("placeholder", "Skriv inn teksten din.");
 		send.setEnabled(false);
+		switch (lang) {
+		case DE:
+			radioDE.setValue(true);
+			break;
+		case EN:
+			radioEN.setValue(true);
+			break;
+		case NO:
+		default:
+			radioNO.setValue(true);
+		}
 		radioNO.setValue(true);
-		lang = Language.NO;
+		setLang(lang);
 	}
 
 	@UiHandler("send")
@@ -77,17 +91,46 @@ public class InputWidget extends Composite {
 
 	@UiHandler("radioNO")
 	void onRadioNOClick(ClickEvent e) {
-		lang = Language.NO;
+		setLang(Language.NO);
 	}
 
 	@UiHandler("radioDE")
 	void onRadioDEClick(ClickEvent e) {
-		lang = Language.DE;
+		setLang(Language.DE);
 	}
 
 	@UiHandler("radioEN")
 	void onRadioENClick(ClickEvent e) {
-		lang = Language.EN;
+		setLang(Language.EN);
+	}
+
+	private void setLang(Language lang) {
+		this.lang = lang;
+		String placeholder, exampleString;
+		String sendString = "<i class=\"fa fa-arrow-circle-right\"></i> ";
+		switch (lang) {
+		case DE:
+			placeholder = "Hier könnte Ihr Text stehen."; // TODO
+			sendString += "Abschicken"; // TODO
+			exampleString = "Beispieltext";
+			break;
+		case EN:
+			placeholder = "Enter your text here."; // TODO
+			sendString += "Send"; // TODO
+			exampleString = "Example text";
+			break;
+		case NO:
+		default:
+			placeholder = "Skriv inn teksten din."; // TODO
+			sendString += "Send"; // TODO
+			exampleString = "Eksempeltekst";
+
+		}
+		if (textArea.getText().trim().isEmpty()) {
+			textArea.getElement().setPropertyString("placeholder", placeholder);
+		}
+		send.setHTML(sendString);
+		example.setText(exampleString);
 	}
 
 	@UiHandler("textArea")

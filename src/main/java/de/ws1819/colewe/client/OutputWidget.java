@@ -35,15 +35,27 @@ public class OutputWidget extends Composite {
 
 	@UiField
 	HTML info;
-	
-	private String content;
 
+	private String content;
+	private Language lang;
 
 	public OutputWidget(String content, Language lang) {
 		this.content = content;
 		initWidget(uiBinder.createAndBindUi(this));
 		for (String word : content.split("\\s+")) {
 			flowPanel.add(new WordWidget(word, lang));
+		}
+		this.lang = lang;
+		switch (lang) {
+		case DE:
+			button.setText("Neu"); // TODO
+			break;
+		case EN:
+			button.setText("Again");
+			break;
+		case NO:
+		default:
+			button.setText("Igjen");
 		}
 	}
 
@@ -52,7 +64,7 @@ public class OutputWidget extends Composite {
 		RootPanel.get("infoContainer").clear();
 		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(false);
 		RootPanel.get("widgetContainer").clear();
-		RootPanel.get("widgetContainer").add(new InputWidget(content));
+		RootPanel.get("widgetContainer").add(new InputWidget(content, lang));
 	}
 
 	// Handle CTRL-Click events. Has to be added before the click event handler.

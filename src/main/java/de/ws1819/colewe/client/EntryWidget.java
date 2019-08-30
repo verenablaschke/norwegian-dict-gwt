@@ -43,6 +43,18 @@ public class EntryWidget extends Composite {
 			String id = "collapse-" + entry.htmlAnchor();
 			collocButton.getElement().setAttribute("data-toggle", "collapse");
 			collocButton.getElement().setAttribute("data-target", "#" + id);
+			switch (lang) {
+			case DE:
+				collocButton.setText("Kollokationen");// TODO
+				break;
+			case EN:
+				collocButton.setText("Collocations");
+				break;
+			case NO:
+			default:
+				collocButton.setText("Kollokasjoner"); // TODO
+				break;
+			}
 			collocInnerPanel.getElement().setAttribute("id", id);
 
 			for (Entry colloc : entry.getCollocations()) {

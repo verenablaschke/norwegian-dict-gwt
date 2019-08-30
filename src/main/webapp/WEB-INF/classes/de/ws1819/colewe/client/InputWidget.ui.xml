@@ -11,11 +11,19 @@
 		height: 300px;
 		margin: auto;
 	}
+	
+	.radio {
+		margin-bottom: 10px;
+		padding-bottom: 0;
+	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:RadioButton ui:field="radioNO" name="radio">Norsk</g:RadioButton>
-		<g:RadioButton ui:field="radioDE" name="radio">Deutsch</g:RadioButton>
-		<g:RadioButton ui:field="radioEN" name="radio">English</g:RadioButton>
+		<g:RadioButton ui:field="radioNO" name="radio"
+			styleName="btn btn-outline-secondary {style.radio}">&nbsp;Norsk</g:RadioButton>
+		<g:RadioButton ui:field="radioDE" name="radio"
+			styleName="btn btn-outline-secondary {style.radio}">&nbsp;Deutsch</g:RadioButton>
+		<g:RadioButton ui:field="radioEN" name="radio"
+			styleName="btn btn-outline-secondary {style.radio}">&nbsp;English</g:RadioButton>
 		<br />
 		<g:TextArea styleName="{style.text-area} form-control"
 			ui:field="textArea" />
