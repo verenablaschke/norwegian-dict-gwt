@@ -111,18 +111,18 @@ public class InputWidget extends Composite {
 		switch (lang) {
 		case DE:
 			placeholder = "Hier könnte Ihr Text stehen."; // TODO
-			sendString += "Abschicken"; // TODO
+			sendString += "Abschicken";
 			exampleString = "Beispieltext";
 			break;
 		case EN:
-			placeholder = "Enter your text here."; // TODO
-			sendString += "Send"; // TODO
+			placeholder = "Enter your text here.";
+			sendString += "Send";
 			exampleString = "Example text";
 			break;
 		case NO:
 		default:
-			placeholder = "Skriv inn teksten din."; // TODO
-			sendString += "Send"; // TODO
+			placeholder = "Skriv inn teksten din.";
+			sendString += "Send";
 			exampleString = "Eksempeltekst";
 
 		}

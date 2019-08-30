@@ -45,14 +45,14 @@ public class EntryWidget extends Composite {
 			collocButton.getElement().setAttribute("data-target", "#" + id);
 			switch (lang) {
 			case DE:
-				collocButton.setText("Kollokationen");// TODO
+				collocButton.setText("Kollokationen");
 				break;
 			case EN:
 				collocButton.setText("Collocations");
 				break;
 			case NO:
 			default:
-				collocButton.setText("Kollokasjoner"); // TODO
+				collocButton.setText("Kollokasjoner");
 				break;
 			}
 			collocInnerPanel.getElement().setAttribute("id", id);

@@ -46,17 +46,19 @@ public class OutputWidget extends Composite {
 			flowPanel.add(new WordWidget(word, lang));
 		}
 		this.lang = lang;
+		String buttonText = "<i class=\"fa fa-undo\"></i> ";
 		switch (lang) {
 		case DE:
-			button.setText("Neu"); // TODO
+			buttonText += "Neu";
 			break;
 		case EN:
-			button.setText("Again");
+			buttonText += "Again";
 			break;
 		case NO:
 		default:
-			button.setText("Igjen");
+			buttonText += "Igjen";
 		}
+		button.setHTML(buttonText);
 	}
 
 	@UiHandler("button")
