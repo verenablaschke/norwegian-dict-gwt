@@ -77,7 +77,6 @@ public class Entry implements IsSerializable {
 		}
 		mergeWith(other);
 		return true;
-
 	}
 
 	private void mergeWith(Entry other) {
