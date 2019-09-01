@@ -18,6 +18,7 @@ public class Entry implements IsSerializable {
 	private ArrayList<String> abbr;
 	private int lemmaID;
 	private HashSet<Entry> collocations;
+	private HashSet<SampleSentence> sampleSentences;
 
 	// For GWT
 	public Entry() {
@@ -63,6 +64,7 @@ public class Entry implements IsSerializable {
 		setAbbr(abbrNO);
 		setLemmaID(lemmaID);
 		setCollocations(null);
+		setSampleSentences(null);
 	}
 
 	public boolean merge(Entry other) {
@@ -346,6 +348,22 @@ public class Entry implements IsSerializable {
 		collocations.add(colloc);
 	}
 
+	public HashSet<SampleSentence> getSampleSentences() {
+		return sampleSentences;
+	}
+
+	public void setSampleSentences(HashSet<SampleSentence> sampleSentences) {
+		this.sampleSentences = (sampleSentences == null ? new HashSet<>() : sampleSentences);
+	}
+
+	public void addSampleSentence(SampleSentence sampleSentence) {
+		sampleSentences.add(sampleSentence);
+	}
+
+	public boolean hasSampleSentences() {
+		return !sampleSentences.isEmpty();
+	}
+
 	/**
 	 * @return the lemmaID
 	 */
@@ -389,7 +407,7 @@ public class Entry implements IsSerializable {
 		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
 		result = prime * result + ((translations == null) ? 0 : translations.hashCode());
 		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
-		// Exclude collocations!
+		// Exclude collocations and sample sentences!
 		return result;
 	}
 
@@ -466,7 +484,7 @@ public class Entry implements IsSerializable {
 			return false;
 		}
 		return true;
-		// Exclude collocations!
+		// Exclude collocations and sample sentences!
 	}
 
 }

@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Language;
+import de.ws1819.colewe.shared.SampleSentence;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 import de.ws1819.colewe.shared.WordForm;
 
@@ -28,6 +29,12 @@ public class SimpleEntryWidget extends Composite {
 
 	public SimpleEntryWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
+	}
+
+	public SimpleEntryWidget(SampleSentence sample, Language lang) {
+		this();
+		wordPanel.add(new WordFormWidget(sample.getNo(), true));
+		translationPanel.add(new TranslationWidget(sample.getDe()));
 	}
 
 	public SimpleEntryWidget(Entry entry, Language lang) {

@@ -12,7 +12,6 @@ import de.ws1819.colewe.shared.TranslationalEquivalent;
 
 public class TranslationWidget extends Composite {
 
-	
 	private static TranslationWidgetUiBinder uiBinder = GWT.create(TranslationWidgetUiBinder.class);
 
 	interface TranslationWidgetUiBinder extends UiBinder<Widget, TranslationWidget> {
@@ -42,6 +41,11 @@ public class TranslationWidget extends Composite {
 		setAbbr(transl.getAbbrString());
 	}
 
+	public TranslationWidget(String transl) {
+		this();
+		setTranslation(transl);
+	}
+
 	public void setTranslation(String translation) {
 		this.translation.setText(translation);
 	}
@@ -66,5 +70,5 @@ public class TranslationWidget extends Composite {
 			badge.setText(text);
 		}
 	}
-	
+
 }

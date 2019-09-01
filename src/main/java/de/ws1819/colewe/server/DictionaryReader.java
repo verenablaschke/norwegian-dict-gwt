@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -426,6 +427,17 @@ public class DictionaryReader {
 		logger.info(infoList.toString());
 		logger.info(entries.get("bli").toString());
 		return new Object[] { entries, stopwords };
+	}
+
+	@SuppressWarnings("unchecked")
+	public static HashMap<String, String> readTatoeba(InputStream stream) {
+		HashMap<String, String> sentencePairs = new HashMap<>();
+		try (ObjectInputStream in = new ObjectInputStream(stream)) {
+			sentencePairs = (HashMap<String, String>) in.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sentencePairs;
 	}
 
 }

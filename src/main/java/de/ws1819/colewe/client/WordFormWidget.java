@@ -25,6 +25,12 @@ public class WordFormWidget extends Composite {
 	public WordFormWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
+	
+	public WordFormWidget(String form, boolean lemma) {
+		this();
+		setWord(form);
+		setLemmaStatus(lemma);
+	}
 
 	public WordFormWidget(WordForm wordform, boolean lemma) {
 		this(wordform);

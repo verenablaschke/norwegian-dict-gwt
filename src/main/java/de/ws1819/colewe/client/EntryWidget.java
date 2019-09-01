@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Language;
+import de.ws1819.colewe.shared.SampleSentence;
 
 public class EntryWidget extends Composite {
 
@@ -31,6 +32,15 @@ public class EntryWidget extends Composite {
 	@UiField
 	VerticalPanel collocInnerPanel;
 
+	@UiField
+	HTMLPanel sampleOuterPanel;
+
+	@UiField
+	Button sampleButton;
+
+	@UiField
+	VerticalPanel sampleInnerPanel;
+
 	public EntryWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
@@ -40,7 +50,7 @@ public class EntryWidget extends Composite {
 		entryPanel.add(new SimpleEntryWidget(entry, lang));
 
 		if (entry.hasColloctations()) {
-			String id = "collapse-" + entry.htmlAnchor();
+			String id = "collapse-colloc-" + entry.htmlAnchor();
 			collocButton.getElement().setAttribute("data-toggle", "collapse");
 			collocButton.getElement().setAttribute("data-target", "#" + id);
 			switch (lang) {
@@ -63,6 +73,32 @@ public class EntryWidget extends Composite {
 		} else {
 			collocOuterPanel.setVisible(false);
 		}
+
+		if (entry.hasSampleSentences()) {
+			String id = "collapse-sample-" + entry.htmlAnchor();
+			sampleButton.getElement().setAttribute("data-toggle", "collapse");
+			sampleButton.getElement().setAttribute("data-target", "#" + id);
+			switch (lang) {
+			case DE:
+				sampleButton.setText("Beispielsätze");
+				break;
+			case EN:
+				sampleButton.setText("Sample sentences");
+				break;
+			case NO:
+			default:
+				sampleButton.setText("Eksempelsetninger");
+				break;
+			}
+			sampleInnerPanel.getElement().setAttribute("id", id);
+
+			for (SampleSentence sample : entry.getSampleSentences()) {
+				sampleInnerPanel.add(new SimpleEntryWidget(sample, lang));
+			}
+		} else {
+			sampleOuterPanel.setVisible(false);
+		}
+
 	}
 
 }

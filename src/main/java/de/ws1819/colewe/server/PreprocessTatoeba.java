@@ -5,10 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -16,10 +14,11 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 public class PreprocessTatoeba {
 
-	private static String tatoeba_path = "src/main/webapp/WEB-INF/tatoeba/";
+	private static String base_path = "src/main/webapp";
+	private static String tatoeba_path = base_path + "/WEB-INF/tatoeba/";
 	private static String sentence_path = tatoeba_path + "sentences.tar.bz2";
 	private static String links_path = tatoeba_path + "links.tar.bz2";
-	public static String SENTENCE_PAIRS_PATH = tatoeba_path + "sentence-pairs.ser";
+	private static String out_path = base_path + Listener.TATOEBA_PATH;
 
 	public static void main(String args[]) {
 		HashMap<Integer, String> sentencesNO = new HashMap<Integer, String>();
@@ -70,31 +69,13 @@ public class PreprocessTatoeba {
 		}
 
 		System.out.println("Serialize");
-		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SENTENCE_PAIRS_PATH))) {
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(out_path))) {
 			out.writeObject(sentencePairs);
 		} catch (IOException i) {
 			i.printStackTrace();
 		}
 		System.out.println("DONE");
-		
-//		System.out.println("Serialize");
-//		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(SENTENCE_PAIRS_PATH))) {
-//			HashMap<String, String> sentencePairs = (HashMap<String, String>) in.readObject();
-//			int i = 0;
-//			for (Entry<String, String> entry : sentencePairs.entrySet()){
-//				System.out.println(entry.getKey() + " : " + entry.getValue());
-//				i++;
-//				if (i > 10){
-//					break;
-//				}
-//			}
-//		} catch (IOException i) {
-//			i.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
+
 	}
 
 }

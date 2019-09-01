@@ -19,5 +19,11 @@
 			<g:VerticalPanel ui:field="collocInnerPanel" styleName="collapse">
 			</g:VerticalPanel>
 		</g:HTMLPanel>
+		<g:HTMLPanel ui:field="sampleOuterPanel" styleName="{style.colloc}">
+			<g:Button ui:field="sampleButton" styleName="btn btn-outline-secondary">Collocations
+			</g:Button>
+			<g:VerticalPanel ui:field="sampleInnerPanel" styleName="collapse">
+			</g:VerticalPanel>
+		</g:HTMLPanel>
 	</g:HTMLPanel>
 </ui:UiBinder> 
