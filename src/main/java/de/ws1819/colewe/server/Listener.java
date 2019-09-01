@@ -101,6 +101,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
 			if (entriesWoerterbuch != null) {
 				for (Entry entryW : entriesWoerterbuch) {
+					if (entryW.getPos().equals(Pos.SENT)) {
+						// Treat sentences as sample sentences rather than full
+						// entries.
+						sentencePairs.put(entryW.getLemma().getForm(),
+								entryW.getTranslations().get(0).getTranslation().get(0));
+						continue;
+					}
 					addInfMarker(entryW);
 					addEntry(entryW, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
 					for (String wordForm : entryW.getInflections()) {
@@ -113,6 +120,13 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			List<Entry> entriesDictCc = dictcc.get(lemma);
 			if (entriesDictCc != null) {
 				for (Entry entryD : entriesDictCc) {
+					if (entryD.getPos().equals(Pos.SENT)) {
+						// Treat sentences as sample sentences rather than full
+						// entries.
+						sentencePairs.put(entryD.getLemma().getForm(),
+								entryD.getTranslations().get(0).getTranslation().get(0));
+						continue;
+					}
 					addInfMarker(entryD);
 					addEntry(entryD, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
 					for (String abbr : entryD.getAbbr()) {

@@ -93,14 +93,18 @@ public class DictionaryReader {
 				// Save the entry.
 				for (String pos : posTags) {
 					Pos posTag = Tools.string2Pos(pos);
-					if (posTag.equals(Pos.PRON)) {
+					switch (posTag) {
+					case PRON:
 						// Get personal and possessive pronouns from the other
 						// dictionary instead, since the two dictionaries use
 						// different POS tag systems (PRON vs. DET), resulting
 						// in redundant entries.
 						continue;
-					}
-					switch (posTag) {
+					case NULL:
+						if (lemma.contains(" ") && lemma.endsWith(".")) {
+							posTag = Pos.SENT;
+						}
+						break;
 					case CONJ:
 					case DET:
 					case PREP:

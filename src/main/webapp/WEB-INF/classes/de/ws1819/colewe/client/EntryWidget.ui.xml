@@ -14,7 +14,7 @@
 		<g:HTMLPanel ui:field="entryPanel">
 		</g:HTMLPanel>
 		<g:HTMLPanel ui:field="collocOuterPanel" styleName="{style.colloc}">
-			<g:Button ui:field="collocButton" styleName="btn btn-outline-secondary">Collocations
+			<g:Button ui:field="collocButton" styleName="btn btn-outline-info">Collocations
 			</g:Button>
 			<g:VerticalPanel ui:field="collocInnerPanel" styleName="collapse">
 			</g:VerticalPanel>
