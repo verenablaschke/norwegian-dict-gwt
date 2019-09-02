@@ -14,11 +14,10 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 public class PreprocessTatoeba {
 
-	private static String base_path = "src/main/webapp";
-	private static String tatoeba_path = base_path + "/WEB-INF/tatoeba/";
-	private static String sentence_path = tatoeba_path + "sentences.tar.bz2";
-	private static String links_path = tatoeba_path + "links.tar.bz2";
-	private static String out_path = base_path + Listener.TATOEBA_PATH;
+	private static final String tatoeba_path = Listener.BASE_PATH + Listener.RESOURCES_PATH + "/tatoeba/";
+	private static final String sentence_path = tatoeba_path + "sentences.tar.bz2";
+	private static final String links_path = tatoeba_path + "links.tar.bz2";
+	private static final String out_path = Listener.BASE_PATH + Listener.TATOEBA_PATH;
 
 	public static void main(String args[]) {
 		HashMap<Integer, String> sentencesNO = new HashMap<Integer, String>();

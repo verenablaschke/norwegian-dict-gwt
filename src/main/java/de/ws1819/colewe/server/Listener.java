@@ -27,6 +27,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 	private static final Logger logger = Logger.getLogger(Listener.class.getSimpleName());
 
+	public static final String BASE_PATH = "src/main/webapp";
 	// GWT looks for this inside src/main/webapp
 	public static final String RESOURCES_PATH = "/WEB-INF/";
 	private static final String DICTCC_PATH = RESOURCES_PATH + "dict.cc/dict.cc.tsv";
