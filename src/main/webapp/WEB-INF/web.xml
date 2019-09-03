@@ -28,7 +28,7 @@
 
 	<servlet-mapping>
 		<servlet-name>de.ws1819.colewe.Ordbok DownloadService</servlet-name>
-		<url-pattern>/Ordbok/DownloadService</url-pattern>
+		<url-pattern>/Ordbok/downloadService</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->

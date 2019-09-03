@@ -135,7 +135,7 @@ public class InputWidget extends Composite {
 
 	@UiHandler("textArea")
 	void onKeyPress(KeyUpEvent e) {
-		// Only enable clicking on the button if there's an actual query.
+		// Only enable clicking on the againButton if there's an actual query.
 		if (textArea.getText().trim().length() > 0) {
 			send.setEnabled(true);
 		} else {

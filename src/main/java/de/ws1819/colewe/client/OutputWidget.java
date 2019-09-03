@@ -3,14 +3,17 @@ package de.ws1819.colewe.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -25,7 +28,10 @@ public class OutputWidget extends Composite {
 	}
 
 	@UiField
-	Button button;
+	Button againButton;
+
+	@UiField
+	Button downloadButton;
 
 	@UiField
 	FocusPanel table;
@@ -46,23 +52,38 @@ public class OutputWidget extends Composite {
 			flowPanel.add(new WordWidget(word, lang));
 		}
 		this.lang = lang;
-		String buttonText = "<i class=\"fa fa-undo\"></i> ";
+		
+		String againButtonText = "<i class=\"fa fa-undo\"></i> ";
 		switch (lang) {
 		case DE:
-			buttonText += "Neu";
+			againButtonText += "Neu";
 			break;
 		case EN:
-			buttonText += "Again";
+			againButtonText += "Again";
 			break;
 		case NO:
 		default:
-			buttonText += "Igjen";
+			againButtonText += "Igjen";
 		}
-		button.setHTML(buttonText);
+		againButton.setHTML(againButtonText);
+		
+		String downloadButtonText = "<i class=\"fas fa-download\"></i> ";
+		switch (lang) {
+		case DE:
+			downloadButtonText += "Bisherige Suchergebnisse herunterladen";
+			break;
+		case EN:
+			downloadButtonText += "Download query results up to now";
+			break;
+		case NO:
+		default:
+			downloadButtonText += "Last ned søkresultater hittil"; // TODO
+		}
+		downloadButton.setHTML(downloadButtonText);
 	}
 
-	@UiHandler("button")
-	void onClick(ClickEvent e) {
+	@UiHandler("againButton")
+	void onAgainClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
 		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(false);
 		RootPanel.get("widgetContainer").clear();
@@ -82,6 +103,20 @@ public class OutputWidget extends Composite {
 				((WordWidget) flowPanel.getWidget(i)).setInactive();
 			}
 		}
+	}
+
+	@UiHandler("downloadButton")
+	void onDownloadClick(ClickEvent e) {
+		String query = "";
+		try {
+			query = ((Label) RootPanel.get("historyContainer").getWidget(0)).getText();
+		} catch (Exception exc) {
+			// No query yet.
+		}
+		if (query.startsWith("&")) {
+			query = query.substring(1);
+		}
+		Window.Location.replace("Ordbok/downloadService?query=" + URL.encodeQueryString(query));
 	}
 
 }

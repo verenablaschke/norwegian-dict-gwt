@@ -105,18 +105,18 @@ public class WordWidget extends Composite implements HasText {
 				if (results == null || results.isEmpty()) {
 					RootPanel.get("infoContainer").add(new Label("No results found for \"" + fullQuery + "\"."));
 				}
+				Label history = new Label();
+				try {
+					history = (Label) RootPanel.get("historyContainer").getWidget(0);
+				} catch (Exception exc) {
+					// No query yet.
+					RootPanel.get("queryContainer").add(history);
+				}
+				history.setText(history.getText() + "&" + fullQuery);
 				for (Entry entry : results) {
 					logger.info("-- " + entry.toString());
 					try {
 						RootPanel.get("infoContainer").add(new EntryWidget(entry, lang));
-						Label history = new Label();
-						try {
-							history = (Label) RootPanel.get("historyContainer").getWidget(0);
-						} catch (Exception exc) {
-							// No query yet.
-							RootPanel.get("queryContainer").add(history);
-						}
-						history.setText(history.getText() + entry.toPrintString());
 					} catch (Exception exc) {
 						logger.warning(exc.getMessage());
 						logger.warning(exc.getStackTrace().toString());

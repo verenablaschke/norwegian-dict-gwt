@@ -7,11 +7,18 @@
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:FocusPanel ui:field="table" >
-		<g:FlowPanel styleName="row" ui:field="flowPanel" />
+		<g:FocusPanel ui:field="table">
+			<g:FlowPanel styleName="row" ui:field="flowPanel" />
 		</g:FocusPanel>
 		<br />
-		<g:Button styleName="{style.space} btn btn-primary" ui:field="button"><i class="fa fa-undo"></i> Igjen</g:Button>
+		<g:Button styleName="{style.space} btn btn-primary" ui:field="againButton">
+			<i class="fa fa-undo"></i>
+			Igjen
+		</g:Button>
+		<g:Button styleName="{style.space} btn btn-primary" ui:field="downloadButton">
+			<i class="fa fa-undo"></i>
+			Igjen
+		</g:Button>
 		<br />
 		<g:HTML ui:field="info" />
 	</g:HTMLPanel>
