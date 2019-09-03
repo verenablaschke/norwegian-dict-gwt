@@ -222,7 +222,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
 			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste, boolean sampleSentences) {
-		
+
 		wordForm = normalize(wordForm, entry.getPos());
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
@@ -234,7 +234,16 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 					if (stopwords.contains(components[i])) {
 						continue;
 					}
-					collocations.put(components[i], entry);
+					boolean added = false;
+					for (Entry colloc : collocations.get(components[i])) {
+						if (colloc.equals(entry) || colloc.merge(entry)) {
+							added = true;
+							break;
+						}
+					}
+					if (!added) {
+						collocations.put(components[i], entry);
+					}
 				}
 			}
 		}
