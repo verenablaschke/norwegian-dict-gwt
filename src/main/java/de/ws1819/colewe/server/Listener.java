@@ -222,7 +222,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
 			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
 			boolean fullformsliste, boolean sampleSentences) {
-
+		
 		wordForm = normalize(wordForm, entry.getPos());
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");

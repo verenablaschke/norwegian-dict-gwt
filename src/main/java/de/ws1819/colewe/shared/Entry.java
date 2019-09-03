@@ -101,7 +101,7 @@ public class Entry implements IsSerializable {
 		}
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
-		} else if (other.translations != null && !other.translations.isEmpty()) {
+		} else if (other.translations != null && !other.translations.isEmpty() && !translations.equals(other.translations)) {
 			for (TranslationalEquivalent otherTransl : other.translations) {
 				// Avoid duplicate translations
 				boolean add = true;

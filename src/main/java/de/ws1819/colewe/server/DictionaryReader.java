@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.gwt.thirdparty.guava.common.collect.ArrayListMultimap;
@@ -130,10 +129,6 @@ public class DictionaryReader {
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
 		logger.info("Dict.cc grammarDE");
-		// ArrayList<String> infoList = new ArrayList<>(grammarDESet);
-		// infoList.sort(String::compareToIgnoreCase);
-		// logger.info(infoList.toString());
-		// System.exit(1); // TODO del
 
 		return new Object[] { entries, stopwords };
 	}
