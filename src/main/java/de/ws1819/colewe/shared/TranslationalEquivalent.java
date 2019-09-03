@@ -47,6 +47,11 @@ public class TranslationalEquivalent implements IsSerializable {
 		return getTranslationString() + " [" + getUsageString() + "] <" + getAbbrString() + ">";
 	}
 
+	public String toPrintString() {
+		return getTranslationString() + (usage == null ? "" : " " + usage)
+				+ (abbr == null ? "" : " <" + getAbbrString() + ">");
+	}
+
 	public void addTranslation(String transl) {
 		if (translation == null) {
 			translation = new ArrayList<String>();

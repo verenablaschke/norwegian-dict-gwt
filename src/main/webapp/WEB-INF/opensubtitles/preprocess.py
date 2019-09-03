@@ -1,4 +1,4 @@
-from nltk.tokenize import word_tokenize
+import spacy
 import sys
 
 
@@ -10,19 +10,18 @@ filename = sys.argv[1].split('/')
 if len(filename) == 1:
     filename = sys.argv[1].split('\\')
 if len(filename) == 1:
-    filename = 'tokenized-' + filename[-1]
+    filename = 'preprocessed-' + filename[-1]
 else:
-    filename = '/'.join(filename[:-1]) + '/tokenized-' + filename[-1]
+    filename = '/'.join(filename[:-1]) + '/preprocessed-' + filename[-1]
 
-lower_case = filename.endswith('no')
+nb_core = spacy.load("nb_core_news_sm")
 
 with open(sys.argv[1], 'r', encoding='utf-8') as file_in:
     with open(filename, 'w', encoding='utf-8') as file_out:
         for line in file_in:
             if line.startswith('-'):
                 line = line[1:]
-            if lower_case:
-                line = line.lower()
             line = line.replace(' -', '')
-            file_out.write(' '.join(word_tokenize(line)))
+            for token in nb_core(line):
+                print(token.lemma_ + ' ')
             file_out.write('\n')

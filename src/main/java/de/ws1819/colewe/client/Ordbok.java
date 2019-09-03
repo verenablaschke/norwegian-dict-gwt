@@ -1,6 +1,7 @@
 package de.ws1819.colewe.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -14,6 +15,7 @@ public class Ordbok implements EntryPoint {
 	public void onModuleLoad() {
 		RootPanel.get("headerContainer").add(new HeaderWidget());
 		RootPanel.get("widgetContainer").add(new InputWidget());
+		RootPanel.get("historyContainer").add(new Label());
 	}
 
 	// TODO info/about page

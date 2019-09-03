@@ -49,6 +49,11 @@ public class SampleSentence implements IsSerializable {
 	public void setDe(String de) {
 		this.de = de;
 	}
+	
+	@Override
+	public String toString(){
+		return no + " : " + de;
+	}
 
 	/*
 	 * (non-Javadoc)

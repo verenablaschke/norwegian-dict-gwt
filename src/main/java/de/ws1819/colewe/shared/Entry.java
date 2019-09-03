@@ -395,6 +395,57 @@ public class Entry implements IsSerializable {
 				+ pos;
 	}
 
+	public String toPrintString() {
+		return toPrintString(true, "");
+	}
+
+	public String toPrintString(boolean showCollocs, String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append(lemma).append(" (").append(pos).append(")");
+		if (grammar != null && !grammar.isEmpty()) {
+			sb.append(" {").append(String.join(", ", grammar)).append("}");
+		}
+		if (usage != null && !usage.isEmpty()) {
+			sb.append(usage);
+		}
+		if (abbr != null && !abbr.isEmpty()) {
+			sb.append(" <").append(String.join(", ", abbr)).append(">");
+		}
+		if (displayableInflections != null && !displayableInflections.isEmpty()) {
+			for (WordForm infl : displayableInflections) {
+				sb.append(infl).append(", ");
+			}
+			sb.delete(sb.length() - 2, sb.length());
+		}
+		sb.append("\n");
+		for (TranslationalEquivalent transl : translations) {
+			sb.append(prefix);
+			sb.append("> ");
+			sb.append(transl.toPrintString());
+			sb.append("\n");
+		}
+		if (showCollocs) {
+			if (hasColloctations()) {
+				sb.append("Collocations:\n");
+				for (Entry colloc : collocations) {
+					sb.append("-\t");
+					sb.append(colloc.toPrintString(false, "\t"));
+					sb.append("\n");
+				}
+			}
+			if (hasSampleSentences()) {
+				sb.append("Sample sentences:\n");
+				for (SampleSentence sent : sampleSentences) {
+					sb.append("--\t");
+					sb.append(sent);
+					sb.append("\n");
+				}
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
