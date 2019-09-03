@@ -22,24 +22,25 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
+		return query((ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
+				(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),
+				(ListMultimap<String, Entry>) getServletContext().getAttribute("suffixes"),
+				(HashMap<String, String>) getServletContext().getAttribute("mlEntries"), word);
+
+	}
+
+	public static ArrayList<Entry> query(ListMultimap<String, Entry> entries, ListMultimap<String, Entry> prefixes,
+			ListMultimap<String, Entry> suffixes, HashMap<String, String> mlEntries, String word) {
 		logger.info("QUERY: " + word);
-		ListMultimap<String, Entry> entries = (ListMultimap<String, Entry>) getServletContext().getAttribute("entries");
-
 		ArrayList<Entry> results = querySingleWord(entries, word);
-
 		if (results.isEmpty()) {
 			// Try splitting the word into translatable components.
-			ListMultimap<String, Entry> prefixes = (ListMultimap<String, Entry>) getServletContext()
-					.getAttribute("prefixes");
-			ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
-					.getAttribute("suffixes");
 			results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
 
 			// Try the automatically inferred translations.
 			if (!word.contains(" ")) {
 				logger.info("ML translation");
-				String translation = ((HashMap<String, String>) getServletContext().getAttribute("mlEntries"))
-						.get(word);
+				String translation = mlEntries.get(word);
 				if (translation != null) {
 					results.add(new Entry(word, translation));
 				}
@@ -56,9 +57,10 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 			logger.info("-- " + entry.toString());
 		}
 		return results;
+
 	}
 
-	private ArrayList<Entry> querySingleWord(ListMultimap<String, Entry> entries, String word) {
+	private static ArrayList<Entry> querySingleWord(ListMultimap<String, Entry> entries, String word) {
 		logger.info("Querying " + word);
 		List<Entry> results = entries.get(word);
 		for (Entry entry : results) {
@@ -67,7 +69,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return new ArrayList<Entry>(results);
 	}
 
-	private ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
+	private static ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
 			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, String word) {
 		ArrayList<Entry> results = querySingleWord(entries, word);
 		if (results.isEmpty() && !word.contains(" ")) {
@@ -117,7 +119,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return results;
 	}
 
-	private ArrayList<Entry> queryMultiWordPhrase(ListMultimap<String, Entry> entries, String word) {
+	private static ArrayList<Entry> queryMultiWordPhrase(ListMultimap<String, Entry> entries, String word) {
 		ArrayList<Entry> results = new ArrayList<>();
 		String[] words = word.split(" ");
 		HashSet<String> lemmatized = new HashSet<>();

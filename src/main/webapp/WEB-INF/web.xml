@@ -16,9 +16,19 @@
 		<servlet-class>de.ws1819.colewe.server.DictionaryServiceImpl</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>de.ws1819.colewe.Ordbok DownloadService</servlet-name>
+		<servlet-class>de.ws1819.colewe.server.DownloadServiceImpl</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>de.ws1819.colewe.Ordbok DictionaryService</servlet-name>
 		<url-pattern>/Ordbok/DictionaryService</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>de.ws1819.colewe.Ordbok DownloadService</servlet-name>
+		<url-pattern>/Ordbok/DownloadService</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->
