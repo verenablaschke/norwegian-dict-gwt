@@ -10,25 +10,36 @@ public class TranslationalEquivalent implements IsSerializable {
 	private ArrayList<String> translation;
 	private ArrayList<String> usage;
 	private ArrayList<String> abbr;
+	boolean automaticallyInferred;
 
+	// For GWT serialization.
 	public TranslationalEquivalent() {
-		// For GWT serialization.
-		this(new ArrayList<String>(), null, null);
+		this(new ArrayList<String>(), null, null, false);
 	}
 
+	// For no-de-dict.txt
 	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage) {
-		this(translation, usage, null);
+		this(translation, usage, null, false);
 	}
 
+	// For dict.cc
 	public TranslationalEquivalent(String translation, ArrayList<String> usage, ArrayList<String> abbr) {
-		this(new ArrayList<String>(), usage, abbr);
+		this(new ArrayList<String>(), usage, abbr, false);
 		addTranslation(translation);
 	}
 
-	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage, ArrayList<String> abbr) {
+	// For the automatically inferred entries
+	public TranslationalEquivalent(String translation, boolean automaticallyInferred) {
+		this(new ArrayList<String>(), null, null, automaticallyInferred);
+		addTranslation(translation);
+	}
+
+	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage, ArrayList<String> abbr,
+			boolean automaticallyInferred) {
 		this.translation = translation;
 		setUsage(usage);
 		setAbbr(abbr);
+		this.automaticallyInferred = automaticallyInferred;
 	}
 
 	@Override
@@ -127,6 +138,10 @@ public class TranslationalEquivalent implements IsSerializable {
 
 	public String getAbbrString() {
 		return String.join(", ", abbr);
+	}
+
+	public boolean isAutomaticallyInferred() {
+		return automaticallyInferred;
 	}
 
 	/*

@@ -1,6 +1,7 @@
 package de.ws1819.colewe.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,33 +24,30 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
 		logger.info("QUERY: " + word);
 		ListMultimap<String, Entry> entries = (ListMultimap<String, Entry>) getServletContext().getAttribute("entries");
-		ListMultimap<String, Entry> prefixes = (ListMultimap<String, Entry>) getServletContext()
-				.getAttribute("prefixes");
-		ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
-				.getAttribute("suffixes");
-		ArrayList<Entry> results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
 
-		// Multi-word phrase with inflected word forms?
-		if (results.isEmpty() && word.contains(" ")) {
-			String[] words = word.split(" ");
-			HashSet<String> lemmatized = new HashSet<>();
-			lemmatized.add("");
-			for (int i = 0; i < words.length; i++) {
-				ArrayList<Entry> intermResults = querySingleWord(entries, words[i]);
-				if (intermResults.isEmpty()) {
-					break;
+		ArrayList<Entry> results = querySingleWord(entries, word);
+
+		if (results.isEmpty()) {
+			// Try splitting the word into translatable components.
+			ListMultimap<String, Entry> prefixes = (ListMultimap<String, Entry>) getServletContext()
+					.getAttribute("prefixes");
+			ListMultimap<String, Entry> suffixes = (ListMultimap<String, Entry>) getServletContext()
+					.getAttribute("suffixes");
+			results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
+
+			// Try the automatically inferred translations.
+			if (!word.contains(" ")) {
+				logger.info("ML translation");
+				String translation = ((HashMap<String, String>) getServletContext().getAttribute("mlEntries"))
+						.get(word);
+				if (translation != null) {
+					results.add(new Entry(word, translation));
 				}
-				HashSet<String> temp = new HashSet<>();
-				for (String lemmatizedVersion : lemmatized){
-					for (Entry lemma : intermResults){
-						temp.add(lemmatizedVersion + " " + lemma.getLemma().getForm());
-					}
-				}
-				lemmatized = temp;
 			}
-			logger.info("Possible lemmatized versions: " + lemmatized);
-			for (String s : lemmatized) {
-				results.addAll(querySingleWord(entries, s.trim()));
+
+			// Still no results? Multi-word phrase with inflected word forms?
+			if (results.isEmpty() && word.contains(" ")) {
+				results = queryMultiWordPhrase(entries, word);
 			}
 		}
 
@@ -115,6 +113,31 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 				results.addAll(resultsSecond);
 				break;
 			}
+		}
+		return results;
+	}
+
+	private ArrayList<Entry> queryMultiWordPhrase(ListMultimap<String, Entry> entries, String word) {
+		ArrayList<Entry> results = new ArrayList<>();
+		String[] words = word.split(" ");
+		HashSet<String> lemmatized = new HashSet<>();
+		lemmatized.add("");
+		for (int i = 0; i < words.length; i++) {
+			ArrayList<Entry> intermResults = querySingleWord(entries, words[i]);
+			if (intermResults.isEmpty()) {
+				break;
+			}
+			HashSet<String> temp = new HashSet<>();
+			for (String lemmatizedVersion : lemmatized) {
+				for (Entry lemma : intermResults) {
+					temp.add(lemmatizedVersion + " " + lemma.getLemma().getForm());
+				}
+			}
+			lemmatized = temp;
+		}
+		logger.info("Possible lemmatized versions: " + lemmatized);
+		for (String s : lemmatized) {
+			results.addAll(querySingleWord(entries, s.trim()));
 		}
 		return results;
 	}

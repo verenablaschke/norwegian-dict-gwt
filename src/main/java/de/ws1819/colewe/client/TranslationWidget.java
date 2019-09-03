@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import de.ws1819.colewe.shared.Language;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 
 public class TranslationWidget extends Composite {
@@ -26,15 +27,19 @@ public class TranslationWidget extends Composite {
 	@UiField
 	HTML abbrBadge;
 
+	@UiField
+	HTML autoBadge;
+
 	public TranslationWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public TranslationWidget(TranslationalEquivalent transl) {
+	public TranslationWidget(TranslationalEquivalent transl, Language lang) {
 		this();
 		setTranslation(transl.getTranslationString());
 		setUsage(transl.getUsageString());
 		setAbbr(transl.getAbbrString());
+		setAuto(transl.isAutomaticallyInferred(), lang);
 	}
 
 	public TranslationWidget(String transl) {
@@ -52,6 +57,24 @@ public class TranslationWidget extends Composite {
 
 	public void setAbbr(String text) {
 		setBadge(abbrBadge, text);
+	}
+
+	public void setAuto(boolean isAutomaticallyInferred, Language lang) {
+		String text = null;
+		if (isAutomaticallyInferred) {
+			switch (lang) {
+			case DE:
+				text = "maschinenübersetzt";
+				break;
+			case EN:
+				text = "machine-translated";
+				break;
+			case NO:
+			default:
+				text = "maskinoversatt";
+			}
+		}
+		setBadge(autoBadge, text);
 	}
 
 	private void setBadge(HTML badge, String text) {

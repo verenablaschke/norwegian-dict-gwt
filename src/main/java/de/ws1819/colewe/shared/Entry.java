@@ -51,6 +51,12 @@ public class Entry implements IsSerializable {
 		this(lemma, pos, inflections, displayableInflections, translations, grammarNO, usageNO, null, -1);
 	}
 
+	// For automatically inferred entries
+	public Entry(String lemma, String translation) {
+		this(new WordForm(lemma), Pos.NULL, null, null, null, null, null, null, -1);
+		addTranslation(new TranslationalEquivalent(translation, true));
+	}
+
 	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
 			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
 			ArrayList<String> abbrNO, int lemmaID) {
@@ -101,7 +107,8 @@ public class Entry implements IsSerializable {
 		}
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
-		} else if (other.translations != null && !other.translations.isEmpty() && !translations.equals(other.translations)) {
+		} else if (other.translations != null && !other.translations.isEmpty()
+				&& !translations.equals(other.translations)) {
 			for (TranslationalEquivalent otherTransl : other.translations) {
 				// Avoid duplicate translations
 				boolean add = true;

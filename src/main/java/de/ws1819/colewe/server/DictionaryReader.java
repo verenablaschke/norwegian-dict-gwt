@@ -439,4 +439,15 @@ public class DictionaryReader {
 		return sentencePairs;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static HashMap<String, String> readOpenSubtitles(InputStream stream) {
+		HashMap<String, String> entries = new HashMap<>();
+		try (ObjectInputStream in = new ObjectInputStream(stream)) {
+			entries = (HashMap<String, String>) in.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return entries;
+	}
+
 }

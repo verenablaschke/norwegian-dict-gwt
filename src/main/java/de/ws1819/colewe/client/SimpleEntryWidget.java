@@ -45,7 +45,7 @@ public class SimpleEntryWidget extends Composite {
 			setWord(wf, false);
 		}
 		for (TranslationalEquivalent transl : entry.getTranslations()) {
-			translationPanel.add(new TranslationWidget(transl));
+			translationPanel.add(new TranslationWidget(transl, lang));
 		}
 	}
 

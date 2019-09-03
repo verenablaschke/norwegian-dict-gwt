@@ -35,6 +35,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private static final String INFL_PATH = RESOURCES_PATH + "spraakbanken/fullformsliste.txt";
 	private static final String WOERTERBUCH_PATH = RESOURCES_PATH + "woerterbuch/no-de-dict.txt";
 	static final String TATOEBA_PATH = RESOURCES_PATH + "tatoeba/sentence-pairs.ser";
+	static final String OPENSUBTITLES_PATH = RESOURCES_PATH + "opensubtitles/no-de.actual.ti.ser";
 
 	// Public constructor is required by servlet spec
 	public Listener() {
@@ -58,7 +59,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
 		InputStream woerterbuchInputStream = sce.getServletContext().getResourceAsStream(WOERTERBUCH_PATH);
 		InputStream tatoebaInputStream = sce.getServletContext().getResourceAsStream(TATOEBA_PATH);
-
+		InputStream openSubtitlesInputStream = sce.getServletContext().getResourceAsStream(OPENSUBTITLES_PATH);
+		
 		logger.info("Start reading dict.cc");
 		Object[] dictccResults = DictionaryReader.readDictCc(dictccInputStream);
 		ListMultimap<String, Entry> dictcc = (ListMultimap<String, Entry>) dictccResults[0];
@@ -80,6 +82,9 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		logger.info("Start reading sentence-pairs.ser");
 		HashMap<String, String> sentencePairs = DictionaryReader.readTatoeba(tatoebaInputStream);
 
+		logger.info("Start reading no-de.actual.ti.final");
+		HashMap<String, String> mlEntries = DictionaryReader.readOpenSubtitles(openSubtitlesInputStream);
+		
 		// Combine the information from both sources by merging the entries when
 		// possible.
 		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
@@ -182,11 +187,12 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 				}
 			}
 		}
-
+		
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 		sce.getServletContext().setAttribute("prefixes", prefixes);
 		sce.getServletContext().setAttribute("suffixes", suffixes);
+		sce.getServletContext().setAttribute("mlEntries", mlEntries);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,

@@ -25,5 +25,6 @@
 		<g:Label ui:field="translation" styleName="{style.translation}" />
 		<g:HTML ui:field="usageBadge" styleName="badge {style.warning-light}" />
 		<g:HTML ui:field="abbrBadge" styleName="badge {style.secondary-light}" />
+		<g:HTML ui:field="autoBadge" styleName="badge badge-danger"></g:HTML>
 	</g:HTMLPanel>
 </ui:UiBinder> 
