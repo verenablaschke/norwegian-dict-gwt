@@ -12,11 +12,6 @@
 		font-size: 0.9rem;
 	}
 	
-	.info-light {
-		background-color: #81cfdb;
-		color: black;
-	}
-	
 	.warning-light {
 		background-color: #fae39c;
 	}
@@ -28,7 +23,6 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<g:Label ui:field="translation" styleName="{style.translation}" />
-		<g:HTML ui:field="grammarBadge" styleName="badge {style.info-light}" />
 		<g:HTML ui:field="usageBadge" styleName="badge {style.warning-light}" />
 		<g:HTML ui:field="abbrBadge" styleName="badge {style.secondary-light}" />
 	</g:HTMLPanel>

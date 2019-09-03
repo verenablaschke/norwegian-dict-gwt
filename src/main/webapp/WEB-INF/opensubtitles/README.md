@@ -25,6 +25,9 @@ Run:
 ```
 ./GIZA++-v2/plain2snt.out ./data/tokenized-OpenSubtitles.de-no.de ./data/tokenized-OpenSubtitles.de-no.no
 
+./mkcls-v2/mkcls -p./data/tokenized-OpenSubtitles.de-no.no -V./data/tokenized-OpenSubtitles.de-no.no.vcb.classes
+./mkcls-v2/mkcls -p./data/tokenized-OpenSubtitles.de-no.de -V./data/tokenized-OpenSubtitles.de-no.de.vcb.classes
+
 ./GIZA++-v2/GIZA++ -S ./data/tokenized-OpenSubtitles.de-no.de.vcb -T ./data/tokenized-OpenSubtitles.de-no.no.vcb -C ./data/tokenized-OpenSubtitles.de-no.de_tokenized-OpenSubtitles.de-no.no.snt -o no-de -outputpath ./output/
 ```
 

@@ -113,7 +113,6 @@ public class Entry implements IsSerializable {
 					for (String otherTranslString : otherTransl.getTranslation()) {
 						if (transl.getTranslation().contains(otherTranslString)) {
 							add = false;
-							transl.addGrammar(otherTransl.getGrammar());
 							transl.addUsage(otherTransl.getUsage());
 							transl.addAbbr(otherTransl.getAbbr());
 							break mid;

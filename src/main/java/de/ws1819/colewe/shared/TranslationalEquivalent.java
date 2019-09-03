@@ -8,37 +8,32 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class TranslationalEquivalent implements IsSerializable {
 
 	private ArrayList<String> translation;
-	private ArrayList<String> grammar;
 	private ArrayList<String> usage;
 	private ArrayList<String> abbr;
 
 	public TranslationalEquivalent() {
 		// For GWT serialization.
-		this(new ArrayList<String>(), null, null, null);
+		this(new ArrayList<String>(), null, null);
 	}
 
 	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage) {
-		this(translation, null, usage, null);
+		this(translation, usage, null);
 	}
 
-	public TranslationalEquivalent(String translation, ArrayList<String> grammar, ArrayList<String> usage,
-			ArrayList<String> abbr) {
-		this(new ArrayList<String>(), grammar, usage, abbr);
+	public TranslationalEquivalent(String translation, ArrayList<String> usage, ArrayList<String> abbr) {
+		this(new ArrayList<String>(), usage, abbr);
 		addTranslation(translation);
 	}
 
-	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> grammar, ArrayList<String> usage,
-			ArrayList<String> abbr) {
+	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage, ArrayList<String> abbr) {
 		this.translation = translation;
-		setGrammar(grammar);
 		setUsage(usage);
 		setAbbr(abbr);
 	}
 
 	@Override
 	public String toString() {
-		return getTranslationString() + " {" + getGrammarString() + "} [" + getUsageString() + "] <" + getAbbrString()
-				+ ">";
+		return getTranslationString() + " [" + getUsageString() + "] <" + getAbbrString() + ">";
 	}
 
 	public void addTranslation(String transl) {
@@ -66,39 +61,6 @@ public class TranslationalEquivalent implements IsSerializable {
 	 */
 	public void setTranslation(ArrayList<String> translation) {
 		this.translation = translation;
-	}
-
-	/**
-	 * @return the grammar
-	 */
-	public ArrayList<String> getGrammar() {
-		return grammar;
-	}
-
-	public String getGrammarString() {
-		return String.join(", ", grammar);
-	}
-
-	/**
-	 * @param grammar
-	 *            the grammar to set
-	 */
-	public void setGrammar(ArrayList<String> grammar) {
-		if (grammar == null) {
-			this.grammar = new ArrayList<>();
-			return;
-		}
-		grammar.removeIf(Objects::isNull);
-		grammar.removeIf(String::isEmpty);
-		this.grammar = grammar;
-	}
-
-	public void addGrammar(ArrayList<String> otherGrammar) {
-		for (String other : otherGrammar) {
-			if (!grammar.contains(other)) {
-				grammar.add(other);
-			}
-		}
 	}
 
 	/**
@@ -177,7 +139,6 @@ public class TranslationalEquivalent implements IsSerializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
-		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((translation == null) ? 0 : translation.hashCode());
 		result = prime * result + ((usage == null) ? 0 : usage.hashCode());
 		return result;
@@ -205,13 +166,6 @@ public class TranslationalEquivalent implements IsSerializable {
 				return false;
 			}
 		} else if (!abbr.equals(other.abbr)) {
-			return false;
-		}
-		if (grammar == null) {
-			if (other.grammar != null) {
-				return false;
-			}
-		} else if (!grammar.equals(other.grammar)) {
 			return false;
 		}
 		if (translation == null) {

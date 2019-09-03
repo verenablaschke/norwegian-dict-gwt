@@ -21,9 +21,6 @@ public class TranslationWidget extends Composite {
 	Label translation;
 
 	@UiField
-	HTML grammarBadge;
-
-	@UiField
 	HTML usageBadge;
 
 	@UiField
@@ -36,7 +33,6 @@ public class TranslationWidget extends Composite {
 	public TranslationWidget(TranslationalEquivalent transl) {
 		this();
 		setTranslation(transl.getTranslationString());
-		setGrammar(transl.getGrammarString());
 		setUsage(transl.getUsageString());
 		setAbbr(transl.getAbbrString());
 	}
@@ -48,10 +44,6 @@ public class TranslationWidget extends Composite {
 
 	public void setTranslation(String translation) {
 		this.translation.setText(translation);
-	}
-
-	public void setGrammar(String text) {
-		setBadge(grammarBadge, text);
 	}
 
 	public void setUsage(String text) {

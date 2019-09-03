@@ -28,7 +28,6 @@ public class DictionaryReader {
 	@SuppressWarnings("unchecked")
 	public static Object[] readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		Set<String> grammarNOSet = new HashSet<>(); // TODO del
 		HashSet<String> stopwords = new HashSet<>();
 
 		// Convert the dict.cc dump into a collection of dictionary entries.
@@ -71,7 +70,6 @@ public class DictionaryReader {
 						grammarNO.add(s.replace("[", "").replace("]", ""));
 					}
 				}
-				grammarNOSet.addAll(grammarNO);
 
 				ArrayList<String> usageNO = new ArrayList<String>();
 				// If available, get POS tag.
@@ -116,7 +114,8 @@ public class DictionaryReader {
 					entries.put(lemma,
 							new Entry(new WordForm(lemma), posTag,
 									new TranslationalEquivalent((String) lemmaAndCommentsDE[0],
-											(ArrayList<String>) lemmaAndCommentsDE[1],
+											// Skip lemmaAndCommentsDE[1], which
+											// contains grammatical info
 											(ArrayList<String>) lemmaAndCommentsDE[2],
 											(ArrayList<String>) lemmaAndCommentsDE[3]),
 									grammarNO, usageNO, (ArrayList<String>) lemmaAndCommentsNO[3]));
@@ -130,10 +129,11 @@ public class DictionaryReader {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from dict.cc data.");
-		logger.info("Dict.cc grammarNO");
-		ArrayList<String> infoList = new ArrayList<>(grammarNOSet);
-		infoList.sort(String::compareToIgnoreCase);
-		logger.info(infoList.toString());
+		logger.info("Dict.cc grammarDE");
+		// ArrayList<String> infoList = new ArrayList<>(grammarDESet);
+		// infoList.sort(String::compareToIgnoreCase);
+		// logger.info(infoList.toString());
+		// System.exit(1); // TODO del
 
 		return new Object[] { entries, stopwords };
 	}
