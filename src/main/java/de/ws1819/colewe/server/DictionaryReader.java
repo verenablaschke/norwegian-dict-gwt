@@ -135,7 +135,7 @@ public class DictionaryReader {
 
 	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
 	// strings.
-	public static HashMap<Integer, String> readLemmaList(InputStream stream) {
+	public static HashMap<Integer, String> readOrdbankLemmas(InputStream stream) {
 		HashMap<Integer, String> lemmata = new HashMap<Integer, String>();
 
 		String line = null;
@@ -179,7 +179,7 @@ public class DictionaryReader {
 		return lemmata;
 	}
 
-	public static Object[] readSpraakbanken(HashMap<Integer, String> lemmata, InputStream stream) {
+	public static Object[] readOrdbankFullformsliste(HashMap<Integer, String> lemmata, InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> stopwords = new HashSet<>();
 
@@ -308,11 +308,9 @@ public class DictionaryReader {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Object[] readWoerterbuch(InputStream stream) {
+	public static Object[] readLangenscheidt(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> stopwords = new HashSet<>();
-		HashSet<String> info = new HashSet<>(); // TODO del
-		HashSet<String> usageDESet = new HashSet<>(); // TODO del
 
 		String line = null;
 		String[] fields = null;
@@ -335,7 +333,6 @@ public class DictionaryReader {
 					// since we show the lemma instead.
 					continue;
 				}
-				info.addAll(grammarNO);
 
 				String[] inflections = fields[0].trim().split("[,/]");
 				WordForm lemma = null;
@@ -393,7 +390,6 @@ public class DictionaryReader {
 						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
 						for (String usage : (ArrayList<String>) wordAndComment[1]) {
 							usageDE.add(usage.replace("_", " "));
-							usageDESet.add(usage.replace("_", " "));
 						}
 						// Some of the translational equivalents include domain
 						// information. Then, the entry in the txt file looks
@@ -417,14 +413,6 @@ public class DictionaryReader {
 		}
 
 		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
-		ArrayList<String> infoList = new ArrayList<>(info);
-		infoList.sort(String::compareToIgnoreCase);
-		logger.info(infoList.toString());
-		logger.info("Usage no-de");
-		infoList = new ArrayList<>(usageDESet);
-		infoList.sort(String::compareToIgnoreCase);
-		logger.info(infoList.toString());
-		logger.info(entries.get("bli").toString());
 		return new Object[] { entries, stopwords };
 	}
 

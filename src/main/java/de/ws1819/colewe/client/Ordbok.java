@@ -18,5 +18,4 @@ public class Ordbok implements EntryPoint {
 		RootPanel.get("historyContainer").add(new Label());
 	}
 
-	// TODO info/about page
 }

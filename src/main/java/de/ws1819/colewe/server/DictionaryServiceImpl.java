@@ -25,7 +25,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return query((ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("suffixes"),
-				(HashMap<String, String>) getServletContext().getAttribute("mlEntries"), word);
+				(HashMap<String, String>) getServletContext().getAttribute("mtEntries"), word);
 
 	}
 
@@ -39,7 +39,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 			// Try the automatically inferred translations.
 			if (!word.contains(" ")) {
-				logger.info("ML translation");
+				logger.info("Machine translation");
 				String translation = mlEntries.get(word);
 				if (translation != null) {
 					results.add(new Entry(word, translation));

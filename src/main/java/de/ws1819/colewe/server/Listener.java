@@ -32,8 +32,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	public static final String RESOURCES_PATH = "/WEB-INF/";
 	private static final String DICTCC_PATH = RESOURCES_PATH + "dict.cc/dict.cc.tsv";
 	private static final String LEMMA_PATH = RESOURCES_PATH + "spraakbanken/lemma.txt";
-	private static final String INFL_PATH = RESOURCES_PATH + "spraakbanken/fullformsliste.txt";
-	private static final String WOERTERBUCH_PATH = RESOURCES_PATH + "woerterbuch/no-de-dict.txt";
+	private static final String ORDBANK_PATH = RESOURCES_PATH + "ordbank/fullformsliste.txt";
+	private static final String LANGENSCHEIDT_PATH = RESOURCES_PATH + "langenscheidt/no-de-dict.txt";
 	static final String TATOEBA_PATH = RESOURCES_PATH + "tatoeba/sentence-pairs.ser";
 	static final String OPENSUBTITLES_PATH = RESOURCES_PATH + "opensubtitles/no-de.actual.ti.ser";
 
@@ -56,8 +56,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		// lists.
 		InputStream dictccInputStream = sce.getServletContext().getResourceAsStream(DICTCC_PATH);
 		InputStream lemmaInputStream = sce.getServletContext().getResourceAsStream(LEMMA_PATH);
-		InputStream inflInputStream = sce.getServletContext().getResourceAsStream(INFL_PATH);
-		InputStream woerterbuchInputStream = sce.getServletContext().getResourceAsStream(WOERTERBUCH_PATH);
+		InputStream ordbankInputStream = sce.getServletContext().getResourceAsStream(ORDBANK_PATH);
+		InputStream langenscheidtInputStream = sce.getServletContext().getResourceAsStream(LANGENSCHEIDT_PATH);
 		InputStream tatoebaInputStream = sce.getServletContext().getResourceAsStream(TATOEBA_PATH);
 		InputStream openSubtitlesInputStream = sce.getServletContext().getResourceAsStream(OPENSUBTITLES_PATH);
 		
@@ -67,17 +67,17 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		HashSet<String> stopwords = (HashSet<String>) dictccResults[1];
 
 		logger.info("Start reading lemma.txt");
-		HashMap<Integer, String> lemmata = DictionaryReader.readLemmaList(lemmaInputStream);
+		HashMap<Integer, String> lemmata = DictionaryReader.readOrdbankLemmas(lemmaInputStream);
 
 		logger.info("Start reading fullformsliste.txt");
-		Object[] fullformslisteResults = DictionaryReader.readSpraakbanken(lemmata, inflInputStream);
-		ListMultimap<String, Entry> fullformsliste = (ListMultimap<String, Entry>) fullformslisteResults[0];
-		stopwords.addAll((HashSet<String>) fullformslisteResults[1]);
+		Object[] ordbankResults = DictionaryReader.readOrdbankFullformsliste(lemmata, ordbankInputStream);
+		ListMultimap<String, Entry> fullformsliste = (ListMultimap<String, Entry>) ordbankResults[0];
+		stopwords.addAll((HashSet<String>) ordbankResults[1]);
 
 		logger.info("Start reading no-de-dict.txt");
-		Object[] woerterbuchResults = DictionaryReader.readWoerterbuch(woerterbuchInputStream);
-		ListMultimap<String, Entry> woerterbuch = (ListMultimap<String, Entry>) woerterbuchResults[0];
-		stopwords.addAll((HashSet<String>) woerterbuchResults[1]);
+		Object[] langenscheidtResults = DictionaryReader.readLangenscheidt(langenscheidtInputStream);
+		ListMultimap<String, Entry> langenscheidt = (ListMultimap<String, Entry>) langenscheidtResults[0];
+		stopwords.addAll((HashSet<String>) langenscheidtResults[1]);
 
 		logger.info("Start reading sentence-pairs.ser");
 		HashMap<String, String> sentencePairs = DictionaryReader.readTatoeba(tatoebaInputStream);
@@ -89,7 +89,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		// possible.
 		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
 		allLemmata.addAll(fullformsliste.keySet());
-		allLemmata.addAll(woerterbuch.keySet());
+		allLemmata.addAll(langenscheidt.keySet());
 		logger.info(allLemmata.size() + " distinct lemmata.");
 
 		// Map from all inflected versions of the word to the entries.
@@ -104,20 +104,20 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 			// Map lemmas and inflected forms from the NO>DE dictionary
 			// to Entry objects.
-			List<Entry> entriesWoerterbuch = woerterbuch.get(lemma);
-			if (entriesWoerterbuch != null) {
-				for (Entry entryW : entriesWoerterbuch) {
-					if (entryW.getPos().equals(Pos.SENT)) {
+			List<Entry> entriesLangenscheidt = langenscheidt.get(lemma);
+			if (entriesLangenscheidt != null) {
+				for (Entry entryL : entriesLangenscheidt) {
+					if (entryL.getPos().equals(Pos.SENT)) {
 						// Treat sentences as sample sentences rather than full
 						// entries.
-						sentencePairs.put(entryW.getLemma().getForm(),
-								entryW.getTranslations().get(0).getTranslation().get(0));
+						sentencePairs.put(entryL.getLemma().getForm(),
+								entryL.getTranslations().get(0).getTranslation().get(0));
 						continue;
 					}
-					addInfMarker(entryW);
-					addEntry(entryW, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
-					for (String wordForm : entryW.getInflections()) {
-						addEntry(entryW, wordForm, entries, collocations, stopwords, prefixes, suffixes, false);
+					addInfMarker(entryL);
+					addEntry(entryL, lemma, entries, collocations, stopwords, prefixes, suffixes, false);
+					for (String wordForm : entryL.getInflections()) {
+						addEntry(entryL, wordForm, entries, collocations, stopwords, prefixes, suffixes, false);
 					}
 				}
 			}
@@ -192,7 +192,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		sce.getServletContext().setAttribute("entries", allEntries);
 		sce.getServletContext().setAttribute("prefixes", prefixes);
 		sce.getServletContext().setAttribute("suffixes", suffixes);
-		sce.getServletContext().setAttribute("mlEntries", mlEntries);
+		sce.getServletContext().setAttribute("mtEntries", mlEntries);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
