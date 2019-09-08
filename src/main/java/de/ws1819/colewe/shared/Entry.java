@@ -92,10 +92,10 @@ public class Entry implements IsSerializable {
 		this(lemma, pos, inflections, displayableInflections, translations, grammarNO, usageNO, null, -1);
 	}
 
-	// For automatically inferred entries
-	public Entry(String lemma, String translation) {
+	// For automatically inferred entries / sample sentences
+	public Entry(String lemma, String translation, boolean machineTranslated) {
 		this(new WordForm(lemma), Pos.NULL, null, null, null, null, null, null, -1);
-		addTranslation(new TranslationalEquivalent(translation, true));
+		addTranslation(new TranslationalEquivalent(translation, machineTranslated));
 	}
 
 	/**

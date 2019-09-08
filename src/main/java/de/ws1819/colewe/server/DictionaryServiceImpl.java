@@ -11,6 +11,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.ws1819.colewe.client.DictionaryService;
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.SampleSentence;
 
 /**
  * The server side implementation of the RPC service.
@@ -25,14 +26,18 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return query((ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("suffixes"),
-				(HashMap<String, String>) getServletContext().getAttribute("mtEntries"), word);
+				(HashMap<String, String>) getServletContext().getAttribute("mtEntries"),
+				(ListMultimap<String, SampleSentence>) getServletContext().getAttribute("extraSentences"), word);
 
 	}
 
 	public static ArrayList<Entry> query(ListMultimap<String, Entry> entries, ListMultimap<String, Entry> prefixes,
-			ListMultimap<String, Entry> suffixes, HashMap<String, String> mlEntries, String word) {
+			ListMultimap<String, Entry> suffixes, HashMap<String, String> mlEntries,
+			ListMultimap<String, SampleSentence> extraSentences, String word) {
 		logger.info("QUERY: " + word);
+
 		ArrayList<Entry> results = querySingleWord(entries, word);
+
 		if (results.isEmpty()) {
 			// Try splitting the word into translatable components.
 			results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
@@ -42,7 +47,11 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 				logger.info("Machine translation");
 				String translation = mlEntries.get(word);
 				if (translation != null) {
-					results.add(new Entry(word, translation));
+					results.add(new Entry(word, translation, true));
+				}
+				logger.info("Sample sentences");
+				for (SampleSentence sample : extraSentences.get(word)) {
+					results.add(new Entry(sample.getNo(), sample.getDe(), false));
 				}
 			}
 

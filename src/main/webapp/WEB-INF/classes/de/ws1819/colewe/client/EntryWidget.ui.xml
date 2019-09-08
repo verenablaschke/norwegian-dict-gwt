@@ -6,24 +6,43 @@
 		margin-top: 5px;
 	}
 	
+	.collapse-btn {
+		margin-left: 20px;
+	}
+	
 	.colloc {
-		margin-left: 40px;
+		margin-left: 20px;
+		margin-bottom: 10px;
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:HTMLPanel ui:field="entryPanel">
-		</g:HTMLPanel>
-		<g:HTMLPanel ui:field="collocOuterPanel" styleName="{style.colloc}">
-			<g:Button ui:field="collocButton" styleName="btn btn-outline-info">Collocations
-			</g:Button>
-			<g:VerticalPanel ui:field="collocInnerPanel" styleName="collapse">
-			</g:VerticalPanel>
-		</g:HTMLPanel>
-		<g:HTMLPanel ui:field="sampleOuterPanel" styleName="{style.colloc}">
-			<g:Button ui:field="sampleButton" styleName="btn btn-outline-secondary">Collocations
-			</g:Button>
-			<g:VerticalPanel ui:field="sampleInnerPanel" styleName="collapse">
-			</g:VerticalPanel>
-		</g:HTMLPanel>
+		<table width="70%">
+			<tbody>
+				<tr>
+					<td valign="top" width="70%">
+						<g:HTMLPanel ui:field="entryPanel">
+						</g:HTMLPanel>
+					</td>
+					<td valign="top" width="30%">
+						<g:HTMLPanel ui:field="collocOuterPanel" styleName="{style.collapse-btn}">
+							<g:Button ui:field="collocButton" styleName="btn btn-outline-info">Collocations
+							</g:Button>
+							<g:VerticalPanel ui:field="collocInnerPanel"
+								styleName="collapse">
+							</g:VerticalPanel>
+						</g:HTMLPanel>
+						<g:HTMLPanel ui:field="sampleOuterPanel"
+							styleName="{style.collapse-btn} {style.colloc}">
+							<g:Button ui:field="sampleButton" styleName="btn btn-outline-secondary">Collocations
+							</g:Button>
+							<g:VerticalPanel ui:field="sampleInnerPanel"
+								styleName="collapse">
+							</g:VerticalPanel>
+						</g:HTMLPanel>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
 	</g:HTMLPanel>
 </ui:UiBinder> 

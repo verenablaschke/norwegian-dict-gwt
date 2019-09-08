@@ -237,18 +237,35 @@ public class Tools {
 		return "";
 	}
 
-	static Object[] extractDictCCComments(String lemma) {
-		Object[] grammar = match(patternCurly, lemma);
-		lemma = (String) grammar[0];
-		Object[] usage = match(patternSquare, lemma);
-		lemma = (String) usage[0];
-		Object[] abbr = match(patternTriangle, lemma);
+	/**
+	 * Parses the "lemma {noun gender} <abbr> [usage/explanation]" structure
+	 * used in dict.cc entries.
+	 * 
+	 * @param lemmaAndExtraInfo
+	 * @return an Object array consisting of a String (the lemma), an ArrayList
+	 *         <String> (grammar information), an ArrayList<String> (usage
+	 *         information) and an ArrayList<String> (abbreviated forms)
+	 */
+	static Object[] extractDictCCComments(String lemmaAndExtraInfo) {
+		Object[] grammar = match(patternCurly, lemmaAndExtraInfo);
+		lemmaAndExtraInfo = (String) grammar[0];
+		Object[] usage = match(patternSquare, lemmaAndExtraInfo);
+		lemmaAndExtraInfo = (String) usage[0];
+		Object[] abbr = match(patternTriangle, lemmaAndExtraInfo);
 		// abbr[0] is the lemma
 		return new Object[] { abbr[0], grammar[1], usage[1], abbr[1] };
 	}
 
-	static Object[] match(Pattern pattern, String lemma) {
-		Matcher matcher = pattern.matcher(lemma);
+	/**
+	 * Extracts a given type of dict.cc comment from a string.
+	 * 
+	 * @param pattern
+	 * @param lemmaAndExtraInfo
+	 * @return an Object array consisting of the string sans comment and an
+	 *         ArrayList<String> containing the additional information.
+	 */
+	static Object[] match(Pattern pattern, String lemmaAndExtraInfo) {
+		Matcher matcher = pattern.matcher(lemmaAndExtraInfo);
 		ArrayList<String> comments = new ArrayList<>();
 		String match;
 		Stack<Integer> matches = new Stack<>();
@@ -260,11 +277,19 @@ public class Tools {
 			matches.push(matcher.start());
 		}
 		while (!matches.isEmpty()) {
-			lemma = lemma.substring(0, matches.pop()) + lemma.substring(matches.pop());
+			lemmaAndExtraInfo = lemmaAndExtraInfo.substring(0, matches.pop())
+					+ lemmaAndExtraInfo.substring(matches.pop());
 		}
-		return new Object[] { lemma.trim(), comments };
+		return new Object[] { lemmaAndExtraInfo.trim(), comments };
 	}
 
+	/**
+	 * See section 2.5 of the report.
+	 * 
+	 * @param lemma
+	 * @param form
+	 * @return true if the preterite form is regular, false otherwise
+	 */
 	static boolean isRegularPret(String lemma, String form) {
 		if (lemma.length() > 2 && lemma.endsWith("e")) {
 			if (form.equals(lemma + "t")) {
@@ -297,6 +322,13 @@ public class Tools {
 		return false;
 	}
 
+	/**
+	 * See section 2.5 of the report.
+	 * 
+	 * @param lemma
+	 * @param form
+	 * @return true if the perfective form is regular, false otherwise
+	 */
 	static boolean isRegularPerf(String lemma, String form) {
 		if (lemma.length() > 2 && lemma.endsWith("e")) {
 			if (form.equals(lemma + "t")) {
@@ -329,6 +361,13 @@ public class Tools {
 		return false;
 	}
 
+	/**
+	 * See section 2.5 of the report.
+	 * 
+	 * @param lemma
+	 * @param form
+	 * @return true if the plural form is regular, false otherwise
+	 */
 	static boolean isRegularPlural(String lemma, String form) {
 		String lemmaASCII = lemma.replace("é", "e");
 		if (form.equals(lemmaASCII)) {

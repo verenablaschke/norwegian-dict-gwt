@@ -30,11 +30,11 @@ public class DictionaryReader {
 	private static final Logger logger = Logger.getLogger(DictionaryReader.class.getSimpleName());
 
 	/**
-	 * Processes the Langenscheidt entries. See section 2.4 of the report.
+	 * Processes the Langenscheidt entries. See section 2.3 of the report.
 	 * 
 	 * @param stream
 	 * @return an Object array containing a ListMultimap<String, Entry> from
-	 *         headwords to entries and a HashSet<String> of stopwords
+	 *         lemmas to entries and a HashSet<String> of stopwords
 	 */
 	@SuppressWarnings("unchecked")
 	public static Object[] readLangenscheidt(InputStream stream) {
@@ -152,12 +152,18 @@ public class DictionaryReader {
 		return new Object[] { entries, stopwords };
 	}
 
+	/**
+	 * Processes the deno.dict.cc entries. See section 2.4 of the report.
+	 * 
+	 * @param stream
+	 * @return an Object array containing a ListMultimap<String, Entry> from
+	 *         lemmas to entries and a HashSet<String> of stopwords
+	 */
 	@SuppressWarnings("unchecked")
 	public static Object[] readDictCc(InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> stopwords = new HashSet<>();
 
-		// Convert the dict.cc dump into a collection of dictionary entries.
 		String line = null;
 		String[] fields = null;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
@@ -167,11 +173,19 @@ public class DictionaryReader {
 					// Comment in TSV file.
 					continue;
 				}
+				// Format (tab-separated, only lemma & translation are
+				// required):
+				// Norwegian lemma {noun gender} <abbr> [usage/explanation]
+				// German equivalent {noun gender} <abbr> [usage/explanation]
+				// POS tag
+				// [domain]
+
 				fields = line.split("\\t");
 				if (fields.length < 2) {
 					// Empty/faulty line.
 					continue;
 				}
+
 				String lemma = fields[0].trim();
 				// When looking up e.g. 'student', we want to get both 'Student'
 				// and 'Studentin' without having to specify 'student [mannlig]'
@@ -242,7 +256,8 @@ public class DictionaryReader {
 							new Entry(new WordForm(lemma), posTag,
 									new TranslationalEquivalent((String) lemmaAndCommentsDE[0],
 											// Skip lemmaAndCommentsDE[1], which
-											// contains grammatical info
+											// contains grammatical information
+											// about the German word
 											(ArrayList<String>) lemmaAndCommentsDE[2],
 											(ArrayList<String>) lemmaAndCommentsDE[3]),
 									grammarNO, usageNO, (ArrayList<String>) lemmaAndCommentsNO[3]));
@@ -261,8 +276,12 @@ public class DictionaryReader {
 		return new Object[] { entries, stopwords };
 	}
 
-	// Convert Språkbanken's lemma list into a map from lemma ID numbers to
-	// strings.
+	/**
+	 * Processes the Ordbank lemma list. See section 2.5 of the report.
+	 * 
+	 * @param stream
+	 * @return a map from integers (lemma IDs) to strings (lemmas)
+	 */
 	public static HashMap<Integer, String> readOrdbankLemmas(InputStream stream) {
 		HashMap<Integer, String> lemmata = new HashMap<Integer, String>();
 
@@ -271,10 +290,8 @@ public class DictionaryReader {
 		int id = -1;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
-				/*
-				 * TSV structure: LOEPENR LEMMA_ID GRUNNFORM 'BM_ORDBOK' (line
-				 * number, lemma id, lemma, bokmål dictionary)
-				 */
+				// TSV structure: LOEPENR LEMMA_ID GRUNNFORM 'BM_ORDBOK'
+				// (line number, lemma id, lemma, bokmål dictionary)
 				line = line.trim();
 				fields = line.split("\\t");
 				if (fields.length < 4) {
@@ -282,12 +299,12 @@ public class DictionaryReader {
 					continue;
 				}
 
-				// Lemma ID
+				// Get the lemma ID
 				try {
 					id = Integer.parseInt(fields[1].trim());
 				} catch (NumberFormatException e) {
+					// File header
 					if (line.equals("LOEPENR	LEMMA_ID	GRUNNFORM	'BM_ORDBOK'")) {
-						// File header
 						continue;
 					}
 					System.err.println("Lemma ID is not an integer: " + line);
@@ -307,6 +324,15 @@ public class DictionaryReader {
 		return lemmata;
 	}
 
+	/**
+	 * Processes the Ordbank inflection table. See section 2.5 of the report.
+	 * 
+	 * @param lemmata
+	 *            a map from integers (lemma IDs) to strings (lemmas)
+	 * @param stream
+	 * @return an Object array containing a ListMultimap<String, Entry> from
+	 *         lemmas to entries and a HashSet<String> of stopwords
+	 */
 	public static Object[] readOrdbankFullformsliste(HashMap<Integer, String> lemmata, InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 		HashSet<String> stopwords = new HashSet<>();
@@ -317,12 +343,12 @@ public class DictionaryReader {
 		String lemma = null;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
 			while ((line = br.readLine()) != null) {
-				/*
-				 * TSV structure: LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
-				 * BOY_NUMMER FRADATO TILDATO NORMERING (line number, lemma id,
-				 * word, POS tag + inflection information, paradigm ID,
-				 * inflection number, from date, to date, normalization)
-				 */
+				// TSV structure:
+				// LOEPENR LEMMA_ID OPPSLAG TAG PARADIGME_ID
+				// BOY_NUMMER FRADATO TILDATO NORMERING
+				// (line number, lemma id, word, POS tag + inflection
+				// information, paradigm ID, inflection number, from date,
+				// to date, normalization)
 				line = line.trim();
 				fields = line.split("\\t");
 				if (fields.length < 9) {
@@ -347,6 +373,7 @@ public class DictionaryReader {
 					continue;
 				}
 
+				// Get the inflection details incl. the POS tag.
 				String infl = fields[3].trim();
 				String posString = infl.split("\\s+")[0];
 				Pos pos = Tools.string2Pos(posString);
@@ -356,13 +383,12 @@ public class DictionaryReader {
 				}
 				if (posString.contains("+") || posString.contains("-")) {
 					// Multi-word phrases. Irrelevant for the way we deal with
-					// inflection.
+					// inflected forms (skip!)
 					continue;
 				}
-				// If the POS tag is OTHER, we're either dealing with an
-				// abbreviation or a multi-word phrase.
-				String inflForm = fields[2].trim();
 
+				// Get the inflected form and determine if it is irregular.
+				String inflForm = fields[2].trim();
 				WordForm irregularInfl = null;
 				// Look for irregular inflections that should be explicitly
 				// displayed to the user.
@@ -386,7 +412,7 @@ public class DictionaryReader {
 					}
 				}
 
-				// Save lemma ID, inflection information and inflected form.
+				// Try to add the information to a new entry.
 				List<Entry> entryList = entries.get(lemma);
 				boolean addedInfl = false;
 				if (entryList != null) {
@@ -396,6 +422,7 @@ public class DictionaryReader {
 							entry.addIrregularInflection(irregularInfl);
 							// Genitive forms are missing from fullformsliste.
 							// -> Add them to definite forms of nouns.
+							// 'be' = 'bestemt' = DEF
 							if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 								entry.addInflection(inflForm + "s");
 							}
@@ -409,6 +436,8 @@ public class DictionaryReader {
 						}
 					}
 				}
+
+				// Create a new entry.
 				if (entryList == null || !addedInfl) {
 					Entry entry = new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id);
 					if (lemma.startsWith("-")) {
@@ -416,15 +445,14 @@ public class DictionaryReader {
 					}
 					// Genitive forms are missing from fullformsliste.
 					// -> Add them to definite forms of nouns.
+					// 'be' = 'bestemt' = DEF
 					if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 						entry.addInflection(inflForm + "s");
 					}
 					entries.put(lemma, entry);
 				}
 			}
-		} catch (
-
-		FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

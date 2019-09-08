@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.SampleSentence;
 
 public class DownloadServiceImpl extends HttpServlet {
 	private static final long serialVersionUID = -3653205520080376102L;
@@ -44,7 +45,9 @@ public class DownloadServiceImpl extends HttpServlet {
 					(ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
 					(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),
 					(ListMultimap<String, Entry>) getServletContext().getAttribute("suffixes"),
-					(HashMap<String, String>) getServletContext().getAttribute("mlEntries"), queryParts[i]);
+					(HashMap<String, String>) getServletContext().getAttribute("mlEntries"),
+					(ListMultimap<String, SampleSentence>) getServletContext().getAttribute("extraSentences"),
+					queryParts[i]);
 			for (Entry entry : results) {
 				sb.append(entry.toPrintString());
 			}

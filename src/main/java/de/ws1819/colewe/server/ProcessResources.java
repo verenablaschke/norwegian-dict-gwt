@@ -256,6 +256,7 @@ public class ProcessResources {
 					List<Entry> matchingEntries = entries.get(word);
 					if (matchingEntries.isEmpty()) {
 						extraSentences.put(word, sample);
+						System.out.println(word); // TODO del
 					} else {
 						for (Entry entry : matchingEntries) {
 							entry.addSampleSentence(sample);
