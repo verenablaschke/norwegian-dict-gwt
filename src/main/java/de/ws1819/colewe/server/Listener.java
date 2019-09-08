@@ -23,7 +23,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	private static final Logger logger = Logger.getLogger(Listener.class.getSimpleName());
 
 	public static final String BASE_PATH = "src/main/webapp";
-	// GWT looks for this inside src/main/webapp
+	// GWT looks for these inside src/main/webapp:
 	public static final String RESOURCES_PATH = "/WEB-INF/";
 	private static final String DICTCC_PATH = RESOURCES_PATH + "dict.cc/dict.cc.tsv";
 	private static final String LEMMA_PATH = RESOURCES_PATH + "ordbank/lemma.txt";
@@ -41,7 +41,6 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	// -------------------------------------------------------
 	@SuppressWarnings("unchecked")
 	public void contextInitialized(ServletContextEvent sce) {
-
 		// Section 2 of the report.
 		// Extract the information from the dictionary dumps and inflection
 		// lists.

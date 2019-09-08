@@ -3,7 +3,7 @@ package de.ws1819.colewe.shared;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Part-of-speech tags. See section 2.5.1 of the report.
+ * Part-of-speech tags. See section 2.6.1 of the report.
  * 
  * @author Verena Blaschke
  */

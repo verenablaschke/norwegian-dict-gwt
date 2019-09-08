@@ -110,7 +110,7 @@ public class InputWidget extends Composite {
 		String sendString = "<i class=\"fa fa-arrow-circle-right\"></i> ";
 		switch (lang) {
 		case DE:
-			placeholder = "Hier könnte Ihr Text stehen."; // TODO
+			placeholder = "Hier könnte Ihr Text stehen.";
 			sendString += "Abschicken";
 			exampleString = "Beispieltext";
 			break;

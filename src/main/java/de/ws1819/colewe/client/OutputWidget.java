@@ -77,7 +77,7 @@ public class OutputWidget extends Composite {
 			break;
 		case NO:
 		default:
-			downloadButtonText += "Last ned søkresultater hittil"; // TODO
+			downloadButtonText += "Last ned søkresultater hittil";
 		}
 		downloadButton.setHTML(downloadButtonText);
 	}

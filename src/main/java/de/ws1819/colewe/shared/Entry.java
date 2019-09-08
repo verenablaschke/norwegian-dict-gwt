@@ -102,7 +102,7 @@ public class Entry implements IsSerializable {
 	 * Checks if this entry can be merged with a given second entry, and if so,
 	 * merges the second entry into this one. Two entries can be merged if they
 	 * have identical lemmas and (if they have POS-tag information) if their POS
-	 * tags match.
+	 * tags match. See section 2.6 of the report.
 	 * 
 	 * @param other
 	 *            another entry

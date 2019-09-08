@@ -15,10 +15,31 @@ import de.ws1819.colewe.shared.Pos;
 import de.ws1819.colewe.shared.SampleSentence;
 import de.ws1819.colewe.shared.WordForm;
 
+/**
+ * Extract the information from the dictionary dumps and inflection list. See
+ * section 2 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class ProcessResources {
 
 	private static final Logger logger = Logger.getLogger(ProcessResources.class.getSimpleName());
 
+	/**
+	 * Processes the entry/inflection input files and merges them. See section
+	 * 2.6 of the report.
+	 * 
+	 * @param dictccInputStream
+	 * @param lemmaInputStream
+	 * @param ordbankInputStream
+	 * @param langenscheidtInputStream
+	 * @return an Object array consisting of a ListMultimap<String, Entry> from
+	 *         (inflected and uninflected) word forms to entries, a HashSet
+	 *         <String> containing stopwords, a ListMultimap<String, Entry> from
+	 *         prefix forms to entries, a ListMultimap<String, Entry> from
+	 *         suffix forms to entries, and a HashMap<String, String> from
+	 *         Norwegian sentences to their German translations
+	 */
 	@SuppressWarnings("unchecked")
 	static Object[] generateEntries(InputStream dictccInputStream, InputStream lemmaInputStream,
 			InputStream ordbankInputStream, InputStream langenscheidtInputStream) {
@@ -40,22 +61,18 @@ public class ProcessResources {
 		ListMultimap<String, Entry> langenscheidt = (ListMultimap<String, Entry>) langenscheidtResults[0];
 		stopwords.addAll((HashSet<String>) langenscheidtResults[1]);
 
-		// Combine the information from both sources by merging the entries when
-		// possible.
-		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
-		allLemmata.addAll(fullformsliste.keySet());
-		allLemmata.addAll(langenscheidt.keySet());
-		logger.info(allLemmata.size() + " distinct lemmata.");
-
 		// Map from all inflected versions of the word to the entries.
-		// Using list multimaps instead of set multimaps since they require less
-		// memory.
+		// Using list-based multimaps instead of set-based multimaps since they
+		// require less memory.
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
 		ListMultimap<String, Entry> prefixes = ArrayListMultimap.create();
 		ListMultimap<String, Entry> suffixes = ArrayListMultimap.create();
 		HashMultimap<String, Entry> collocations = HashMultimap.create();
 		HashMap<String, String> sentencePairs = new HashMap<>();
-		for (String lemma : allLemmata) {
+		HashSet<String> allLemmas = new HashSet<String>(dictcc.keySet());
+		allLemmas.addAll(langenscheidt.keySet());
+		logger.info(allLemmas.size() + " distinct lemmata.");
+		for (String lemma : allLemmas) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
 
 			// Map lemmas and inflected forms from the NO>DE dictionary
@@ -78,7 +95,7 @@ public class ProcessResources {
 				}
 			}
 
-			// Map DictCC lemmas to Entry objects.
+			// Map deno.dict.cc lemmas to Entry objects.
 			List<Entry> entriesDictCc = dictcc.get(lemma);
 			if (entriesDictCc != null) {
 				for (Entry entryD : entriesDictCc) {
@@ -100,6 +117,7 @@ public class ProcessResources {
 				}
 			}
 
+			// Add inflection information to the bilingual entries.
 			List<Entry> entriesFullformsliste = fullformsliste.get(lemma);
 			if (entriesFullformsliste != null) {
 				for (Entry entryF : entriesFullformsliste) {
@@ -129,22 +147,29 @@ public class ProcessResources {
 			ListMultimap<String, Entry> suffixes, boolean fullformsliste) {
 		switch (entry.getPos()) {
 		case PFX:
-			addEntry(entry, wordForm, prefixes, null, null, true, fullformsliste, false);
+			addEntry(entry, wordForm, prefixes, null, null, true, fullformsliste);
 			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste, false);
+				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
 			}
 			break;
 		case SFX:
-			addEntry(entry, wordForm, suffixes, null, null, true, fullformsliste, false);
+			addEntry(entry, wordForm, suffixes, null, null, true, fullformsliste);
 			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste, false);
+				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
 			}
 			break;
 		default:
-			addEntry(entry, wordForm, entries, collocations, stopwords, false, fullformsliste, false);
+			addEntry(entry, wordForm, entries, collocations, stopwords, false, fullformsliste);
 		}
 	}
 
+	/**
+	 * Normalizes a look-up form (inflected or not) of an entry.
+	 * 
+	 * @param s
+	 * @param pos
+	 * @return
+	 */
 	private static String normalize(String s, Pos pos) {
 		s = s.toLowerCase().replaceAll("[®&:§–@\"\\{\\}\\[\\]\\(\\)\\!\\?\\.,%/]+", " ");
 		if (pos != null && pos.equals(Pos.VERB)) {
@@ -156,7 +181,7 @@ public class ProcessResources {
 
 	private static void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
 			HashMultimap<String, Entry> collocations, HashSet<String> stopwords, boolean affixes,
-			boolean fullformsliste, boolean sampleSentences) {
+			boolean fullformsliste) {
 
 		wordForm = normalize(wordForm, entry.getPos());
 		if (affixes) {
@@ -183,20 +208,13 @@ public class ProcessResources {
 			}
 		}
 
-		if (sampleSentences) {
-			// Don't add the sentence as an entry.
-			return;
-		}
-
 		// Noun forms used in compounds.
 		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())) {
 			if (!wordForm.endsWith("s")) {
-				addEntry(entry, wordForm + "s", entries, collocations, stopwords, affixes, fullformsliste,
-						sampleSentences);
+				addEntry(entry, wordForm + "s", entries, collocations, stopwords, affixes, fullformsliste);
 			}
 			if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))) {
-				addEntry(entry, wordForm + "e", entries, collocations, stopwords, affixes, fullformsliste,
-						sampleSentences);
+				addEntry(entry, wordForm + "e", entries, collocations, stopwords, affixes, fullformsliste);
 			}
 		}
 
@@ -224,15 +242,30 @@ public class ProcessResources {
 		entries.put(wordForm, entry);
 	}
 
+	/**
+	 * If appropriate, adds the infinitive marker to a lemma.
+	 * 
+	 * @param entry
+	 */
 	private static void addInfMarker(Entry entry) {
-		// If appropriate, add the infinitive marker.
 		if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().getForm().startsWith("å ")) {
 			entry.setLemma(new WordForm("å " + entry.getLemma().getForm(), entry.getLemma().getPronunciation()));
 			entry.addInflection(entry.getLemma().getForm());
 		}
 	}
 
-	// Set the sample sentences (section 2.9).
+	/**
+	 * Sets the sample sentences (section 2.9).
+	 * 
+	 * @param tatoebaInputStream
+	 * @param entries
+	 * @param stopwords
+	 * @param sentencePairs
+	 * @return an Object array consisting of a ListMultimap<String, Entry> from
+	 *         word forms to entries and a ListMultimap<String, SampleSentence>
+	 *         from word forms that are not in the previous map to sample
+	 *         sentences
+	 */
 	static Object[] setSampleSentences(InputStream tatoebaInputStream, ListMultimap<String, Entry> entries,
 			HashSet<String> stopwords, HashMap<String, String> sentencePairs) {
 		logger.info("Start reading sentence-pairs.ser");
@@ -256,7 +289,6 @@ public class ProcessResources {
 					List<Entry> matchingEntries = entries.get(word);
 					if (matchingEntries.isEmpty()) {
 						extraSentences.put(word, sample);
-						System.out.println(word); // TODO del
 					} else {
 						for (Entry entry : matchingEntries) {
 							entry.addSampleSentence(sample);
