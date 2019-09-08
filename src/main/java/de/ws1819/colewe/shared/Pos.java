@@ -2,10 +2,15 @@ package de.ws1819.colewe.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * Part-of-speech tags. See section 2.5.1 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public enum Pos implements IsSerializable {
 
 	ADJ, ADV, CONJ, DET, ITJ, NOUN, PREP, PFX, PRON, SENT, SFX, VERB,
-	// null: No tag provided. / Unusual tag that does not fit the tagging
+	// Null: No tag provided. / Unusual tag that does not fit the tagging
 	// system.
 	NULL;
 

@@ -5,12 +5,37 @@ import java.util.Objects;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * A translational equivalent that is part of an
+ * {@link de.ws1819.colewe.shared.Entry}. See section 2.2 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class TranslationalEquivalent implements IsSerializable {
 
 	private ArrayList<String> translation;
 	private ArrayList<String> usage;
 	private ArrayList<String> abbr;
 	boolean automaticallyInferred;
+
+	/**
+	 * @param translation
+	 *            one or more translations (synonyms of one another)
+	 * @param usage
+	 *            usage information
+	 * @param abbr
+	 *            abbreviated forms
+	 * @param automaticallyInferred
+	 *            true if the translation was inferred through machine
+	 *            translation, false if it was taken from dictionary input data
+	 */
+	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage, ArrayList<String> abbr,
+			boolean automaticallyInferred) {
+		this.translation = translation;
+		setUsage(usage);
+		setAbbr(abbr);
+		this.automaticallyInferred = automaticallyInferred;
+	}
 
 	// For GWT serialization.
 	public TranslationalEquivalent() {
@@ -34,19 +59,14 @@ public class TranslationalEquivalent implements IsSerializable {
 		addTranslation(translation);
 	}
 
-	public TranslationalEquivalent(ArrayList<String> translation, ArrayList<String> usage, ArrayList<String> abbr,
-			boolean automaticallyInferred) {
-		this.translation = translation;
-		setUsage(usage);
-		setAbbr(abbr);
-		this.automaticallyInferred = automaticallyInferred;
-	}
-
 	@Override
 	public String toString() {
 		return getTranslationString() + " [" + getUsageString() + "] <" + getAbbrString() + ">";
 	}
 
+	/**
+	 * @return a string for pretty printing
+	 */
 	public String toPrintString() {
 		return getTranslationString() + (usage == null ? "" : " " + usage)
 				+ (abbr == null ? "" : " <" + getAbbrString() + ">");
@@ -60,8 +80,7 @@ public class TranslationalEquivalent implements IsSerializable {
 	}
 
 	public String getTranslationString() {
-		String s = translation.toString();
-		return s.substring(1, s.length() - 1);
+		return String.join(", ", translation);
 	}
 
 	/**

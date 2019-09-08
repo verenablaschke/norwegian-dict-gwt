@@ -11,8 +11,8 @@ Copy the tokenized files to a new data folder in the GIZA++ directory, like so:
 ```
 giza-pp
 ├───data
-│       tokenized-OpenSubtitles.de-no.de
-│       tokenized-OpenSubtitles.de-no.no
+│       lemmatized-OpenSubtitles.de-no.de
+│       lemmatized-OpenSubtitles.de-no.no
 │
 ├───GIZA++-v2
 │       [installed files]
@@ -23,12 +23,12 @@ giza-pp
 
 Run:
 ```
-./GIZA++-v2/plain2snt.out ./data/tokenized-OpenSubtitles.de-no.de ./data/tokenized-OpenSubtitles.de-no.no
+./GIZA++-v2/plain2snt.out ./data/lemmatized-OpenSubtitles.de-no.de ./data/lemmatized-OpenSubtitles.de-no.no
 
-./mkcls-v2/mkcls -p./data/tokenized-OpenSubtitles.de-no.no -V./data/tokenized-OpenSubtitles.de-no.no.vcb.classes
-./mkcls-v2/mkcls -p./data/tokenized-OpenSubtitles.de-no.de -V./data/tokenized-OpenSubtitles.de-no.de.vcb.classes
+./mkcls-v2/mkcls -p./data/lemmatized-OpenSubtitles.de-no.no -V./data/lemmatized-OpenSubtitles.de-no.no.vcb.classes
+./mkcls-v2/mkcls -p./data/lemmatized-OpenSubtitles.de-no.de -V./data/lemmatized-OpenSubtitles.de-no.de.vcb.classes
 
-./GIZA++-v2/GIZA++ -S ./data/tokenized-OpenSubtitles.de-no.de.vcb -T ./data/tokenized-OpenSubtitles.de-no.no.vcb -C ./data/tokenized-OpenSubtitles.de-no.de_tokenized-OpenSubtitles.de-no.no.snt -o no-de -outputpath ./output/
+./GIZA++-v2/GIZA++ -S ./data/lemmatized-OpenSubtitles.de-no.de.vcb -T ./data/lemmatized-OpenSubtitles.de-no.no.vcb -C ./data/lemmatized-OpenSubtitles.de-no.de_lemmatized-OpenSubtitles.de-no.no.snt -o no-de -outputpath ./output/
 ```
 
 Copy `output/no-de.actual.ti.final` into this folder.

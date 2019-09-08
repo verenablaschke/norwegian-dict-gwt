@@ -20,9 +20,136 @@ import de.ws1819.colewe.shared.Pos;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 import de.ws1819.colewe.shared.WordForm;
 
+/**
+ * A class for processing the input data. See section 2 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class DictionaryReader {
 
 	private static final Logger logger = Logger.getLogger(DictionaryReader.class.getSimpleName());
+
+	/**
+	 * Processes the Langenscheidt entries. See section 2.4 of the report.
+	 * 
+	 * @param stream
+	 * @return an Object array containing a ListMultimap<String, Entry> from
+	 *         headwords to entries and a HashSet<String> of stopwords
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object[] readLangenscheidt(InputStream stream) {
+		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		HashSet<String> stopwords = new HashSet<>();
+
+		String line = null;
+		String[] fields = null;
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				fields = line.split("\\s+");
+				// Format (split by blank spaces):
+				// lemma#[pronunciation],optional_inflections
+				// POSnoungender[optional=extrainfo]
+				// one_or_more_translations
+				if (fields.length < 3) {
+					// Empty/faulty line.
+					continue;
+				}
+
+				// Get the grammar and usage information.
+				Object[] posAndInfl = Tools.parsePOS(fields[1]);
+				Pos pos = (Pos) posAndInfl[0];
+				ArrayList<String> grammarNO = (ArrayList<String>) posAndInfl[1];
+				ArrayList<String> usageNO = (ArrayList<String>) posAndInfl[2];
+				if (grammarNO.contains("INFLECTED")) {
+					// We don't need entries for inflected adjectives/verbs
+					// since we show the lemma instead.
+					continue;
+				}
+
+				String[] inflections = fields[0].trim().split("[,/]");
+				WordForm lemma = null;
+				ArrayList<WordForm> infl = new ArrayList<WordForm>();
+				HashSet<String> inflSet = new HashSet<>();
+				for (int i = 0; i < inflections.length; i++) {
+					String[] wordPron = inflections[i].trim().split("#");
+					String word = wordPron[0].replace("_", " ");
+					String pron = null;
+					if (wordPron.length > 1) {
+						pron = wordPron[1].trim();
+						// Remove [ and ] from the transcription.
+						pron = pron.substring(1, pron.length() - 1);
+						pron = Tools.xsampaToIPA(pron);
+					}
+
+					// Get entries from the functional categories as stopwords.
+					// Used for processing collocation information and sample
+					// sentences (sections 2.8, 2.9).
+					switch (pos) {
+					case CONJ:
+					case DET:
+					case PREP:
+					case PRON:
+						stopwords.add(word);
+					default:
+						break;
+					}
+
+					if (i == 0) {
+						lemma = new WordForm(word, pron);
+					} else {
+						inflSet.add(word);
+						infl.add(new WordForm(word, pron));
+					}
+				}
+
+				if (lemma.getForm().equals("å") && pos.equals(Pos.VERB)) {
+					// The entries for the infinitive marker 'å' clash quite
+					// horribly -> skip this one.
+					continue;
+				}
+
+				// Major meaning blocks in polysemous entries are separated by
+				// double slashes.
+				// TODO look up the proper terminology and rename the vars
+				String[] transl = fields[2].split("//");
+				ArrayList<TranslationalEquivalent> translations = new ArrayList<>();
+				for (int i = 0; i < transl.length; i++) {
+					// German synonyms are separated by a single slash.
+					String[] translRaw = transl[i].split("/");
+					// A list instead of a set so that we can keep the order the
+					// dictionary editors deemed best.
+					ArrayList<String> translElements = new ArrayList<>();
+					ArrayList<String> usageDE = new ArrayList<>();
+					for (int j = 0; j < translRaw.length; j++) {
+						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
+						for (String usage : (ArrayList<String>) wordAndComment[1]) {
+							usageDE.add(usage.replace("_", " "));
+						}
+						// Some of the translational equivalents include domain
+						// information. Then, the entry in the txt file looks
+						// like this:
+						// "anløp#["Anl2:p] Nn Anlaufen[eines_Hafens]/Anlaufen"
+						// with the German translational equivalent repeated.
+						String translation = ((String) wordAndComment[0]).replace("_", " ");
+						if (!translElements.contains(translation)) {
+							translElements.add(translation);
+						}
+					}
+					translations.add(new TranslationalEquivalent(translElements, usageDE));
+				}
+				Entry entry = new Entry(lemma, pos, inflSet, infl, translations, grammarNO, usageNO);
+				entries.put(lemma.getForm(), entry);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
+		return new Object[] { entries, stopwords };
+	}
 
 	@SuppressWarnings("unchecked")
 	public static Object[] readDictCc(InputStream stream) {
@@ -265,7 +392,7 @@ public class DictionaryReader {
 					for (Entry entry : entryList) {
 						if (id == entry.getLemmaID()) {
 							entry.addInflection(inflForm);
-							entry.addDisplayableInflection(irregularInfl);
+							entry.addIrregularInflection(irregularInfl);
 							// Genitive forms are missing from fullformsliste.
 							// -> Add them to definite forms of nouns.
 							if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
@@ -304,115 +431,6 @@ public class DictionaryReader {
 
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		return new Object[] { entries, stopwords };
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Object[] readLangenscheidt(InputStream stream) {
-		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
-		HashSet<String> stopwords = new HashSet<>();
-
-		String line = null;
-		String[] fields = null;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
-			while ((line = br.readLine()) != null) {
-				line = line.trim();
-				fields = line.split("\\s+");
-				// Format: lemma#[pronunciation] POS one_or_more_translations
-				if (fields.length < 3) {
-					// Empty/faulty line.
-					continue;
-				}
-
-				Object[] posAndInfl = Tools.parsePOS(fields[1]);
-				Pos pos = (Pos) posAndInfl[0];
-				ArrayList<String> grammarNO = (ArrayList<String>) posAndInfl[1];
-				ArrayList<String> usageNO = (ArrayList<String>) posAndInfl[2];
-				if (grammarNO.contains("INFLECTED")) {
-					// We don't need entries for inflected adjectives/verbs
-					// since we show the lemma instead.
-					continue;
-				}
-
-				String[] inflections = fields[0].trim().split("[,/]");
-				WordForm lemma = null;
-				ArrayList<WordForm> infl = new ArrayList<WordForm>();
-				HashSet<String> inflSet = new HashSet<>();
-				for (int i = 0; i < inflections.length; i++) {
-					String[] wordPron = inflections[i].trim().split("#");
-					String word = wordPron[0].replace("_", " ");
-					String pron = null;
-					if (wordPron.length > 1) {
-						pron = wordPron[1].trim();
-						// Remove [ and ] from the transcription.
-						pron = pron.substring(1, pron.length() - 1);
-						pron = Tools.xsampaToIPA(pron);
-					}
-
-					// Get entries from the functional categories as stopwords.
-					switch (pos) {
-					case CONJ:
-					case DET:
-					case PREP:
-					case PRON:
-						stopwords.add(word);
-					default:
-						break;
-					}
-
-					if (i == 0) {
-						lemma = new WordForm(word, pron);
-					} else {
-						inflSet.add(word);
-						infl.add(new WordForm(word, pron));
-					}
-				}
-
-				if (lemma.getForm().equals("å") && pos.equals(Pos.VERB)) {
-					// The entries for the infinitive marker 'å' clash quite
-					// horribly -> skip this one.
-					continue;
-				}
-
-				// Major meaning blocks in polysemous entries are separated by
-				// double slashes.
-				// TODO look up the proper terminology and rename the vars
-				String[] transl = fields[2].split("//");
-				ArrayList<TranslationalEquivalent> translations = new ArrayList<>();
-				for (int i = 0; i < transl.length; i++) {
-					// German synonyms are separated by a single slash.
-					String[] translRaw = transl[i].split("/");
-					// A list instead of a set so that we can keep the order the
-					// dictionary editors deemed best.
-					ArrayList<String> translElements = new ArrayList<>();
-					ArrayList<String> usageDE = new ArrayList<>();
-					for (int j = 0; j < translRaw.length; j++) {
-						Object[] wordAndComment = Tools.match(Tools.patternSquareWithoutWS, translRaw[j]);
-						for (String usage : (ArrayList<String>) wordAndComment[1]) {
-							usageDE.add(usage.replace("_", " "));
-						}
-						// Some of the translational equivalents include domain
-						// information. Then, the entry in the txt file looks
-						// like this:
-						// "anløp#["Anl2:p] Nn Anlaufen[eines_Hafens]/Anlaufen"
-						// with the German translational equivalent repeated.
-						String translation = ((String) wordAndComment[0]).replace("_", " ");
-						if (!translElements.contains(translation)) {
-							translElements.add(translation);
-						}
-					}
-					translations.add(new TranslationalEquivalent(translElements, usageDE));
-				}
-				Entry entry = new Entry(lemma, pos, inflSet, infl, translations, grammarNO, usageNO);
-				entries.put(lemma.getForm(), entry);
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		logger.info("Read (and generated) " + entries.size() + " entries from the NO>DE dictionary.");
 		return new Object[] { entries, stopwords };
 	}
 

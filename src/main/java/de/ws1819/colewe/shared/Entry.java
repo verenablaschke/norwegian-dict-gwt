@@ -6,12 +6,17 @@ import java.util.Objects;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * A class for dictionary entries. See section 2.2 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class Entry implements IsSerializable {
 
 	private WordForm lemma;
 	private Pos pos;
 	private HashSet<String> inflections;
-	private ArrayList<WordForm> displayableInflections;
+	private ArrayList<WordForm> irregularInflections;
 	private ArrayList<TranslationalEquivalent> translations;
 	private ArrayList<String> grammar;
 	private ArrayList<String> usage;
@@ -20,7 +25,43 @@ public class Entry implements IsSerializable {
 	private HashSet<Entry> collocations;
 	private HashSet<SampleSentence> sampleSentences;
 
-	// For GWT
+	/**
+	 * @param lemma
+	 *            the lemma
+	 * @param pos
+	 *            the part-of-speech tag
+	 * @param inflections
+	 *            the set of inflected forms
+	 * @param irregularInflections
+	 *            irregular inflections that should be displayed
+	 * @param translations
+	 *            the translational equivalents
+	 * @param grammarNO
+	 *            additional grammatical abbreviations
+	 * @param usageNO
+	 *            usage information
+	 * @param abbrNO
+	 *            abbreviated forms of the lemma
+	 * @param lemmaID
+	 *            the corresponding lemma ID in Ordbank
+	 */
+	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> irregularInflections,
+			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
+			ArrayList<String> abbrNO, int lemmaID) {
+		setLemma(lemma);
+		setPos(pos);
+		setInflections(inflections);
+		setIrregularInflections(irregularInflections);
+		setTranslations(translations);
+		setGrammar(grammarNO);
+		setUsage(usageNO);
+		setAbbr(abbrNO);
+		setLemmaID(lemmaID);
+		setCollocations(null);
+		setSampleSentences(null);
+	}
+
+	// Dummy constructor for GWT serialization
 	public Entry() {
 		this(null, null, null, null, null, null, null, null, -1);
 	}
@@ -32,20 +73,20 @@ public class Entry implements IsSerializable {
 		addTranslation(translation);
 	}
 
-	// For språkbanken
+	// For Ordbank
 	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
 			int lemmaID) {
 		this(lemma, pos, inflections, displayableInflections, null, null, null, null, lemmaID);
 	}
 
-	// For språkbanken
+	// For Ordbank
 	public Entry(WordForm lemma, Pos pos, String infl, WordForm displayableInfl, int lemmaID) {
 		this(lemma, pos, null, null, null, null, null, null, lemmaID);
 		addInflection(infl);
-		addDisplayableInflection(displayableInfl);
+		addIrregularInflection(displayableInfl);
 	}
 
-	// For the NO>DE dictionary
+	// For Langenscheidt
 	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
 			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO) {
 		this(lemma, pos, inflections, displayableInflections, translations, grammarNO, usageNO, null, -1);
@@ -57,22 +98,16 @@ public class Entry implements IsSerializable {
 		addTranslation(new TranslationalEquivalent(translation, true));
 	}
 
-	public Entry(WordForm lemma, Pos pos, HashSet<String> inflections, ArrayList<WordForm> displayableInflections,
-			ArrayList<TranslationalEquivalent> translations, ArrayList<String> grammarNO, ArrayList<String> usageNO,
-			ArrayList<String> abbrNO, int lemmaID) {
-		setLemma(lemma);
-		setPos(pos);
-		setInflections(inflections);
-		setDisplayableInflections(displayableInflections);
-		setTranslations(translations);
-		setGrammar(grammarNO);
-		setUsage(usageNO);
-		setAbbr(abbrNO);
-		setLemmaID(lemmaID);
-		setCollocations(null);
-		setSampleSentences(null);
-	}
-
+	/**
+	 * Checks if this entry can be merged with a given second entry, and if so,
+	 * merges the second entry into this one. Two entries can be merged if they
+	 * have identical lemmas and (if they have POS-tag information) if their POS
+	 * tags match.
+	 * 
+	 * @param other
+	 *            another entry
+	 * @return true if the entries were merged, false otherwise
+	 */
 	public boolean merge(Entry other) {
 		if (other.lemma == null || other.lemma.getForm() == null) {
 			return false;
@@ -95,16 +130,21 @@ public class Entry implements IsSerializable {
 		if (pos == null || pos.equals(Pos.NULL)) {
 			setPos(other.pos);
 		}
+
+		// Merge inflections.
 		if (inflections == null || inflections.isEmpty()) {
 			inflections = other.inflections;
 		} else if (other.inflections != null && !other.inflections.isEmpty()) {
 			inflections.addAll(other.inflections);
 		}
 		// Only add irregular inflections from fullformsliste if there weren't
-		// any in no-de-dict.
-		if (displayableInflections == null || displayableInflections.isEmpty()) {
-			setDisplayableInflections(other.displayableInflections);
+		// any in Langenscheidt.
+		// (We call merge() on the Langenscheidt entries first.)
+		if (irregularInflections == null || irregularInflections.isEmpty()) {
+			setIrregularInflections(other.irregularInflections);
 		}
+
+		// Merge translations.
 		if (translations == null || translations.isEmpty()) {
 			translations = other.translations;
 		} else if (other.translations != null && !other.translations.isEmpty()
@@ -131,6 +171,8 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
+
+		// Merge grammar/usage/abbrevation information.
 		if (grammar == null || grammar.isEmpty()) {
 			setGrammar(other.grammar);
 		} else if (other.grammar != null && !other.grammar.isEmpty()) {
@@ -158,7 +200,9 @@ public class Entry implements IsSerializable {
 				}
 			}
 		}
-		// Collocations don't matter here, since they're set at a later step.
+
+		// Collocations and sample sentences don't matter here,
+		// since they are set at a later step.
 	}
 
 	/**
@@ -214,22 +258,20 @@ public class Entry implements IsSerializable {
 		inflections.add(infl);
 	}
 
-	public void setDisplayableInflections(ArrayList<WordForm> displayableInflections) {
-		this.displayableInflections = (displayableInflections == null ? new ArrayList<>() : displayableInflections);
+	public void setIrregularInflections(ArrayList<WordForm> displayableInflections) {
+		this.irregularInflections = (displayableInflections == null ? new ArrayList<>() : displayableInflections);
 	}
 
-	public ArrayList<WordForm> getDisplayableInflections() {
-		// Only display noteworthy inflections, i.e. inflections that were
-		// listed in the curated dictionary.
-		return displayableInflections;
+	public ArrayList<WordForm> getIrregularInflections() {
+		return irregularInflections;
 	}
 
-	public void addDisplayableInflection(WordForm infl) {
+	public void addIrregularInflection(WordForm infl) {
 		if (infl == null) {
 			return;
 		}
-		if (!displayableInflections.contains(infl)) {
-			displayableInflections.add(infl);
+		if (!irregularInflections.contains(infl)) {
+			irregularInflections.add(infl);
 		}
 	}
 
@@ -385,20 +427,34 @@ public class Entry implements IsSerializable {
 		this.lemmaID = lemmaID;
 	}
 
+	@Override
 	public String toString() {
 		return lemma + ": " + translations + " (" + pos + ", {" + grammar + "} [" + usage + "] <" + abbr
-				+ ">, irreg infl: " + displayableInflections + ", all: " + inflections + ")";
+				+ ">, irreg infl: " + irregularInflections + ", all: " + inflections + ")";
 	}
 
+	/**
+	 * @return an HTML-safe string that can be used as HTML anchor
+	 */
 	public String htmlAnchor() {
 		return lemma.getForm().replaceAll("[®&:§–@\"\\{\\}\\[\\]\\(\\)\\!\\?\\.,%/]+", " ").replace(" ", "_") + "-"
 				+ pos;
 	}
 
+	/**
+	 * @return a multi-line string used for pretty printing
+	 */
 	public String toPrintString() {
 		return toPrintString(true, "");
 	}
 
+	/**
+	 * @param showCollocs
+	 *            if true, include collocations and sample strings
+	 * @param prefix
+	 *            line prefix (for nesting)
+	 * @return a multi-line string used for pretty printing
+	 */
 	public String toPrintString(boolean showCollocs, String prefix) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append(lemma).append(" (").append(pos).append(")");
@@ -411,8 +467,8 @@ public class Entry implements IsSerializable {
 		if (abbr != null && !abbr.isEmpty()) {
 			sb.append(" <").append(String.join(", ", abbr)).append(">");
 		}
-		if (displayableInflections != null && !displayableInflections.isEmpty()) {
-			for (WordForm infl : displayableInflections) {
+		if (irregularInflections != null && !irregularInflections.isEmpty()) {
+			for (WordForm infl : irregularInflections) {
 				sb.append(infl).append(", ");
 			}
 			sb.delete(sb.length() - 2, sb.length());
@@ -456,7 +512,7 @@ public class Entry implements IsSerializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((abbr == null) ? 0 : abbr.hashCode());
-		result = prime * result + ((displayableInflections == null) ? 0 : displayableInflections.hashCode());
+		result = prime * result + ((irregularInflections == null) ? 0 : irregularInflections.hashCode());
 		result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
 		result = prime * result + ((inflections == null) ? 0 : inflections.hashCode());
 		result = prime * result + ((lemma == null) ? 0 : lemma.hashCode());
@@ -492,11 +548,11 @@ public class Entry implements IsSerializable {
 		} else if (!abbr.equals(other.abbr)) {
 			return false;
 		}
-		if (displayableInflections == null) {
-			if (other.displayableInflections != null) {
+		if (irregularInflections == null) {
+			if (other.irregularInflections != null) {
 				return false;
 			}
-		} else if (!displayableInflections.equals(other.displayableInflections)) {
+		} else if (!irregularInflections.equals(other.irregularInflections)) {
 			return false;
 		}
 		if (grammar == null) {

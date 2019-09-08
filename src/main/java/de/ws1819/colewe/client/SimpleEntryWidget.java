@@ -41,7 +41,7 @@ public class SimpleEntryWidget extends Composite {
 		this();
 		setWord(entry.getLemma(), true);
 		wordPanel.add(new BadgeWidget(entry.getGrammarString(lang), entry.getUsageString(), entry.getAbbrString()));
-		for (WordForm wf : entry.getDisplayableInflections()) {
+		for (WordForm wf : entry.getIrregularInflections()) {
 			setWord(wf, false);
 		}
 		for (TranslationalEquivalent transl : entry.getTranslations()) {

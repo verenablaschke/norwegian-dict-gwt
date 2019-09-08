@@ -12,9 +12,9 @@ filename = sys.argv[1].split('/')
 if len(filename) == 1:
     filename = sys.argv[1].split('\\')
 if len(filename) == 1:
-    filename = 'tokenized-' + filename[-1]
+    filename = 'lemmatized-' + filename[-1]
 else:
-    filename = '/'.join(filename[:-1]) + '/tokenized-' + filename[-1]
+    filename = '/'.join(filename[:-1]) + '/lemmatized-' + filename[-1]
 
 norwegian = False
 if filename.endswith('no'):
@@ -34,6 +34,6 @@ with open(sys.argv[1], 'r', encoding='utf-8') as file_in:
                 file_out.write(' '.join([stemmer.stem(w)
                                          for w in word_tokenize(line)]))
             else:
-                file_out.write(' '.join([tok.lemma_
-                                         for tok in nlp(line.strip().lower())]))
+                file_out.write(' '.join(
+                    [tok.lemma_ for tok in nlp(line.strip().lower())]))
             file_out.write('\n')

@@ -46,12 +46,8 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 	// -------------------------------------------------------
 	@SuppressWarnings("unchecked")
 	public void contextInitialized(ServletContextEvent sce) {
-		/*
-		 * This method is called when the servlet context is initialized (when
-		 * the Web application is deployed). You can initialize servlet context
-		 * related data here.
-		 */
 
+		// Section 2 of the report.
 		// Extract the information from the dictionary dumps and inflection
 		// lists.
 		InputStream dictccInputStream = sce.getServletContext().getResourceAsStream(DICTCC_PATH);
@@ -60,7 +56,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		InputStream langenscheidtInputStream = sce.getServletContext().getResourceAsStream(LANGENSCHEIDT_PATH);
 		InputStream tatoebaInputStream = sce.getServletContext().getResourceAsStream(TATOEBA_PATH);
 		InputStream openSubtitlesInputStream = sce.getServletContext().getResourceAsStream(OPENSUBTITLES_PATH);
-		
+
 		logger.info("Start reading dict.cc");
 		Object[] dictccResults = DictionaryReader.readDictCc(dictccInputStream);
 		ListMultimap<String, Entry> dictcc = (ListMultimap<String, Entry>) dictccResults[0];
@@ -84,7 +80,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 
 		logger.info("Start reading no-de.actual.ti.final");
 		HashMap<String, String> mlEntries = DictionaryReader.readOpenSubtitles(openSubtitlesInputStream);
-		
+
 		// Combine the information from both sources by merging the entries when
 		// possible.
 		HashSet<String> allLemmata = new HashSet<String>(dictcc.keySet());
@@ -158,14 +154,15 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 			allEntries.putAll(entries);
 		}
 
-		// Set the collocations.
+		// Set the collocations (section 2.8).
 		for (java.util.Map.Entry<String, Entry> colloc : collocations.entries()) {
 			for (Entry entry : allEntries.get(colloc.getKey())) {
 				entry.addCollocation(colloc.getValue());
 			}
 		}
 
-		// Set the sample sentences.
+		// Set the sample sentences (section 2.9).
+		ListMultimap<String, SampleSentence> extraSentences = ArrayListMultimap.create(); 
 		for (java.util.Map.Entry<String, String> sentencePair : sentencePairs.entrySet()) {
 			if (sentencePair.getKey().length() > 120) {
 				// Some of the sample sentences are very long and/or entire
@@ -181,18 +178,24 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 						continue;
 					}
 					SampleSentence sample = new SampleSentence(sentencePair);
-					for (Entry entry : allEntries.get(word)) {
-						entry.addSampleSentence(sample);
+					List<Entry> matchingEntries = allEntries.get(word);
+					if (matchingEntries.isEmpty()) {
+						extraSentences.put(word, sample);
+					} else {
+						for (Entry entry : matchingEntries) {
+							entry.addSampleSentence(sample);
+						}
 					}
 				}
 			}
 		}
-		
+
 		// Add the entries to the servlet context.
 		sce.getServletContext().setAttribute("entries", allEntries);
 		sce.getServletContext().setAttribute("prefixes", prefixes);
 		sce.getServletContext().setAttribute("suffixes", suffixes);
 		sce.getServletContext().setAttribute("mtEntries", mlEntries);
+		sce.getServletContext().setAttribute("extraSentences", extraSentences);
 	}
 
 	private void addEntry(Entry entry, String wordForm, ListMultimap<String, Entry> entries,
@@ -233,7 +236,7 @@ public class Listener implements ServletContextListener, HttpSessionListener, Ht
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
 		} else if (!fullformsliste) {
-			// Extract collocations.
+			// Extract collocations (see section 2.8).
 			String[] components = wordForm.split(" ");
 			if (components.length > 1 && !(components.length == 2 && components[0].equals("å"))) {
 				for (int i = 0; i < components.length; i++) {

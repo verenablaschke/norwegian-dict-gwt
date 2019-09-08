@@ -10,6 +10,12 @@ import java.util.regex.Pattern;
 
 import de.ws1819.colewe.shared.Pos;
 
+/**
+ * Helper methods for the {@link de.ws1819.colewe.server.DictionaryReader} class
+ * so it does not become too cluttered.
+ * 
+ * @author Verena Blaschke
+ */
 public class Tools {
 
 	private static final Pattern patternCurly = Pattern.compile("\\s\\{.*?\\}");
@@ -17,7 +23,8 @@ public class Tools {
 	static final Pattern patternSquareWithoutWS = Pattern.compile("\\[.*?\\]");
 	private static final Pattern patternTriangle = Pattern.compile("\\s\\<.*?\\>");
 
-	private static Map<String, String> one2one = new HashMap<String, String>() {
+	// X-SAMPA to IPA. Only includes characters actually used in the input data.
+	private static final Map<String, String> one2one = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 
 		{
@@ -39,23 +46,25 @@ public class Tools {
 			put("2", "ø");
 			put("9", "œ");
 			put("\\?", "ʔ");
-			put("_", " "); // Custom:
-							// word
-							// break
+			// Custom: word break
+			put("_", " ");
 			// Custom: combination of primary stress and tone information
 			put("'", "¹");
 			put("\"", "²");
-			// Occur as typos for their lowecase counterparts:
+			// Occur as typos for their lowercase counterparts:
 			put("D", "d");
 			put("K", "k");
 			put("P", "p");
 		}
 	};
 
-	// ", %, ', ), ., 0, 2, 9, :, ?, @, A, C, D, E, I, K, N, O, P, S, U, Y, Z,
-	// _, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, r, s, t, u, v, y, {,
-	// }, æ]
-
+	/**
+	 * Transforms X-SAMPA to IPA.
+	 * 
+	 * @param pron
+	 *            an X-SAMPA string
+	 * @return the IPA version
+	 */
 	static String xsampaToIPA(String pron) {
 		pron = pron.replaceAll("__", " "); // Custom: word break
 		for (Entry<String, String> entry : one2one.entrySet()) {
@@ -64,6 +73,14 @@ public class Tools {
 		return "/" + pron + "/";
 	}
 
+	/**
+	 * Transforms a POS tag string following the tag sets used in Langenscheidt,
+	 * dict.cc and Ordbank into a {@link de.ws1819.colewe.shared.Pos} tag.
+	 * 
+	 * @param s
+	 *            a POS tag string
+	 * @return the Pos instance
+	 */
 	static Pos string2Pos(String s) {
 		if (s == null) {
 			return Pos.NULL;
@@ -77,7 +94,7 @@ public class Tools {
 		case "past-p": // past participle
 			return Pos.ADJ;
 		case "adv":
-		case "fadv": // question adverb
+		case "fadv": // question word adverb
 		case "radv": // response adverb
 			return Pos.ADV;
 		case "conj":
@@ -87,9 +104,9 @@ public class Tools {
 		case "sbj": // subordinating conjunction
 			return Pos.CONJ;
 		case "det":
-		case "fdet": // question determiner
+		case "fdet": // question word determiner
 		case "num":
-		case "fnum": // question numeral (how many)
+		case "fnum": // question word numeral ("how many")
 			return Pos.DET;
 		case "interj":
 		case "itj":
@@ -111,7 +128,7 @@ public class Tools {
 			return Pos.PREP;
 		case "pron":
 		case "prn":
-		case "fprn": // question pronoun
+		case "fprn": // question word pronoun
 		case "rprn": // response pronoun
 			return Pos.PRON;
 		case "s":
@@ -131,8 +148,18 @@ public class Tools {
 		return Pos.NULL;
 	}
 
+	/**
+	 * Parses grammatical information given in Langenscheidt entries.
+	 * 
+	 * @param s
+	 *            A string in the form POSTAGnoungender[extra=info], where only
+	 *            the POS tag is required
+	 * @return an Object array containing a {@link de.ws1819.colewe.shared.Pos}
+	 *         tag, an ArrayList<String> containing grammatical information, and
+	 *         an ArrayList<String> containing usage information
+	 */
 	static Object[] parsePOS(String s) {
-		// POSTAGnoungender[extra=info]
+		// Get the POS tag.
 		String posString = "";
 		int i;
 		for (i = 0; i < s.length(); i++) {
@@ -143,27 +170,33 @@ public class Tools {
 			}
 		}
 		Pos pos = string2Pos(posString);
+
+		// Check if there is additional information.
 		if (i == s.length()) {
 			return new Object[] { pos, new ArrayList<>(), new ArrayList<>() };
 		}
+
 		int startExtra = s.indexOf("[");
 		String extra = "";
 		if (startExtra != -1) {
-			// without the brackets
+			// Remove the brackets.
 			extra = s.substring(startExtra + 1, s.length() - 1);
 		}
+
+		// Get the noun gender.
 		String gender = "";
 		if (startExtra == -1) {
 			gender = s.substring(i);
 		} else if (startExtra > i) {
 			gender = s.substring(i, startExtra);
 		}
-
 		if (gender.equals("t") || gender.equals("u")) {
 			// Typo: 'Vt' instead of 'VT'.
 			// Typo: "Nu" is a typo for "Nm", "Nn" or "N".
 			gender = "";
 		}
+
+		// Extract grammatical information.
 		ArrayList<String> grammar = new ArrayList<>();
 		grammar.add(gender);
 		ArrayList<String> usage = new ArrayList<>();
@@ -175,8 +208,9 @@ public class Tools {
 					|| extraInfo.startsWith("deg=") || extraInfo.startsWith("cas=")) {
 				// Redundant (and used inconsistently).
 				// We don't need entries for inflected adjectives/verbs
-				// since we show the lemma instead.
+				// since we show the lemma instead. This is a warning flag:
 				grammar.add("INFLECTED");
+				break;
 			} else {
 				grammar.add(extraInfo.replace("gen=", "").replace("num=", "").replace("cas=", ""));
 			}

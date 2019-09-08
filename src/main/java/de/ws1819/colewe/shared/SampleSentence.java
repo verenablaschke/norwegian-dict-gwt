@@ -2,6 +2,11 @@ package de.ws1819.colewe.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * Sample sentences with translations. See section 2.9 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class SampleSentence implements IsSerializable {
 
 	private String no;
@@ -49,9 +54,9 @@ public class SampleSentence implements IsSerializable {
 	public void setDe(String de) {
 		this.de = de;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return no + " : " + de;
 	}
 
