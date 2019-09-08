@@ -15,9 +15,9 @@
 			<i class="fa fa-undo"></i>
 			Igjen
 		</g:Button>
-		<g:Button styleName="{style.space} btn btn-primary" ui:field="downloadButton">
-			<i class="fa fa-undo"></i>
-			Igjen
+		<g:Button styleName="{style.space} btn btn-outline-primary" ui:field="downloadButton">
+			<i class="fas fa-download"></i> 
+			Last ned
 		</g:Button>
 		<br />
 		<g:HTML ui:field="info" />

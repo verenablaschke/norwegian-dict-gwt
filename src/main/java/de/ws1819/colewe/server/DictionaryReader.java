@@ -95,6 +95,7 @@ public class DictionaryReader {
 						break;
 					}
 
+					// Lemma or inflected form?
 					if (i == 0) {
 						lemma = new WordForm(word, pron);
 					} else {
@@ -104,19 +105,19 @@ public class DictionaryReader {
 				}
 
 				if (lemma.getForm().equals("å") && pos.equals(Pos.VERB)) {
-					// The entries for the infinitive marker 'å' clash quite
-					// horribly -> skip this one.
+					// The entries from the different source dictionaries for
+					// the infinitive marker 'å' clash quite horribly
+					// -> skip this one.
 					continue;
 				}
 
 				// Major meaning blocks in polysemous entries are separated by
 				// double slashes.
-				// TODO look up the proper terminology and rename the vars
-				String[] transl = fields[2].split("//");
+				String[] polysemes = fields[2].split("//");
 				ArrayList<TranslationalEquivalent> translations = new ArrayList<>();
-				for (int i = 0; i < transl.length; i++) {
+				for (int i = 0; i < polysemes.length; i++) {
 					// German synonyms are separated by a single slash.
-					String[] translRaw = transl[i].split("/");
+					String[] translRaw = polysemes[i].split("/");
 					// A list instead of a set so that we can keep the order the
 					// dictionary editors deemed best.
 					ArrayList<String> translElements = new ArrayList<>();

@@ -34,6 +34,8 @@ with open(sys.argv[1], 'r', encoding='utf-8') as file_in:
                 file_out.write(' '.join([stemmer.stem(w)
                                          for w in word_tokenize(line)]))
             else:
+                # included lower() bc some of the lemmas are lower-case
+                # versions (also of nouns!) but others are not
                 file_out.write(' '.join(
                     [tok.lemma_ for tok in nlp(line.strip().lower())]))
             file_out.write('\n')
