@@ -16,7 +16,7 @@
 	}
 	</ui:style>
 	<g:HTMLPanel>
-		<table width="70%">
+		<table width="80%">
 			<tbody>
 				<tr>
 					<td valign="top" width="70%">

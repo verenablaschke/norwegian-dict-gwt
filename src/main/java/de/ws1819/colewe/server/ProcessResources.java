@@ -55,6 +55,7 @@ public class ProcessResources {
 		Object[] ordbankResults = DictionaryReader.readOrdbankFullformsliste(lemmata, ordbankInputStream);
 		ListMultimap<String, Entry> fullformsliste = (ListMultimap<String, Entry>) ordbankResults[0];
 		stopwords.addAll((HashSet<String>) ordbankResults[1]);
+		HashSet<String> affixesFullformsliste = (HashSet<String>) ordbankResults[2];
 
 		logger.info("Start reading no-de-dict.txt");
 		Object[] langenscheidtResults = DictionaryReader.readLangenscheidt(langenscheidtInputStream);
@@ -65,12 +66,13 @@ public class ProcessResources {
 		// Using list-based multimaps instead of set-based multimaps since they
 		// require less memory.
 		ListMultimap<String, Entry> allEntries = ArrayListMultimap.create();
+		HashMultimap<String, Entry> collocations = HashMultimap.create();
 		ListMultimap<String, Entry> prefixes = ArrayListMultimap.create();
 		ListMultimap<String, Entry> suffixes = ArrayListMultimap.create();
-		HashMultimap<String, Entry> collocations = HashMultimap.create();
 		HashMap<String, String> sentencePairs = new HashMap<>();
 		HashSet<String> allLemmas = new HashSet<String>(dictcc.keySet());
 		allLemmas.addAll(langenscheidt.keySet());
+		allLemmas.addAll(affixesFullformsliste);
 		logger.info(allLemmas.size() + " distinct lemmata.");
 		for (String lemma : allLemmas) {
 			ListMultimap<String, Entry> entries = ArrayListMultimap.create();
@@ -148,16 +150,29 @@ public class ProcessResources {
 		switch (entry.getPos()) {
 		case PFX:
 			addEntry(entry, wordForm, prefixes, null, null, true, fullformsliste);
-			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
-			}
 			break;
 		case SFX:
 			addEntry(entry, wordForm, suffixes, null, null, true, fullformsliste);
-			if (!fullformsliste) {
-				addEntry(entry, wordForm, entries, collocations, stopwords, true, fullformsliste);
-			}
 			break;
+		case NOUN:
+			// Noun forms used in compounds.
+			if (wordForm.equals(entry.getLemma().getForm())) {
+				if (!wordForm.endsWith("s")) {
+					// e.g. varmt+vann+s+kran (hot water tap)
+					addEntry(entry, wordForm + "s", prefixes, null, null, true, fullformsliste);
+				}
+				if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))
+						// The following suffixes are always combined via -s-:
+						&& !wordForm.endsWith("sjon") && !wordForm.endsWith("else") && !wordForm.endsWith("het")
+						&& !wordForm.endsWith("tet") && !wordForm.endsWith("ment") && !wordForm.endsWith("dom")
+						&& !wordForm.endsWith("skap")
+						// Words ending in -ing are either combined directly or
+						// via -s-:
+						&& !wordForm.endsWith("ing")) {
+					// e.g. trikk+e+stans (tram system interruption)
+					addEntry(entry, wordForm + "e", prefixes, null, null, true, fullformsliste);
+				}
+			}
 		default:
 			addEntry(entry, wordForm, entries, collocations, stopwords, false, fullformsliste);
 		}
@@ -205,16 +220,6 @@ public class ProcessResources {
 						collocations.put(components[i], entry);
 					}
 				}
-			}
-		}
-
-		// Noun forms used in compounds.
-		if (entry.getPos().equals(Pos.NOUN) && wordForm.equals(entry.getLemma().getForm())) {
-			if (!wordForm.endsWith("s")) {
-				addEntry(entry, wordForm + "s", entries, collocations, stopwords, affixes, fullformsliste);
-			}
-			if (!Tools.isVowel(wordForm.charAt(wordForm.length() - 1))) {
-				addEntry(entry, wordForm + "e", entries, collocations, stopwords, affixes, fullformsliste);
 			}
 		}
 

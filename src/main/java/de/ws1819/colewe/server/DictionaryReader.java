@@ -331,10 +331,13 @@ public class DictionaryReader {
 	 *            a map from integers (lemma IDs) to strings (lemmas)
 	 * @param stream
 	 * @return an Object array containing a ListMultimap<String, Entry> from
-	 *         lemmas to entries and a HashSet<String> of stopwords
+	 *         lemmas to entries, a HashSet<String> of stopwords and a HashSet
+	 *         <String> of prefixes/suffixes
 	 */
 	public static Object[] readOrdbankFullformsliste(HashMap<Integer, String> lemmata, InputStream stream) {
 		ListMultimap<String, Entry> entries = ArrayListMultimap.create();
+		// For prefixes/suffixes, see sections 2.6 and 3.1.
+		HashSet<String> affixes = new HashSet<>();
 		HashSet<String> stopwords = new HashSet<>();
 
 		String line = null;
@@ -385,6 +388,9 @@ public class DictionaryReader {
 					// Multi-word phrases. Irrelevant for the way we deal with
 					// inflected forms (skip!)
 					continue;
+				}
+				if (lemma.startsWith("-")) {
+					pos = Pos.SFX;
 				}
 
 				// Get the inflected form and determine if it is irregular.
@@ -440,14 +446,14 @@ public class DictionaryReader {
 				// Create a new entry.
 				if (entryList == null || !addedInfl) {
 					Entry entry = new Entry(new WordForm(lemma), pos, inflForm, irregularInfl, id);
-					if (lemma.startsWith("-")) {
-						entry.setPos(Pos.SFX);
-					}
 					// Genitive forms are missing from fullformsliste.
 					// -> Add them to definite forms of nouns.
 					// 'be' = 'bestemt' = DEF
 					if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 						entry.addInflection(inflForm + "s");
+					}
+					if (pos.equals(Pos.SFX) || pos.equals(Pos.PFX)) {
+						affixes.add(lemma);
 					}
 					entries.put(lemma, entry);
 				}
@@ -460,7 +466,7 @@ public class DictionaryReader {
 
 		logger.info("Read " + entries.size() + " inflections for " + entries.keySet().size()
 				+ " lemmata from Språkbanken's fullformsliste.");
-		return new Object[] { entries, stopwords };
+		return new Object[] { entries, stopwords, affixes };
 	}
 
 	@SuppressWarnings("unchecked")

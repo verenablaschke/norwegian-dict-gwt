@@ -12,6 +12,11 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
+/**
+ * See section 2.7 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class PreprocessTatoeba {
 
 	private static final String tatoeba_path = Listener.BASE_PATH + Listener.RESOURCES_PATH + "/tatoeba/";

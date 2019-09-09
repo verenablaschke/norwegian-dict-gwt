@@ -11,6 +11,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.ws1819.colewe.client.DictionaryService;
 import de.ws1819.colewe.shared.Entry;
+import de.ws1819.colewe.shared.Pos;
 import de.ws1819.colewe.shared.SampleSentence;
 
 /**
@@ -70,12 +71,36 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 	}
 
 	private static ArrayList<Entry> querySingleWord(ListMultimap<String, Entry> entries, String word) {
+		return querySingleWord(entries, word, false);
+	}
+
+	private static ArrayList<Entry> querySingleWord(ListMultimap<String, Entry> entries, String word,
+			boolean uninflected) {
 		logger.info("Querying " + word);
 		List<Entry> results = entries.get(word);
+		List<Entry> resultsChecked = new ArrayList<>();
 		for (Entry entry : results) {
+			if (uninflected) {
+				// Skip inflected forms
+				if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().getForm().equals("å " + word)
+						&& !entry.getLemma().getForm().equals("å " + word + "e")) {
+					// Also accepting forms without the final -e,
+					// e.g. blomstre -> blomstr+ing (blossom)
+					logger.info("-- SKIP " + entry.toString());
+					continue;
+				}
+				if (entry.getPos().equals(Pos.NOUN) && !entry.getLemma().getForm().equals(word)
+						&& !entry.getLemma().equals(word + "e")) {
+					// Also accepting forms without the final -e,
+					// e.g. tilrettelegge -> tilrettelegg+else (preparation, editing)
+					logger.info("-- SKIP " + entry.toString());
+					continue;
+				}
+			}
+			resultsChecked.add(entry);
 			logger.info("-- " + entry.toString());
 		}
-		return new ArrayList<Entry>(results);
+		return new ArrayList<Entry>(resultsChecked);
 	}
 
 	private static ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
@@ -88,7 +113,9 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 			// Minimum morpheme length: 2 letters.
 			for (int i = 2; i < word.length() - 2; i++) {
 				first = word.substring(0, i);
-				ArrayList<Entry> resultsFirst = querySingleWord(entries, first);
+				// If the first element is a verb or noun, it needs to be
+				// uninflected.
+				ArrayList<Entry> resultsFirst = querySingleWord(entries, first, true);
 				if (resultsFirst.isEmpty()) {
 					resultsFirst = querySingleWord(prefixes, first);
 					if (resultsFirst.isEmpty()) {
