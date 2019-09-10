@@ -388,6 +388,40 @@ public class Tools {
 		}
 		return false;
 	}
+	
+	/**
+	 * See section 2.5 of the report.
+	 * 
+	 * @param lemma
+	 * @param form
+	 * @return true if the comparative form is regular, false otherwise
+	 */
+	static boolean isRegularComparative(String lemma, String form){
+		if (lemma.endsWith("e")){
+			return form.equals(lemma + "re");
+		}
+		return form.equals(lemma + "ere");
+	}
+
+	/**
+	 * See section 2.5 of the report.
+	 * 
+	 * @param lemma
+	 * @param form
+	 * @return true if the superlative form is regular, false otherwise
+	 */
+	static boolean isRegularSuperlative(String lemma, String form){
+		if (lemma.endsWith("re")){
+			return form.equals(lemma.substring(0, lemma.length() - 2) + "erst");
+		}
+		if (lemma.endsWith("en")){
+			return form.equals(lemma.substring(0, lemma.length() - 2) + "nest");
+		}
+		if (lemma.endsWith("e") || lemma.endsWith("ig") || lemma.endsWith("som")){
+			return form.equals(lemma + "st");
+		}
+		return form.equals(lemma + "est");
+	}
 
 	public static boolean isVowel(char c) {
 		switch (c) {

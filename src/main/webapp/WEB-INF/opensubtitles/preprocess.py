@@ -1,3 +1,7 @@
+# Author: Verena Blaschke
+# Preprocessing for GIZA++ (case normalization, tokenization, lemmatization)
+# See section 2.8 of the report.
+
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 import spacy

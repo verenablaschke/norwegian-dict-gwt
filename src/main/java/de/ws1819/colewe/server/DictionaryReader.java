@@ -405,6 +405,10 @@ public class DictionaryReader {
 				} else if (pos.equals(Pos.NOUN) && infl.contains(" fl ub ")
 						&& !Tools.isRegularPlural(lemma, inflForm)) {
 					irregularInfl = new WordForm(inflForm, "(pl)");
+				} else if (infl.startsWith("adj komp") && !Tools.isRegularComparative(lemma, inflForm)) {
+					irregularInfl = new WordForm(inflForm, "(comp)");
+				} else if (infl.startsWith("adj sup ub") && !Tools.isRegularSuperlative(lemma, inflForm)) {
+					irregularInfl = new WordForm(inflForm, "(sup)");
 				} else {
 					// Get entries from the functional categories as stopwords.
 					switch (pos) {
@@ -469,6 +473,12 @@ public class DictionaryReader {
 		return new Object[] { entries, stopwords, affixes };
 	}
 
+	/**
+	 * Section 2.7.
+	 * 
+	 * @param stream
+	 * @return A map from Norwegian sentences to their German translations.
+	 */
 	@SuppressWarnings("unchecked")
 	public static HashMap<String, String> readTatoeba(InputStream stream) {
 		HashMap<String, String> sentencePairs = new HashMap<>();

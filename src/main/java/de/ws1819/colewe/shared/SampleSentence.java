@@ -3,7 +3,7 @@ package de.ws1819.colewe.shared;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Sample sentences with translations. See section 2.9 of the report.
+ * Sample sentences with translations. See section 2.7 of the report.
  * 
  * @author Verena Blaschke
  */

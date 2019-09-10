@@ -260,7 +260,7 @@ public class ProcessResources {
 	}
 
 	/**
-	 * Sets the sample sentences (section 2.9).
+	 * Sets the sample sentences (section 2.7).
 	 * 
 	 * @param tatoebaInputStream
 	 * @param entries
@@ -290,13 +290,12 @@ public class ProcessResources {
 					if (stopwords.contains(word)) {
 						continue;
 					}
-					SampleSentence sample = new SampleSentence(sentencePair);
 					List<Entry> matchingEntries = entries.get(word);
 					if (matchingEntries.isEmpty()) {
-						extraSentences.put(word, sample);
+						extraSentences.put(word, new SampleSentence(sentencePair));
 					} else {
 						for (Entry entry : matchingEntries) {
-							entry.addSampleSentence(sample);
+							entry.addSampleSentence(new SampleSentence(sentencePair));
 						}
 					}
 				}
