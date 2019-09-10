@@ -22,6 +22,12 @@ import com.google.gwt.user.client.ui.Widget;
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Language;
 
+/**
+ * Displays a word. Clicking on this widget triggers a dictionary search. See
+ * section 3.1.
+ * 
+ * @author Verena Blaschke
+ */
 public class WordWidget extends Composite implements HasText {
 
 	private static final Logger logger = Logger.getLogger(WordWidget.class.getSimpleName());
@@ -30,7 +36,7 @@ public class WordWidget extends Composite implements HasText {
 	private static DictionaryServiceAsync dictionaryService = DictionaryService.App.getInstance();
 	private boolean ctrl = false;
 	private static final String HIGHLIGHT = "bg-info";
-	// Needs to be an instance variable so we can refer to it in the
+	// Need to be instance variables so we can refer to it in the
 	// AsyncCallback:
 	private String fullQuery;
 	private Language lang;
@@ -110,7 +116,7 @@ public class WordWidget extends Composite implements HasText {
 					history = (Label) RootPanel.get("historyContainer").getWidget(0);
 				} catch (Exception exc) {
 					// No query yet.
-					RootPanel.get("queryContainer").add(history);
+					RootPanel.get("historyContainer").add(history);
 				}
 				history.setText(history.getText() + "&" + fullQuery);
 				for (Entry entry : results) {

@@ -19,6 +19,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Language;
 
+/**
+ * The output page. Allows querying dictionary entries, going back to the input
+ * widget and downloading results.
+ * 
+ * @author Verena Blaschke
+ */
 public class OutputWidget extends Composite {
 
 	private static OutputWidgetUiBinder uiBinder = GWT.create(OutputWidgetUiBinder.class);
@@ -52,7 +58,7 @@ public class OutputWidget extends Composite {
 			flowPanel.add(new WordWidget(word, lang));
 		}
 		this.lang = lang;
-		
+
 		String againButtonText = "<i class=\"fa fa-undo\"></i> ";
 		switch (lang) {
 		case DE:
@@ -66,7 +72,7 @@ public class OutputWidget extends Composite {
 			againButtonText += "Igjen";
 		}
 		againButton.setHTML(againButtonText);
-		
+
 		String downloadButtonText = "<i class=\"fas fa-download\"></i> ";
 		switch (lang) {
 		case DE:
@@ -82,6 +88,11 @@ public class OutputWidget extends Composite {
 		downloadButton.setHTML(downloadButtonText);
 	}
 
+	/**
+	 * Switch back to the {@link de.ws1819.colewe.client.InputWidget}.
+	 * 
+	 * @param e
+	 */
 	@UiHandler("againButton")
 	void onAgainClick(ClickEvent e) {
 		RootPanel.get("infoContainer").clear();
@@ -105,18 +116,28 @@ public class OutputWidget extends Composite {
 		}
 	}
 
+	/**
+	 * Download the dictionary entries that have been displayed so far through a
+	 * GET request. See section 3.7.
+	 * 
+	 * @param e
+	 */
 	@UiHandler("downloadButton")
 	void onDownloadClick(ClickEvent e) {
-		String query = "";
+		String queries = "";
 		try {
-			query = ((Label) RootPanel.get("historyContainer").getWidget(0)).getText();
+			queries = ((Label) RootPanel.get("historyContainer").getWidget(0)).getText();
 		} catch (Exception exc) {
-			// No query yet.
+			// No queries yet.
 		}
-		if (query.startsWith("&")) {
-			query = query.substring(1);
+		if (queries.startsWith("&")) {
+			queries = queries.substring(1);
 		}
-		Window.Location.replace("Ordbok/downloadService?query=" + URL.encodeQueryString(query));
+		queries = URL.encodeQueryString(queries);
+		queries.replace("å", "%C3%A5%0A");
+		queries.replace("ø", "%C3%B8");
+		queries.replace("æ", "%C3%A6");
+		Window.Location.replace("Ordbok/downloadService?query=" + queries);
 	}
 
 }

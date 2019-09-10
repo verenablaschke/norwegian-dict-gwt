@@ -15,7 +15,7 @@ public class Ordbok implements EntryPoint {
 	public void onModuleLoad() {
 		RootPanel.get("headerContainer").add(new HeaderWidget());
 		RootPanel.get("widgetContainer").add(new InputWidget());
-		RootPanel.get("historyContainer").add(new Label());
+		RootPanel.get("historyContainer").add(new Label()); // See section 3.7.
 	}
 
 }

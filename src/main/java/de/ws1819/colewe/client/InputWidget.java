@@ -15,6 +15,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.Language;
 
+/**
+ * The input page. Allows entering text (or picking sample text) and setting the
+ * GUI language. See section 3.1.
+ * 
+ * @author Verena Blaschke
+ */
 public class InputWidget extends Composite {
 
 	private static InputWidgetUiBinder uiBinder = GWT.create(InputWidgetUiBinder.class);
@@ -22,7 +28,8 @@ public class InputWidget extends Composite {
 	interface InputWidgetUiBinder extends UiBinder<Widget, InputWidget> {
 	}
 
-	// Copied from https://no.wikipedia.org/wiki/Ordbok, Aug 25th, 2019.
+	// Copied from https://no.wikipedia.org/wiki/Ordbok, Aug 25th, 2019,
+	// CC BY-SA 3.0.
 	private static String exampleText = "En ordbok er en samling av ord fra ett eller flere språk. "
 			+ "Den angir hvordan ordene staves, og gir gjerne definisjoner, bøyninger, uttalehjelp, "
 			+ "eksempler på bruk og ordenes etymologi. Hvis det er en ordbok mellom ulike språk "
@@ -77,7 +84,9 @@ public class InputWidget extends Composite {
 
 	@UiHandler("send")
 	void onSendClick(ClickEvent e) {
+		// Open the book icon in the header.
 		((HeaderWidget) RootPanel.get("headerContainer").getWidget(0)).setHeader(true);
+		// Switch to the output widget.
 		String text = textArea.getText().trim();
 		RootPanel.get("widgetContainer").clear();
 		RootPanel.get("widgetContainer").add(new OutputWidget(text, lang));

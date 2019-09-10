@@ -15,6 +15,11 @@ import com.google.gwt.thirdparty.guava.common.collect.ListMultimap;
 import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.SampleSentence;
 
+/**
+ * Process GET requests to allow downloading results as files. See section 3.7.
+ * 
+ * @author Verena Blaschke
+ */
 public class DownloadServiceImpl extends HttpServlet {
 	private static final long serialVersionUID = -3653205520080376102L;
 

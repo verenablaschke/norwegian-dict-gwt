@@ -7,16 +7,22 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * The header: "Norsk Ordbok" plus a closed (InputWidget) or open (OutputWidget)
+ * book.
+ * 
+ * @author Verena Blaschke
+ */
 public class HeaderWidget extends Composite {
 
 	private static HeaderWidgetUiBinder uiBinder = GWT.create(HeaderWidgetUiBinder.class);
-	
+
 	interface HeaderWidgetUiBinder extends UiBinder<Widget, HeaderWidget> {
 	}
 
 	@UiField
 	HTML header;
-	
+
 	public HeaderWidget() {
 		this(false);
 	}
@@ -25,13 +31,13 @@ public class HeaderWidget extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 		setHeader(open);
 	}
-	
-	public void setHeader(boolean open){
-		if (open){
+
+	public void setHeader(boolean open) {
+		if (open) {
 			header.setHTML("Norsk Ordbok <i class=\"fa fa-book-open\"></i>");
 		} else {
 			header.setHTML("Norsk Ordbok <i class=\"fa fa-book\"></i>");
 		}
 	}
-	
+
 }
