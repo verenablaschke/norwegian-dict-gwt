@@ -11,7 +11,7 @@ import de.ws1819.colewe.shared.WordForm;
 
 /**
  * Contains a lemma or inflected word form and optionally pronunciation
- * information.
+ * information. See section 3.1.
  * 
  * @author Verena Blaschke
  */

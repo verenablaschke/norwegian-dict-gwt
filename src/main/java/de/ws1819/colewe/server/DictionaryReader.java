@@ -492,6 +492,13 @@ public class DictionaryReader {
 		return sentencePairs;
 	}
 
+	/**
+	 * Section 2.8.
+	 * 
+	 * @param stream
+	 * @return A map from Norwegian words to automatically inferred
+	 *         translational equivalents.
+	 */
 	@SuppressWarnings("unchecked")
 	public static HashMap<String, String> readOpenSubtitles(InputStream stream) {
 		HashMap<String, String> entries = new HashMap<>();

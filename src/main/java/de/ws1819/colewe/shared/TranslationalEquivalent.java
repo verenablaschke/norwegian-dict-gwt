@@ -65,6 +65,8 @@ public class TranslationalEquivalent implements IsSerializable {
 	}
 
 	/**
+	 * Section 3.6.
+	 * 
 	 * @return a string for pretty printing
 	 */
 	public String toPrintString() {

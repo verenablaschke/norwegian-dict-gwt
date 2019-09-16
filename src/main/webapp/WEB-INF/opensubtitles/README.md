@@ -1,3 +1,5 @@
+See section 2.8 of the report.
+
 Download `de-no.txt.zip` from the [OpenSubtitles downloads page](http://opus.nlpl.eu/OpenSubtitles-v2018.php) and extract `OpenSubtitles.de-no.de` and `OpenSubtitles.de-no.no`.
 
 Tokenize both files by running

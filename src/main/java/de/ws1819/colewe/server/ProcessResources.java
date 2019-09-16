@@ -202,7 +202,7 @@ public class ProcessResources {
 		if (affixes) {
 			wordForm = wordForm.replace("-", "");
 		} else if (!fullformsliste) {
-			// Extract collocations (see section 2.8).
+			// Extract collocations (see section 2.6.2).
 			String[] components = wordForm.split(" ");
 			if (components.length > 1 && !(components.length == 2 && components[0].equals("å"))) {
 				for (int i = 0; i < components.length; i++) {

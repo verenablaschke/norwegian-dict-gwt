@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
+/**
+ * See section 2.8 of the report.
+ * 
+ * @author Verena Blaschke
+ */
 public class PreprocessOpenSubtitles {
 
 	public static void main(String[] args) {

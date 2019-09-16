@@ -77,6 +77,7 @@ public class WordWidget extends Composite implements HasText {
 	};
 
 	// Handle CTRL-Click events. Has to be added before the click event handler.
+	// See section 3.4.
 	@UiHandler("div")
 	void onMouseDown(MouseDownEvent e) {
 		ctrl = e.isControlKeyDown();
@@ -113,6 +114,7 @@ public class WordWidget extends Composite implements HasText {
 				}
 				Label history = new Label();
 				try {
+					// The history container is explained in section 3.6.
 					history = (Label) RootPanel.get("historyContainer").getWidget(0);
 				} catch (Exception exc) {
 					// No query yet.

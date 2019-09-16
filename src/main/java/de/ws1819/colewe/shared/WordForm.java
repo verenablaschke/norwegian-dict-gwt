@@ -2,6 +2,11 @@ package de.ws1819.colewe.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * A lemma or inflected word form and its pronunciation.
+ * 
+ * @author Verena Blaschke
+ */
 public class WordForm implements IsSerializable {
 
 	private String form;

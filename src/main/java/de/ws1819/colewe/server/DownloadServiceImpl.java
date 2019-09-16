@@ -16,7 +16,7 @@ import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.SampleSentence;
 
 /**
- * Process GET requests to allow downloading results as files. See section 3.7.
+ * Process GET requests to allow downloading results as files. See section 3.6.
  * 
  * @author Verena Blaschke
  */

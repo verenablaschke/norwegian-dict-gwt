@@ -118,7 +118,7 @@ public class OutputWidget extends Composite {
 
 	/**
 	 * Download the dictionary entries that have been displayed so far through a
-	 * GET request. See section 3.7.
+	 * GET request. See section 3.6.
 	 * 
 	 * @param e
 	 */
