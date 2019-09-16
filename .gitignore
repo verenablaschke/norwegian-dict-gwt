@@ -1,5 +1,6 @@
 src/main/webapp/META-INF/
 src/main/webapp/Ordbok/
+src/main/webapp/WEB-INF/classes
 
 # Created by https://www.gitignore.io/api/gwt,git,java,maven,eclipse
 # Edit at https://www.gitignore.io/?templates=gwt,git,java,maven,eclipse

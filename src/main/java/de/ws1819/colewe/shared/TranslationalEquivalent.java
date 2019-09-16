@@ -68,8 +68,8 @@ public class TranslationalEquivalent implements IsSerializable {
 	 * @return a string for pretty printing
 	 */
 	public String toPrintString() {
-		return getTranslationString() + (usage == null ? "" : " " + usage)
-				+ (abbr == null ? "" : " <" + getAbbrString() + ">");
+		return getTranslationString() + (usage == null || usage.isEmpty() ? "" : " " + usage)
+				+ (abbr == null || abbr.isEmpty() ? "" : " <" + getAbbrString() + ">");
 	}
 
 	public void addTranslation(String transl) {

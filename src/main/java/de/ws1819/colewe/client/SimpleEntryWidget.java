@@ -14,6 +14,12 @@ import de.ws1819.colewe.shared.SampleSentence;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 import de.ws1819.colewe.shared.WordForm;
 
+/**
+ * Contains at least one WordFormWidget (lemma, inflected forms) and at least
+ * one TranslationWidget (translational equivalents). See section 3.1.
+ * 
+ * @author Verena Blaschke
+ */
 public class SimpleEntryWidget extends Composite {
 
 	private static SimpleEntryWidgetUiBinder uiBinder = GWT.create(SimpleEntryWidgetUiBinder.class);
@@ -39,18 +45,16 @@ public class SimpleEntryWidget extends Composite {
 
 	public SimpleEntryWidget(Entry entry, Language lang) {
 		this();
-		setWord(entry.getLemma(), true);
+		// true = is the lemma (bold face)
+		wordPanel.add(new WordFormWidget(entry.getLemma(), true));
 		wordPanel.add(new BadgeWidget(entry.getGrammarString(lang), entry.getUsageString(), entry.getAbbrString()));
 		for (WordForm wf : entry.getIrregularInflections()) {
-			setWord(wf, false);
+			// false = is an inflected form
+			wordPanel.add(new WordFormWidget(wf, false));
 		}
 		for (TranslationalEquivalent transl : entry.getTranslations()) {
 			translationPanel.add(new TranslationWidget(transl, lang));
 		}
-	}
-
-	private void setWord(WordForm wordform, boolean isLemma) {
-		wordPanel.add(new WordFormWidget(wordform, isLemma));
 	}
 
 }

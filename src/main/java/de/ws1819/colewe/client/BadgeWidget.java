@@ -7,6 +7,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Contains grammar and/or usage and/or abbreviation information on a lemma.
+ * 
+ * @author Verena Blaschke
+ */
 public class BadgeWidget extends Composite {
 
 	private static BadgeWidgetUiBinder uiBinder = GWT.create(BadgeWidgetUiBinder.class);

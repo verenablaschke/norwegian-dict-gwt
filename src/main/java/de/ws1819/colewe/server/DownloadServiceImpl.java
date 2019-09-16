@@ -45,7 +45,7 @@ public class DownloadServiceImpl extends HttpServlet {
 		// Get the results.
 		String[] queryParts = query.split("&");
 		for (int i = 0; i < queryParts.length; i++) {
-			sb.append("QUERY: ").append(queryParts[i]).append("\n");
+			sb.append("QUERY: ").append(queryParts[i]).append("\n\n");
 			ArrayList<Entry> results = DictionaryServiceImpl.query(
 					(ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
 					(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),

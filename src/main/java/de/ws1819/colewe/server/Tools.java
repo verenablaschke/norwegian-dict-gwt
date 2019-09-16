@@ -309,9 +309,8 @@ public class Tools {
 				// 'kjenne' -> 'kjen+te'
 				return stem.charAt(stem.length() - 1) == stem.charAt(stem.length() - 2);
 			}
-			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d")
-					|| (isVowel(stem.charAt(stem.length() - 1)) && isVowel(stem.charAt(stem.length() - 2))))
-					&& form.equals(stem + "de")) {
+			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d") || stem.endsWith("ei")
+					|| stem.endsWith("øy")) && form.equals(stem + "de")) {
 				// Conjugation III, e.g. 'prøv+de'.
 				return true;
 			}
@@ -348,9 +347,8 @@ public class Tools {
 				// 'kjenne' -> 'kjen+t'
 				return stem.charAt(stem.length() - 1) == stem.charAt(stem.length() - 2);
 			}
-			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d")
-					|| (isVowel(stem.charAt(stem.length() - 1)) && isVowel(stem.charAt(stem.length() - 2))))
-					&& form.equals(stem + "d")) {
+			if ((stem.endsWith("v") || stem.endsWith("g") || stem.endsWith("d") || stem.endsWith("ei")
+					|| stem.endsWith("øy")) && form.equals(stem + "de")) {
 				// Conjugation III, e.g. 'prøv+d'.
 				return true;
 			}

@@ -449,6 +449,8 @@ public class Entry implements IsSerializable {
 	}
 
 	/**
+	 * See section 3.6.
+	 * 
 	 * @param showCollocs
 	 *            if true, include collocations and sample strings
 	 * @param prefix
@@ -484,7 +486,6 @@ public class Entry implements IsSerializable {
 			if (hasColloctations()) {
 				sb.append("Collocations:\n");
 				for (Entry colloc : collocations) {
-					sb.append("-\t");
 					sb.append(colloc.toPrintString(false, "\t"));
 					sb.append("\n");
 				}
@@ -492,7 +493,7 @@ public class Entry implements IsSerializable {
 			if (hasSampleSentences()) {
 				sb.append("Sample sentences:\n");
 				for (SampleSentence sent : sampleSentences) {
-					sb.append("--\t");
+					sb.append("-\t");
 					sb.append(sent);
 					sb.append("\n");
 				}

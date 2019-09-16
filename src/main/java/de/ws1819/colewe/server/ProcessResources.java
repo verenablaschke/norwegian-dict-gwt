@@ -155,7 +155,7 @@ public class ProcessResources {
 			addEntry(entry, wordForm, suffixes, null, null, true, fullformsliste);
 			break;
 		case NOUN:
-			// Noun forms used in compounds.
+			// Noun forms used in compounds. See section 3.3.
 			if (wordForm.equals(entry.getLemma().getForm())) {
 				if (!wordForm.endsWith("s")) {
 					// e.g. varmt+vann+s+kran (hot water tap)

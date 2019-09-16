@@ -11,6 +11,12 @@ import com.google.gwt.user.client.ui.Widget;
 import de.ws1819.colewe.shared.Language;
 import de.ws1819.colewe.shared.TranslationalEquivalent;
 
+/**
+ * Contains a translational equivalent and optionally domain/usage/abbreviation
+ * information. See section 3.1.
+ * 
+ * @author Verena Blaschke
+ */
 public class TranslationWidget extends Composite {
 
 	private static TranslationWidgetUiBinder uiBinder = GWT.create(TranslationWidgetUiBinder.class);

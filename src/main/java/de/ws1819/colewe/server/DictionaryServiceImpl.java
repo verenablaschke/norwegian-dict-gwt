@@ -15,7 +15,9 @@ import de.ws1819.colewe.shared.Pos;
 import de.ws1819.colewe.shared.SampleSentence;
 
 /**
- * The server side implementation of the RPC service.
+ * The server side implementation of the RPC service. See section 3.2.
+ * 
+ * @author Verena Blaschke
  */
 @SuppressWarnings("serial")
 public class DictionaryServiceImpl extends RemoteServiceServlet implements DictionaryService {
@@ -24,6 +26,8 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<Entry> query(String word) throws IllegalArgumentException {
+		// Use the maps that were created in ProcessResources and added to the
+		// servlet context in Listener.
 		return query((ListMultimap<String, Entry>) getServletContext().getAttribute("entries"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("prefixes"),
 				(ListMultimap<String, Entry>) getServletContext().getAttribute("suffixes"),
@@ -32,17 +36,21 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 
 	}
 
-	public static ArrayList<Entry> query(ListMultimap<String, Entry> entries, ListMultimap<String, Entry> prefixes,
+	// This method needs to be accessed from within DownloadServiceImpl as well
+	// -> static.
+	static ArrayList<Entry> query(ListMultimap<String, Entry> entries, ListMultimap<String, Entry> prefixes,
 			ListMultimap<String, Entry> suffixes, HashMap<String, String> mlEntries,
 			ListMultimap<String, SampleSentence> extraSentences, String word) {
-		logger.info("QUERY: " + word);
 
+		logger.info("QUERY: " + word);
 		ArrayList<Entry> results = querySingleWord(entries, word);
 
 		if (results.isEmpty()) {
 			// Try splitting the word into translatable components.
 			results = queryWithPossibleSplit(entries, prefixes, suffixes, word);
 
+			// Fall-back options (section 3.5):
+			
 			// Try the automatically inferred translations.
 			if (!word.contains(" ")) {
 				logger.info("Machine translation");
@@ -81,7 +89,8 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		List<Entry> resultsChecked = new ArrayList<>();
 		for (Entry entry : results) {
 			if (uninflected) {
-				// Skip inflected forms
+				// Skip inflected forms while looking for a potential first
+				// element of a compound word.
 				if (entry.getPos().equals(Pos.VERB) && !entry.getLemma().getForm().equals("å " + word)
 						&& !entry.getLemma().getForm().equals("å " + word + "e")) {
 					// Also accepting forms without the final -e,
@@ -92,7 +101,8 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 				if (entry.getPos().equals(Pos.NOUN) && !entry.getLemma().getForm().equals(word)
 						&& !entry.getLemma().equals(word + "e")) {
 					// Also accepting forms without the final -e,
-					// e.g. tilrettelegge -> tilrettelegg+else (preparation, editing)
+					// e.g. tilrettelegge -> tilrettelegg+else (preparation,
+					// editing)
 					logger.info("-- SKIP " + entry.toString());
 					continue;
 				}
@@ -103,13 +113,14 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return new ArrayList<Entry>(resultsChecked);
 	}
 
+	// Section 3.3
 	private static ArrayList<Entry> queryWithPossibleSplit(ListMultimap<String, Entry> entries,
 			ListMultimap<String, Entry> prefixes, ListMultimap<String, Entry> suffixes, String word) {
 		ArrayList<Entry> results = querySingleWord(entries, word);
 		if (results.isEmpty() && !word.contains(" ")) {
 			// Attempt compound splitting.
 			String first, second;
-			// Try to do the least amount of splits possible.
+			// Try to only perform one split if possible.
 			// Minimum morpheme length: 2 letters.
 			for (int i = 2; i < word.length() - 2; i++) {
 				first = word.substring(0, i);
@@ -155,6 +166,7 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		return results;
 	}
 
+	// Section 3.4
 	private static ArrayList<Entry> queryMultiWordPhrase(ListMultimap<String, Entry> entries, String word) {
 		ArrayList<Entry> results = new ArrayList<>();
 		String[] words = word.split(" ");
@@ -175,7 +187,11 @@ public class DictionaryServiceImpl extends RemoteServiceServlet implements Dicti
 		}
 		logger.info("Possible lemmatized versions: " + lemmatized);
 		for (String s : lemmatized) {
-			results.addAll(querySingleWord(entries, s.trim()));
+			s = s.trim();
+			if (s.startsWith("å ")){
+				s = s.substring(2);
+			}
+			results.addAll(querySingleWord(entries, s));
 		}
 		return results;
 	}

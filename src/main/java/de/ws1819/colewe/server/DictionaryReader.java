@@ -107,7 +107,7 @@ public class DictionaryReader {
 				if (lemma.getForm().equals("å") && pos.equals(Pos.VERB)) {
 					// The entries from the different source dictionaries for
 					// the infinitive marker 'å' clash quite horribly
-					// -> skip this one.
+					// -> skip this one. (Section 2.6)
 					continue;
 				}
 
@@ -198,7 +198,7 @@ public class DictionaryReader {
 				lemma = (String) lemmaAndCommentsNO[0];
 				if (lemma.equals("en")) {
 					// Get this entry for the INDEF article from the other
-					// dictionary instead.
+					// dictionary instead. (Section 2.6)
 					continue;
 				}
 
@@ -237,7 +237,7 @@ public class DictionaryReader {
 						// Get personal and possessive pronouns from the other
 						// dictionary instead, since the two dictionaries use
 						// different POS tag systems (PRON vs. DET), resulting
-						// in redundant entries.
+						// in redundant entries. (Section 2.6)
 						continue;
 					case NULL:
 						if (lemma.contains(" ") && lemma.endsWith(".")) {
@@ -431,8 +431,9 @@ public class DictionaryReader {
 							entry.addInflection(inflForm);
 							entry.addIrregularInflection(irregularInfl);
 							// Genitive forms are missing from fullformsliste.
-							// -> Add them to definite forms of nouns.
-							// 'be' = 'bestemt' = DEF
+							// -> Add them!
+							// Genitive form = definite form + 's'
+							// ('be' = 'bestemt' = DEF)
 							if (pos.equals(Pos.NOUN) && infl.contains(" be ")) {
 								entry.addInflection(inflForm + "s");
 							}
@@ -487,6 +488,7 @@ public class DictionaryReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		logger.info("Read " + sentencePairs.size() + " Tatoeba sentences.");
 		return sentencePairs;
 	}
 
@@ -498,6 +500,7 @@ public class DictionaryReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		logger.info("Read " + entries.size() + " machine-translated entries.");
 		return entries;
 	}
 

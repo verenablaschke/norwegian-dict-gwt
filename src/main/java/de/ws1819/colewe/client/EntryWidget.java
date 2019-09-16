@@ -13,6 +13,12 @@ import de.ws1819.colewe.shared.Entry;
 import de.ws1819.colewe.shared.Language;
 import de.ws1819.colewe.shared.SampleSentence;
 
+/**
+ * Contains a dictionary entry incl. collocations/sample sentences. See section
+ * 3.1.
+ * 
+ * @author Verena Blaschke
+ */
 public class EntryWidget extends Composite {
 
 	private static EntryWidgetUiBinder uiBinder = GWT.create(EntryWidgetUiBinder.class);
@@ -92,8 +98,14 @@ public class EntryWidget extends Composite {
 			}
 			sampleInnerPanel.getElement().setAttribute("id", id);
 
+			int i = 0;
 			for (SampleSentence sample : entry.getSampleSentences()) {
 				sampleInnerPanel.add(new SimpleEntryWidget(sample, lang));
+				if (i++ == 5) {
+					// Too many sample sentences are more distracting than
+					// helpful.
+					break;
+				}
 			}
 		} else {
 			sampleOuterPanel.setVisible(false);

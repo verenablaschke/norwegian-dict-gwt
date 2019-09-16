@@ -9,6 +9,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import de.ws1819.colewe.shared.WordForm;
 
+/**
+ * Contains a lemma or inflected word form and optionally pronunciation
+ * information.
+ * 
+ * @author Verena Blaschke
+ */
 public class WordFormWidget extends Composite {
 
 	private static WordFormWidgetUiBinder uiBinder = GWT.create(WordFormWidgetUiBinder.class);
@@ -25,7 +31,7 @@ public class WordFormWidget extends Composite {
 	public WordFormWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
-	
+
 	public WordFormWidget(String form, boolean lemma) {
 		this();
 		setWord(form);
@@ -36,7 +42,7 @@ public class WordFormWidget extends Composite {
 		this(wordform);
 		setLemmaStatus(lemma);
 	}
-	
+
 	public WordFormWidget(WordForm wordform) {
 		this();
 		setWord(wordform.getForm());
@@ -55,9 +61,9 @@ public class WordFormWidget extends Composite {
 			this.pron.setText(pron);
 		}
 	}
-	
-	public void setLemmaStatus(boolean lemma){
-		if (lemma){			
+
+	public void setLemmaStatus(boolean lemma) {
+		if (lemma) {
 			word.addStyleDependentName("headword");
 		} else {
 			word.removeStyleDependentName("headword");
